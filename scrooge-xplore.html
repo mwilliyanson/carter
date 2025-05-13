@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payment Module</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      background-color: #2e86de;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #1b4f72;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .details {
+      margin-top: 5px;
+      background-color: #f9f9f9;
+      padding: 10px;
+      font-size: 0.9em;
+      display: none;
+    }
+
+    .pagination {
+      margin-top: 10px;
+    }
+
+    .pagination button {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="module-header">
+    <h2>Payment Module</h2>
+    <button class="btn" onclick="exportCSV()">Export CSV</button>
+  </div>
+
+  <table id="paymentTable">
+    <thead>
+      <tr>
+        <th>Payment ID</th>
+        <th>Status</th>
+        <th>Reference ID</th>
+        <th>Paid Amount</th>
+        <th>Product Count</th>
+        <th>Type</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="pagination">
+    <button class="btn" onclick="prevPage()">Previous</button>
+    <span id="pageInfo">Page 1</span>
+    <button class="btn" onclick="nextPage()">Next</button>
+  </div>
+
+  <script>
+    let currentPage = 0;
+    const limit = 10;
+
+    async function fetchData(offset = 0, limit = 10) {
+      const res = await fetch("https://www.gopher.bicarakan.id/limbo/finance/payment-received", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offset, limit })
+      });
+      const data = await res.json();
+      return data.data.ItemResultList || [];
+    }
+
+    function getProductTypeList(summaryList) {
+      const types = summaryList.map(p => p.product_type);
+      return types.every(t => t === types[0]) ? types[0] || "-" : "MIXED";
+    }
+
+    function renderTable(data) {
+      const tbody = document.querySelector("#paymentTable tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(item => {
+        const productCount = item.prooduct_summary_list.length;
+        const productType = getProductTypeList(item.prooduct_summary_list);
+        const paymentLink = `https://bo-bicarakan.web.app/#/payment/${item.payment_id}`;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.payment_id}</td>
+          <td>${item.payment_status}</td>
+          <td>${item.payment_reference_id}</td>
+          <td>${item.paid_amount}</td>
+          <td>
+            <button class="btn" onclick="toggleDetails(this)">Show (${productCount})</button>
+            <div class="details">
+              <pre>${JSON.stringify(item.prooduct_summary_list, null, 2)}</pre>
+            </div>
+          </td>
+          <td>${productType}</td>
+          <td><a href="${paymentLink}" target="_blank"><button class="btn">View</button></a></td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+      document.getElementById("pageInfo").innerText = `Page ${currentPage + 1}`;
+    }
+
+    function toggleDetails(button) {
+      const details = button.nextElementSibling;
+      const isVisible = details.style.display === "block";
+      details.style.display = isVisible ? "none" : "block";
+      button.textContent = isVisible ? button.textContent.replace("Hide", "Show") : button.textContent.replace("Show", "Hide");
+    }
+
+    async function loadPage(page) {
+      const offset = page * limit;
+      const data = await fetchData(offset, limit);
+      renderTable(data);
+    }
+
+    function nextPage() {
+      currentPage++;
+      loadPage(currentPage);
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        loadPage(currentPage);
+      }
+    }
+
+    async function exportCSV() {
+      const rows = await fetchData(0, 200);
+      const header = ["Payment ID", "Status", "Reference ID", "Paid Amount", "Product Count", "Type"];
+      const csv = [header.join(",")];
+
+      rows.forEach(item => {
+        const count = item.prooduct_summary_list.length;
+        const type = getProductTypeList(item.prooduct_summary_list);
+        csv.push([
+          item.payment_id,
+          item.payment_status,
+          item.payment_reference_id,
+          item.paid_amount,
+          count,
+          type
+        ].join(","));
+      });
+
+      const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "payment_data.csv";
+      link.click();
+    }
+
+    // Load first page on startup
+    loadPage(currentPage);
+  </script>
+
+</body>
+</html>
