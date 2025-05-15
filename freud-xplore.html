@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Session Explorer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    th.session-id, td.session-id,
+    th.promo-code, td.promo-code,
+    th.promo-id, td.promo-id {
+      max-width: 180px;
+      width: 180px;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body class="bg-light p-4">
+  <div class="container">
+    <h1 class="mb-4">Session Explorer</h1>
+
+    <div class="row mb-3 g-2">
+      <div class="col-md-2">
+        <label>Status</label>
+        <select class="form-select" multiple id="statusFilter">
+          <option value="PV">PV</option>
+          <option value="SC">SC</option>
+          <option value="CD">CD</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label>Counseling Date (Start)</label>
+        <input type="date" class="form-control" id="counselingStart">
+      </div>
+      <div class="col-md-2">
+        <label>Counseling Date (End)</label>
+        <input type="date" class="form-control" id="counselingEnd">
+      </div>
+      <div class="col-md-2">
+        <label>Session Created Date (Start)</label>
+        <input type="date" class="form-control" id="createdStart">
+      </div>
+      <div class="col-md-2">
+        <label>Session Created Date (End)</label>
+        <input type="date" class="form-control" id="createdEnd">
+      </div>
+      <div class="col-md-2">
+        <label>Promo Filter</label>
+        <select class="form-select" id="promoFilter">
+          <option value="">Show All</option>
+          <option value="with">With</option>
+          <option value="without">Without</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <button class="btn btn-primary" onclick="loadData()">Apply Filter</button>
+      <button class="btn btn-secondary" onclick="resetFilter()">Clear Filter</button>
+    </div>
+
+    <div class="mb-3">
+      <strong>Total Estimated Session Value:</strong> <span id="totalSession">0</span><br>
+      <strong>Total Estimated Addon Value:</strong> <span id="totalAddon">0</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th class="session-id">Session ID</th>
+            <th>Status</th>
+            <th>Counseling Date</th>
+            <th>Session Created Date</th>
+            <th class="promo-code">Promo Code</th>
+            <th class="promo-id">Promo ID</th>
+            <th>Estimated Session Value</th>
+            <th>Estimated Promo Value</th>
+            <th>Is Reschedule</th>
+            <th>Is Extension</th>
+            <th>Estimated Addon Value</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const formatNumber = (val) => new Intl.NumberFormat('id-ID').format(val || 0);
+
+    const getDefaultDates = () => {
+      const today = new Date();
+      const createdStart = new Date();
+      createdStart.setDate(today.getDate() - 7);
+      return {
+        createdStart: createdStart.toISOString().split("T")[0],
+        createdEnd: today.toISOString().split("T")[0]
+      };
+    }
+
+    const resetFilter = () => {
+      document.getElementById("statusFilter").value = "";
+      document.getElementById("counselingStart").value = "";
+      document.getElementById("counselingEnd").value = "";
+      const { createdStart, createdEnd } = getDefaultDates();
+      document.getElementById("createdStart").value = createdStart;
+      document.getElementById("createdEnd").value = createdEnd;
+      document.getElementById("promoFilter").value = "";
+      loadData();
+    }
+
+    const loadData = async () => {
+      const statusSelect = document.getElementById("statusFilter");
+      const statusList = Array.from(statusSelect.selectedOptions).map(opt => opt.value);
+      const payload = {
+        counseling_status_list: statusList,
+        counseling_date_start: document.getElementById("counselingStart").value || null,
+        counseling_date_end: document.getElementById("counselingEnd").value || null,
+        created_date_start: document.getElementById("createdStart").value,
+        created_date_end: document.getElementById("createdEnd").value,
+      };
+      const promoFilter = document.getElementById("promoFilter").value;
+      if (promoFilter) {
+        payload.promo_filter = promoFilter;
+      }
+
+      const res = await fetch("https://www.gopher.bicarakan.id/limbo/finance/session-explorer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const json = await res.json();
+      const data = json.data || {};
+      const body = document.getElementById("tableBody");
+      body.innerHTML = "";
+      document.getElementById("totalSession").innerText = formatNumber(data.total_estimated_session_value);
+      document.getElementById("totalAddon").innerText = formatNumber(data.total_estimated_addon_value);
+
+      (data.item_result_list || []).forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="session-id">${item.session_id}</td>
+          <td>${item.status}</td>
+          <td>${item.counseling_date.split("T")[0]}</td>
+          <td>${item.session_created_date.split("T")[0]}</td>
+          <td class="promo-code">${item.promo_code || "-"}</td>
+          <td class="promo-id">${item.promo_id || "-"}</td>
+          <td>${formatNumber(item.estimated_session_value)}</td>
+          <td>${formatNumber(item.estimated_promo_value)}</td>
+          <td>${item.is_rescheduled ? "Yes" : "No"}</td>
+          <td>${item.is_extended ? "Yes" : "No"}</td>
+          <td>${formatNumber(item.estimated_addon_value)}</td>
+          <td><a class="btn btn-sm btn-outline-primary" href="https://bo-bicarakan.web.app/#/session/${item.session_id}" target="_blank">View</a></td>
+        `;
+        body.appendChild(row);
+      });
+    }
+
+    window.onload = resetFilter;
+  </script>
+</body>
+</html>
