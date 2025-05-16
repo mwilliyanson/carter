@@ -17,7 +17,8 @@
 </head>
 <body class="bg-light p-4">
   <div class="container">
-    <h1 class="mb-4">Session Explorer</h1>
+    <h1 class="mb-1">Session Explorer</h1>
+    <p><strong>Session Count:</strong> <span id="sessionCount">0</span></p>
 
     <div class="row mb-3 g-2">
       <div class="col-md-2">
@@ -134,12 +135,16 @@
 
       const json = await res.json();
       const data = json.data || {};
-      const body = document.getElementById("tableBody");
-      body.innerHTML = "";
+      const sessionList = data.item_result_list || [];
+
+      document.getElementById("sessionCount").innerText = formatNumber(sessionList.length);
       document.getElementById("totalSession").innerText = formatNumber(data.total_estimated_session_value);
       document.getElementById("totalAddon").innerText = formatNumber(data.total_estimated_addon_value);
 
-      (data.item_result_list || []).forEach(item => {
+      const body = document.getElementById("tableBody");
+      body.innerHTML = "";
+
+      sessionList.forEach(item => {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td class="session-id">${item.session_id}</td>
