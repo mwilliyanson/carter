@@ -62,7 +62,8 @@
 
     <div class="mb-3">
       <strong>Total Estimated Session Value:</strong> <span id="totalSession">0</span><br>
-      <strong>Total Estimated Addon Value:</strong> <span id="totalAddon">0</span>
+      <strong>Total Estimated Addon Value:</strong> <span id="totalAddon">0</span><br>
+      <strong>Total Estimated Bundle Value:</strong> <span id="totalBundle">0</span>
     </div>
 
     <div class="table-responsive">
@@ -140,6 +141,7 @@
       document.getElementById("sessionCount").innerText = formatNumber(sessionList.length);
       document.getElementById("totalSession").innerText = formatNumber(data.total_estimated_session_value);
       document.getElementById("totalAddon").innerText = formatNumber(data.total_estimated_addon_value);
+      document.getElementById("totalBundle").innerText = formatNumber(data.total_estimated_bundle_value);
 
       const body = document.getElementById("tableBody");
       body.innerHTML = "";
