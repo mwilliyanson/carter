@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chat Room</title>
   <style>
     body {
@@ -29,7 +29,7 @@
       background-color: #e9ecef;
       border-radius: 5px;
       border: 1px solid #ccc;
-      display: none; /* Initially hidden */
+      display: none;
     }
     #messages {
       max-height: 400px;
@@ -101,14 +101,12 @@
 
       <h3>Message Format (Sent via WebSocket)</h3>
       <p>When sending a message via WebSocket, the message should follow this JSON format:</p>
-      <pre><code>
-{
-  "user": "username",        // The name of the user sending the message
-  "text": "message text",    // The content of the message
-  "timestamp": "ISO timestamp",  // The timestamp when the message was sent
-  "room_id": "room_id"       // The ID of the chat room
-}
-      </code></pre>
+      <pre><code>{
+  "user": "username",
+  "text": "message text",
+  "timestamp": "ISO timestamp",
+  "room_id": "room_id"
+}</code></pre>
 
       <h3>Message History Endpoint</h3>
       <p>To retrieve the message history for a specific room, use the following HTTP GET endpoint:</p>
@@ -127,29 +125,26 @@
   </div>
 
   <script>
-    const roomId = "general"; // Room ID for the chat room
-    let user = "";   // Username will be prompted dynamically
+    const roomId = "general";
+    let user = "";
     const wsUrl = `wss://gopher.bicarakan.id/ws/${roomId}`;
     const messagesUrl = `https://gopher.bicarakan.id/messages/${roomId}`;
-    
     let socket;
 
-    // Prompt the user for their username when they first load the chat
     function promptUsername() {
       user = prompt("Please enter your username:");
       if (!user) {
-        user = "Guest"; // Default to 'Guest' if no username is entered
+        user = "Guest";
       }
       initChat();
     }
 
-    // Fetch message history from the API
     function fetchMessageHistory() {
       fetch(messagesUrl)
         .then(response => response.json())
         .then(messages => {
           const messagesContainer = document.getElementById("messages");
-          messagesContainer.innerHTML = ''; // Clear existing messages
+          messagesContainer.innerHTML = '';
           messages.forEach(message => {
             displayMessage(message);
           });
@@ -157,41 +152,38 @@
         .catch(error => console.error('Error fetching message history:', error));
     }
 
-    // Display a message in the chat window
     function displayMessage(message) {
       const messagesContainer = document.getElementById("messages");
       const messageElement = document.createElement("div");
       messageElement.classList.add("message");
       messageElement.innerHTML = `<strong>${message.user}:</strong> ${message.text} <em>(${new Date(message.timestamp).toLocaleTimeString()})</em>`;
       messagesContainer.appendChild(messageElement);
+      
+      // Automatically scroll to the bottom
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Open WebSocket connection
     function openWebSocket() {
       socket = new WebSocket(wsUrl);
-      
-      // Listen for messages from the server
+
       socket.onmessage = function(event) {
         const message = JSON.parse(event.data);
         displayMessage(message);
       };
-      
-      // Handle WebSocket errors
+
       socket.onerror = function(error) {
         console.error('WebSocket error:', error);
       };
-      
-      // Handle WebSocket close
+
       socket.onclose = function() {
         console.log('WebSocket closed');
       };
     }
 
-    // Send message to the WebSocket
     function sendMessage() {
       const messageInput = document.getElementById("message-input");
       const messageText = messageInput.value.trim();
-      
+
       if (messageText && socket && socket.readyState === WebSocket.OPEN) {
         const message = {
           user: user,
@@ -199,18 +191,15 @@
           timestamp: new Date().toISOString(),
           room_id: roomId
         };
-        
         socket.send(JSON.stringify(message));
-        messageInput.value = ''; // Clear input field
+        messageInput.value = '';
       }
     }
 
-    // Initialize the chat
     function initChat() {
       fetchMessageHistory();
       openWebSocket();
 
-      // Add event listener for Enter key to send the message
       const messageInput = document.getElementById("message-input");
       messageInput.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
@@ -219,7 +208,6 @@
       });
     }
 
-    // Toggle the visibility of the documentation section
     function toggleDocumentation() {
       const documentation = document.getElementById("documentation");
       const button = document.getElementById("learn-more-btn");
@@ -233,7 +221,6 @@
       }
     }
 
-    // Prompt for username when the page loads
     window.onload = promptUsername;
   </script>
 
