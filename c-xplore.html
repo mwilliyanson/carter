@@ -125,104 +125,100 @@
   </div>
 
   <script>
-    const roomId = "general";
-    let user = "";
-    const wsUrl = `wss://gopher.bicarakan.id/ws/${roomId}`;
+  const roomId = "general";
+  let user = "";
+  let socket;
+
+  function promptUsername() {
+    user = prompt("Please enter your username:");
+    if (!user) {
+      user = "Guest";
+    }
+    initChat();
+  }
+
+  function fetchMessageHistory() {
     const messagesUrl = `https://gopher.bicarakan.id/messages/${roomId}`;
-    let socket;
+    fetch(messagesUrl)
+      .then(response => response.json())
+      .then(messages => {
+        const messagesContainer = document.getElementById("messages");
+        messagesContainer.innerHTML = '';
+        messages.forEach(displayMessage);
+      })
+      .catch(error => console.error('Error fetching message history:', error));
+  }
 
-    function promptUsername() {
-      user = prompt("Please enter your username:");
-      if (!user) {
-        user = "Guest";
-      }
-      initChat();
-    }
+  function displayMessage(message) {
+    const messagesContainer = document.getElementById("messages");
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("message");
+    messageElement.innerHTML = `<strong>${message.user}:</strong> ${message.text} <em>(${new Date(message.timestamp).toLocaleTimeString()})</em>`;
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
 
-    function fetchMessageHistory() {
-      fetch(messagesUrl)
-        .then(response => response.json())
-        .then(messages => {
-          const messagesContainer = document.getElementById("messages");
-          messagesContainer.innerHTML = '';
-          messages.forEach(message => {
-            displayMessage(message);
-          });
-        })
-        .catch(error => console.error('Error fetching message history:', error));
-    }
+  function openWebSocket() {
+    const wsUrl = `wss://gopher.bicarakan.id/ws/${roomId}?user=${encodeURIComponent(user)}`;
+    socket = new WebSocket(wsUrl);
 
-    function displayMessage(message) {
-      const messagesContainer = document.getElementById("messages");
-      const messageElement = document.createElement("div");
-      messageElement.classList.add("message");
-      messageElement.innerHTML = `<strong>${message.user}:</strong> ${message.text} <em>(${new Date(message.timestamp).toLocaleTimeString()})</em>`;
-      messagesContainer.appendChild(messageElement);
-      
-      // Automatically scroll to the bottom
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
+    socket.onmessage = function(event) {
+      const message = JSON.parse(event.data);
+      displayMessage(message);
+    };
 
-    function openWebSocket() {
-      socket = new WebSocket(wsUrl);
+    socket.onerror = function(error) {
+      console.error('WebSocket error:', error);
+    };
 
-      socket.onmessage = function(event) {
-        const message = JSON.parse(event.data);
-        displayMessage(message);
+    socket.onclose = function() {
+      console.log('WebSocket closed');
+    };
+  }
+
+  function sendMessage() {
+    const messageInput = document.getElementById("message-input");
+    const messageText = messageInput.value.trim();
+
+    if (messageText && socket && socket.readyState === WebSocket.OPEN) {
+      const message = {
+        user: user,
+        text: messageText,
+        timestamp: new Date().toISOString(),
+        room_id: roomId
       };
-
-      socket.onerror = function(error) {
-        console.error('WebSocket error:', error);
-      };
-
-      socket.onclose = function() {
-        console.log('WebSocket closed');
-      };
+      socket.send(JSON.stringify(message));
+      messageInput.value = '';
     }
+  }
 
-    function sendMessage() {
-      const messageInput = document.getElementById("message-input");
-      const messageText = messageInput.value.trim();
+  function initChat() {
+    fetchMessageHistory();
+    openWebSocket();
 
-      if (messageText && socket && socket.readyState === WebSocket.OPEN) {
-        const message = {
-          user: user,
-          text: messageText,
-          timestamp: new Date().toISOString(),
-          room_id: roomId
-        };
-        socket.send(JSON.stringify(message));
-        messageInput.value = '';
+    const messageInput = document.getElementById("message-input");
+    messageInput.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        sendMessage();
       }
+    });
+  }
+
+  function toggleDocumentation() {
+    const documentation = document.getElementById("documentation");
+    const button = document.getElementById("learn-more-btn");
+    
+    if (documentation.style.display === "none" || documentation.style.display === "") {
+      documentation.style.display = "block";
+      button.textContent = "Learn Less";
+    } else {
+      documentation.style.display = "none";
+      button.textContent = "Learn More";
     }
+  }
 
-    function initChat() {
-      fetchMessageHistory();
-      openWebSocket();
-
-      const messageInput = document.getElementById("message-input");
-      messageInput.addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-          sendMessage();
-        }
-      });
-    }
-
-    function toggleDocumentation() {
-      const documentation = document.getElementById("documentation");
-      const button = document.getElementById("learn-more-btn");
-      
-      if (documentation.style.display === "none" || documentation.style.display === "") {
-        documentation.style.display = "block";
-        button.textContent = "Learn Less";
-      } else {
-        documentation.style.display = "none";
-        button.textContent = "Learn More";
-      }
-    }
-
-    window.onload = promptUsername;
-  </script>
+  window.onload = promptUsername;
+</script>
 
 </body>
 </html>
