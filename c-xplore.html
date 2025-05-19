@@ -81,59 +81,52 @@
 </head>
 <body>
 
-  <div id="chat-container">
-    <h1>Chat Room</h1>
+<div id="chat-container">
+  <h1>Chat Room</h1>
 
-    <!-- Learn More Button -->
-    <button id="learn-more-btn" onclick="toggleDocumentation()">Learn More</button>
-    
-    <!-- Collapsible Documentation Section -->
-    <div id="documentation">
-      <h2>Chat Room Documentation</h2>
-      <p>This is a real-time chat room where users can send and receive messages in a specific chat room. Below are the details on how the system works.</p>
+  <!-- Learn More Button -->
+  <button id="learn-more-btn" onclick="toggleDocumentation()">Learn More</button>
 
-      <h3>WebSocket Endpoint</h3>
-      <p>To connect to a chat room via WebSocket, use the following WebSocket URL:</p>
-      <pre><code>wss://gopher.bicarakan.id/ws/{room_id}</code></pre>
-      <p>Replace <code>{room_id}</code> with the name of the room you wish to join. For example, to join the "general" room, use:</p>
-      <pre><code>wss://gopher.bicarakan.id/ws/general</code></pre>
-      <p>This WebSocket connection will allow you to send and receive messages in real-time for the specified room.</p>
+  <!-- Collapsible Documentation Section -->
+  <div id="documentation">
+    <h2>Chat Room Documentation</h2>
+    <p>This is a real-time chat room where users can send and receive messages in a specific chat room.</p>
 
-      <h3>Message Format (Sent via WebSocket)</h3>
-      <p>When sending a message via WebSocket, the message should follow this JSON format:</p>
-      <pre><code>{
+    <h3>WebSocket Endpoint</h3>
+    <pre><code>wss://gopher.bicarakan.id/ws/{room_id}</code></pre>
+
+    <h3>Message Format</h3>
+    <pre><code>{
   "user": "username",
   "text": "message text",
   "timestamp": "ISO timestamp",
   "room_id": "room_id"
 }</code></pre>
 
-      <h3>Message History Endpoint</h3>
-      <p>To retrieve the message history for a specific room, use the following HTTP GET endpoint:</p>
-      <pre><code>https://gopher.bicarakan.id/messages/{room_id}</code></pre>
-      <p>Replace <code>{room_id}</code> with the name of the room you want to retrieve messages for. For example, to get the message history for the "general" room, use:</p>
-      <pre><code>https://gopher.bicarakan.id/messages/general</code></pre>
-      <p>The response will contain an array of messages for the specified room.</p>
-    </div>
-
-    <!-- Messages Display Section -->
-    <div id="messages"></div>
-    
-    <!-- Input Section -->
-    <input type="text" id="message-input" placeholder="Type a message...">
-    <button onclick="sendMessage()">Send</button>
+    <h3>Message History Endpoint</h3>
+    <pre><code>https://gopher.bicarakan.id/messages/{room_id}</code></pre>
   </div>
 
-  <script>
-  const roomId = "general";
+  <!-- Messages Display Section -->
+  <div id="messages"></div>
+
+  <!-- Input Section -->
+  <input type="text" id="message-input" placeholder="Type a message...">
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
   let user = "";
+  let roomId = "";
   let socket;
 
-  function promptUsername() {
+  function promptUsernameAndRoom() {
     user = prompt("Please enter your username:");
-    if (!user) {
-      user = "Guest";
-    }
+    if (!user) user = "Guest";
+
+    roomId = prompt("Enter Room ID:");
+    if (!roomId) roomId = "general";
+
     initChat();
   }
 
@@ -207,7 +200,7 @@
   function toggleDocumentation() {
     const documentation = document.getElementById("documentation");
     const button = document.getElementById("learn-more-btn");
-    
+
     if (documentation.style.display === "none" || documentation.style.display === "") {
       documentation.style.display = "block";
       button.textContent = "Learn Less";
@@ -217,7 +210,7 @@
     }
   }
 
-  window.onload = promptUsername;
+  window.onload = promptUsernameAndRoom;
 </script>
 
 </body>
