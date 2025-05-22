@@ -44,16 +44,18 @@
       margin: 10px 0;
       padding: 5px;
       border-bottom: 1px solid #ddd;
+      cursor: pointer;
     }
     .message:last-child {
       border-bottom: none;
     }
-    input[type="text"] {
-      width: calc(100% - 100px);
+    input[type="text"], input[type="file"] {
+      width: calc(100% - 110px);
       padding: 10px;
       font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 5px;
+      margin-bottom: 10px;
     }
     button {
       padding: 10px;
@@ -63,6 +65,7 @@
       color: white;
       border-radius: 5px;
       cursor: pointer;
+      margin-left: 5px;
     }
     button:hover {
       background-color: #218838;
@@ -77,6 +80,27 @@
     #learn-more-btn:hover {
       background-color: #0056b3;
     }
+    #file-preview {
+      margin-bottom: 10px;
+    }
+    #file-preview img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .file-type {
+      font-size: 14px;
+      color: #555;
+    }
+    #reply-preview {
+      display: none;
+      padding: 10px;
+      background-color: #eef;
+      border-left: 3px solid #007bff;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -84,34 +108,22 @@
 <div id="chat-container">
   <h1>Chat Room</h1>
 
-  <!-- Learn More Button -->
   <button id="learn-more-btn" onclick="toggleDocumentation()">Learn More</button>
 
-  <!-- Collapsible Documentation Section -->
   <div id="documentation">
-    <h2>Chat Room Documentation</h2>
-    <p>This is a real-time chat room where users can send and receive messages in a specific chat room.</p>
-
-    <h3>WebSocket Endpoint</h3>
-    <pre><code>wss://gopher.bicarakan.id/ws/{room_id}</code></pre>
-
-    <h3>Message Format</h3>
-    <pre><code>{
-  "user": "username",
-  "text": "message text",
-  "timestamp": "ISO timestamp",
-  "room_id": "room_id"
-}</code></pre>
-
-    <h3>Message History Endpoint</h3>
-    <pre><code>https://gopher.bicarakan.id/messages/{room_id}</code></pre>
+    <!-- Documentation content -->
   </div>
 
-  <!-- Messages Display Section -->
   <div id="messages"></div>
 
-  <!-- Input Section -->
+  <div id="reply-preview">
+    <div id="reply-content" style="font-size: 14px; color: #333;"></div>
+    <button onclick="cancelReply()" style="margin-top: 5px; background-color: #dc3545;">Cancel Reply</button>
+  </div>
+
+  <div id="file-preview"></div>
   <input type="text" id="message-input" placeholder="Type a message...">
+  <input type="file" id="file-input" />
   <button onclick="sendMessage()">Send</button>
 </div>
 
@@ -119,6 +131,7 @@
   let user = "";
   let roomId = "";
   let socket;
+  let replyToMessage = null;
 
   function promptUsernameAndRoom() {
     user = prompt("Please enter your username:");
@@ -130,58 +143,165 @@
     initChat();
   }
 
-  function fetchMessageHistory() {
-    const messagesUrl = `https://gopher.bicarakan.id/messages/${roomId}`;
-    fetch(messagesUrl)
-      .then(response => response.json())
-      .then(messages => {
-        const messagesContainer = document.getElementById("messages");
-        messagesContainer.innerHTML = '';
-        messages.forEach(displayMessage);
-      })
-      .catch(error => console.error('Error fetching message history:', error));
-  }
-
-  function displayMessage(message) {
+  function displayMessage(packet) {
+    const msg = packet.data;
     const messagesContainer = document.getElementById("messages");
     const messageElement = document.createElement("div");
     messageElement.classList.add("message");
-    messageElement.innerHTML = `<strong>${message.user}:</strong> ${message.text} <em>(${new Date(message.timestamp).toLocaleTimeString()})</em>`;
+
+    messageElement.onclick = () => setReplyTo(msg);
+
+    let contentHTML = '';
+
+    if (msg.message_reply_to) {
+      const reply = msg.message_reply_to;
+      contentHTML += `<div style="font-size: 13px; padding: 5px; border-left: 2px solid #007bff; background: #eef; margin-bottom: 4px;">
+        <strong>${reply.message_sender.sender_displayed_name}:</strong> ${reply.message_content}
+      </div>`;
+    }
+
+    contentHTML += `<strong>${msg.message_sender.sender_displayed_name}:</strong> ${msg.message_content}`;
+
+    if (msg.message_attachment_list && msg.message_attachment_list.length > 0) {
+      msg.message_attachment_list.forEach(att => {
+        if (att.attachment_asset_url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+          contentHTML += `<div><img src="${att.attachment_asset_url}" alt="Image" style="max-width: 100%; margin-top: 5px;" /></div>`;
+        } else {
+          const type = att.attachment_asset_url.split('.').pop().toUpperCase();
+          contentHTML += `<div class="file-type">📎 ${type} File: <a href="${att.attachment_asset_url}" target="_blank">Download</a></div>`;
+        }
+      });
+    }
+
+    contentHTML += ` <em>(${new Date(msg.message_timestamp).toLocaleTimeString()})</em>`;
+    messageElement.innerHTML = contentHTML;
+
     messagesContainer.appendChild(messageElement);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
+  function setReplyTo(msg) {
+    replyToMessage = msg;
+    const preview = document.getElementById("reply-preview");
+    const content = document.getElementById("reply-content");
+
+    content.innerHTML = `<strong>Replying to:</strong> ${msg.message_sender.sender_displayed_name}: ${msg.message_content}`;
+    preview.style.display = "block";
+  }
+
+  function cancelReply() {
+    replyToMessage = null;
+    document.getElementById("reply-preview").style.display = "none";
+  }
+
+  function fetchMessageHistory() {
+    fetch(`https://gopher.bicarakan.id/messages/${roomId}`)
+      .then(res => res.json())
+      .then(data => {
+        const messagesContainer = document.getElementById("messages");
+        messagesContainer.innerHTML = '';
+        data.forEach(displayMessage);
+      });
+  }
+
   function openWebSocket() {
-    const wsUrl = `wss://gopher.bicarakan.id/ws/${roomId}?user=${encodeURIComponent(user)}`;
-    socket = new WebSocket(wsUrl);
+    socket = new WebSocket(`wss://gopher.bicarakan.id/ws/${roomId}?user=${encodeURIComponent(user)}`);
+    socket.onmessage = event => displayMessage(JSON.parse(event.data));
+    socket.onerror = error => console.error('WebSocket error:', error);
+    socket.onclose = () => console.log('WebSocket closed');
+  }
 
-    socket.onmessage = function(event) {
-      const message = JSON.parse(event.data);
-      displayMessage(message);
-    };
+  async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
 
-    socket.onerror = function(error) {
-      console.error('WebSocket error:', error);
-    };
+    const res = await fetch('https://www.gopher.bicarakan.id/wundt/debug/upload-file', {
+      method: 'POST',
+      headers: { 'Accept': '*/*' },
+      body: formData
+    });
 
-    socket.onclose = function() {
-      console.log('WebSocket closed');
+    if (!res.ok) throw new Error('File upload failed');
+    const result = await res.json();
+    return {
+      attachment_type: 'file',
+      attachment_asset_url: result.data.image_path,
+      attachment_thumb_url: result.data.image_path,
+      attachment_metadata: result.data.file_id
     };
   }
 
-  function sendMessage() {
+  async function sendMessage() {
     const messageInput = document.getElementById("message-input");
-    const messageText = messageInput.value.trim();
+    const fileInput = document.getElementById("file-input");
 
-    if (messageText && socket && socket.readyState === WebSocket.OPEN) {
-      const message = {
-        user: user,
-        text: messageText,
-        timestamp: new Date().toISOString(),
-        room_id: roomId
+    const messageText = messageInput.value.trim();
+    const file = fileInput.files[0];
+
+    if (!messageText && !file) return;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+    let attachmentList = [];
+
+    if (file) {
+      try {
+        const uploaded = await uploadFile(file);
+        attachmentList.push(uploaded);
+      } catch (e) {
+        alert('Failed to upload file.');
+        console.error(e);
+        return;
+      }
+    }
+
+    const messageChat = {
+      message_id: "",
+      message_type: "user",
+      message_sender: {
+        sender_id: user,
+        sender_displayed_name: user
+      },
+      message_timestamp: new Date().toISOString(),
+      message_content: messageText,
+      message_status: "sent",
+      message_attachment_list: attachmentList,
+      message_reply_to: replyToMessage ? {
+        message_id: replyToMessage.message_id,
+        message_type: replyToMessage.message_type,
+        message_sender: replyToMessage.message_sender,
+        message_timestamp: replyToMessage.message_timestamp,
+        message_content: replyToMessage.message_content,
+        message_status: replyToMessage.message_status,
+        message_attachment_list: [],
+        message_reply_to: null
+      } : null
+    };
+
+    socket.send(JSON.stringify(messageChat));
+    messageInput.value = '';
+    fileInput.value = '';
+    document.getElementById("file-preview").innerHTML = '';
+    cancelReply();
+  }
+
+  function previewFile() {
+    const fileInput = document.getElementById("file-input");
+    const filePreview = document.getElementById("file-preview");
+    const file = fileInput.files[0];
+
+    if (!file) {
+      filePreview.innerHTML = '';
+      return;
+    }
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        filePreview.innerHTML = `<img src="${e.target.result}" alt="Preview" />`;
       };
-      socket.send(JSON.stringify(message));
-      messageInput.value = '';
+      reader.readAsDataURL(file);
+    } else {
+      filePreview.innerHTML = `<div class="file-type">📄 File selected: ${file.name}</div>`;
     }
   }
 
@@ -189,12 +309,11 @@
     fetchMessageHistory();
     openWebSocket();
 
-    const messageInput = document.getElementById("message-input");
-    messageInput.addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
-        sendMessage();
-      }
+    document.getElementById("message-input").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") sendMessage();
     });
+
+    document.getElementById("file-input").addEventListener("change", previewFile);
   }
 
   function toggleDocumentation() {
