@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Day Off Viewer</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    label, select, button { margin: 10px 0; display: block; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <h2>Day Off Viewer</h2>
+
+  <label for="psychologist">Select Psychologist:</label>
+  <select id="psychologist">
+    <option value="">-- Choose a psychologist --</option>
+  </select>
+
+  <p><strong>Selected Psychologist ID:</strong> <span id="selectedId">None</span></p>
+
+  <button id="submitBtn">Get Day Offs</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="dayoffTableBody"></tbody>
+  </table>
+
+  <script>
+    const dropdown = document.getElementById('psychologist');
+    const selectedIdDisplay = document.getElementById('selectedId');
+    const submitBtn = document.getElementById('submitBtn');
+    const dayoffTableBody = document.getElementById('dayoffTableBody');
+
+    let selectedPsychologistId = null;
+
+    // Load psychologists into dropdown
+    fetch('https://gopher.bicarakan.id/freud/account/counselor/list', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+        'App-Version-Code': '7',
+        'App-Version-Name': '0.0.7',
+        'locale': 'en_US',
+        'platform': 'Web'
+      },
+      body: JSON.stringify({})
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Psychologists:", data);
+        const list = data?.data?.account_list;
+
+        if (!Array.isArray(list)) {
+          alert("No psychologist data found.");
+          return;
+        }
+
+        list.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.account_id;
+          option.textContent = item.displayed_name;
+          dropdown.appendChild(option);
+        });
+      })
+      .catch(err => {
+        console.error('Error loading psychologists:', err);
+        alert('Could not load psychologists.');
+      });
+
+    // Update selected psychologist ID
+    dropdown.addEventListener('change', () => {
+      selectedPsychologistId = dropdown.value;
+      selectedIdDisplay.textContent = selectedPsychologistId || "None";
+    });
+
+    // Fetch day off list on submit
+    submitBtn.addEventListener('click', () => {
+      if (!selectedPsychologistId) {
+        alert('Please select a psychologist first.');
+        return;
+      }
+
+      fetch('https://www.gopher.bicarakan.id/limbo/intools/get-dayoff-list', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+          'App-Version-Code': '340',
+          'App-Version-Name': '0.34.0',
+          'locale': 'id',
+          'platform': 'Android',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3NDU1NjksImlhdCI6MTc0Nzk3NzU2OSwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6ImQ5ODg1OTg1LWIyOWMtZGEzMy0wMDcwLWNlYTg3ZGIzMjI0NCJ9.U1k1aThKr8rxKKhP6KScWWYQK23W-hB2ZGiKmXW9Zaw'
+        },
+        body: JSON.stringify({ psychologist_id: selectedPsychologistId })
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Day off list:", data);
+          const list = data?.data?.ItemResultList;
+
+          if (!Array.isArray(list)) {
+            alert("No day off entries found.");
+            return;
+          }
+
+          // Sort by latest to oldest
+          list.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+          dayoffTableBody.innerHTML = '';
+
+          list.forEach(item => {
+            const formattedDate = new Date(item.date).toISOString().split('T')[0];
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${item.id}</td>
+              <td>${formattedDate}</td>
+              <td><a href="dayoff-edit.html?id=${item.id}&date=${formattedDate}">Edit</a></td>
+            `;
+            dayoffTableBody.appendChild(row);
+          });
+        })
+        .catch(err => {
+          console.error('Error fetching day off list:', err);
+          alert('Failed to load day off list.');
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Get Account Info</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+  }
+  input {
+    padding: 0.5rem;
+    width: 300px;
+  }
+  .error {
+    color: red;
+    margin-top: 0.5rem;
+  }
+  pre {
+    background: #f4f4f4;
+    padding: 1rem;
+    margin-top: 1rem;
+    max-height: 400px;
+    overflow: auto;
+  }
+  button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>Get Account Info</h1>
+
+<form id="accountForm">
+  <label for="phone_number">Phone Number (no spaces):</label>
+  <input type="text" id="phone_number" name="phone_number" required />
+
+  <label for="key_access">Key Access (no spaces):</label>
+  <input type="text" id="key_access" name="key_access" required />
+
+  <div id="error" class="error"></div>
+
+  <button type="submit">Submit</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+  const form = document.getElementById('accountForm');
+  const errorDiv = document.getElementById('error');
+  const resultDiv = document.getElementById('result');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorDiv.textContent = '';
+    resultDiv.textContent = '';
+
+    const phone = form.phone_number.value.trim();
+    const key = form.key_access.value.trim();
+
+    if (phone.includes(' ') || key.includes(' ')) {
+      errorDiv.textContent = 'Error: Inputs must not contain spaces.';
+      return;
+    }
+
+    // Prepare data
+    const data = {
+      phone_number: phone,
+      key_access: key
+    };
+
+    try {
+      const response = await fetch('https://www.gopher.bicarakan.id/limbo/intools/get-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+          'App-Version-Code': '340',
+          'App-Version-Name': '0.34.0',
+          'locale': 'id',
+          'platform': 'Android',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3NDU1NjksImlhdCI6MTc0Nzk3NzU2OSwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6ImQ5ODg1OTg1LWIyOWMtZGEzMy0wMDcwLWNlYTg3ZGIzMjI0NCJ9.U1k1aThKr8rxKKhP6KScWWYQK23W-hB2ZGiKmXW9Zaw'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      const json = await response.json();
+
+      resultDiv.innerHTML = '<h2>API Response:</h2><pre>' + JSON.stringify(json, null, 2) + '</pre>';
+    } catch (err) {
+      errorDiv.textContent = 'Request failed: ' + err.message;
+    }
+  });
+</script>
+
+</body>
+</html>

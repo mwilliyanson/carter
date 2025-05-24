@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Day Off</title>
+</head>
+<body>
+  <h1>Edit Day Off</h1>
+  <form id="editForm">
+    <label>
+      Day Off ID:
+      <input type="text" id="dayOffId" name="day_off_id" readonly>
+    </label><br><br>
+    
+    <label>
+      Day Off Date:
+      <input type="date" id="dayOffDate" name="day_off_date" required>
+    </label><br><br>
+
+    <label>
+      Psychologist ID:
+      <input type="text" id="psychologistId" name="psychologist_id" required>
+    </label><br><br>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <p id="errorMsg" style="color:red;"></p>
+
+  <script>
+    // Prefill from URL
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const date = params.get('date');
+    if (id) document.getElementById('dayOffId').value = id;
+    if (date) document.getElementById('dayOffDate').value = date;
+
+    const form = document.getElementById('editForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+
+      const day_off_id = document.getElementById('dayOffId').value.trim();
+      const day_off_date = document.getElementById('dayOffDate').value.trim();
+      const psychologist_id = document.getElementById('psychologistId').value.trim();
+
+      if (!day_off_id || !day_off_date || !psychologist_id) {
+        errorMsg.textContent = 'All fields must be filled properly (no empty or space-only).';
+        return;
+      }
+
+      const payload = {
+        day_off_id,
+        day_off_date,
+        psychologist_id
+      };
+
+      try {
+        const res = await fetch('https://www.gopher.bicarakan.id/limbo/intools/update-dayoff', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+            'App-Version-Code': '340',
+            'App-Version-Name': '0.34.0',
+            'locale': 'id',
+            'platform': 'Android',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3NDU1NjksImlhdCI6MTc0Nzk3NzU2OSwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6ImQ5ODg1OTg1LWIyOWMtZGEzMy0wMDcwLWNlYTg3ZGIzMjI0NCJ9.U1k1aThKr8rxKKhP6KScWWYQK23W-hB2ZGiKmXW9Zaw'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          alert('Day off updated successfully!');
+        } else {
+          errorMsg.textContent = 'Failed to update: ' + JSON.stringify(result);
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
