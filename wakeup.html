@@ -26,19 +26,17 @@
 
   <script>
     async function fetchStatus() {
-    try {
+      try {
         const res = await fetch('https://nexus.mindlabs.id/wolverine/get-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
+          method: 'GET'
         });
-        const data = await res.json();
+        const statusText = await res.text(); // Expecting plain string response
         document.getElementById('statusDisplay').innerHTML =
-        `Current status: <strong>${data.data?.Status || 'unknown'}</strong>`;
-    } catch (err) {
+          `Current status: <strong>${statusText || 'unknown'}</strong>`;
+      } catch (err) {
         console.error('Failed to fetch status', err);
         document.getElementById('statusDisplay').innerText = 'Error fetching status';
-    }
+      }
     }
 
 
@@ -60,5 +58,6 @@
     // Fetch status on page load
     window.onload = fetchStatus;
   </script>
+
 </body>
 </html>
