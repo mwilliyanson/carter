@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Status Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #statusDisplay {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Status Controller</h1>
+  <div id="statusDisplay">Current status: <strong>Loading...</strong></div>
+
+  <label for="statusSelect">Set new status:</label>
+  <select id="statusSelect">
+    <option value="wakeup">wakeup</option>
+    <option value="inactive">inactive</option>
+  </select>
+  <button onclick="updateStatus()">Update</button>
+
+  <script>
+    async function fetchStatus() {
+    try {
+        const res = await fetch('https://nexus.mindlabs.id/wolverine/get-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+        });
+        const data = await res.json();
+        document.getElementById('statusDisplay').innerHTML =
+        `Current status: <strong>${data.data?.Status || 'unknown'}</strong>`;
+    } catch (err) {
+        console.error('Failed to fetch status', err);
+        document.getElementById('statusDisplay').innerText = 'Error fetching status';
+    }
+    }
+
+
+    async function updateStatus() {
+      const newStatus = document.getElementById('statusSelect').value;
+      try {
+        await fetch('https://nexus.mindlabs.id/wolverine/set-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Status: newStatus })
+        });
+        fetchStatus(); // Refresh display
+      } catch (err) {
+        console.error('Failed to update status', err);
+        alert('Error updating status');
+      }
+    }
+
+    // Fetch status on page load
+    window.onload = fetchStatus;
+  </script>
+</body>
+</html>
