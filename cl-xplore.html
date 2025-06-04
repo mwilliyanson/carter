@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Channel WebSocket Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #log { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; background: #f9f9f9; }
+    #status { margin-bottom: 10px; }
+    input, button { padding: 8px; font-size: 1rem; }
+  </style>
+</head>
+<body>
+
+<h2>Channel WebSocket Test</h2>
+
+<label for="userID">User ID:</label>
+<input type="text" id="userID" placeholder="Enter your user ID" />
+<button id="connectBtn">Connect</button>
+<button id="disconnectBtn" disabled>Disconnect</button>
+
+<div id="status">Status: Disconnected</div>
+
+<div id="log"></div>
+
+<script>
+  let ws;
+  const logEl = document.getElementById('log');
+  const statusEl = document.getElementById('status');
+  const userIDInput = document.getElementById('userID');
+  const connectBtn = document.getElementById('connectBtn');
+  const disconnectBtn = document.getElementById('disconnectBtn');
+
+  function log(message) {
+    const p = document.createElement('p');
+    p.textContent = message;
+    logEl.appendChild(p);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  connectBtn.onclick = () => {
+    const userID = userIDInput.value.trim();
+    if (!userID) {
+      alert('Please enter a User ID');
+      return;
+    }
+    
+    const wsUrl = `wss://gopher.bicarakan.id/brown/conversation/channel/subscribe?user=${encodeURIComponent(userID)}`;
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      statusEl.textContent = 'Status: Connected';
+      connectBtn.disabled = true;
+      disconnectBtn.disabled = false;
+      log('Connected to channel WebSocket');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        log('Received: ' + JSON.stringify(data));
+      } catch(e) {
+        log('Received (non-JSON): ' + event.data);
+      }
+    };
+
+    ws.onerror = (err) => {
+      log('WebSocket error: ' + err.message);
+    };
+
+    ws.onclose = () => {
+      statusEl.textContent = 'Status: Disconnected';
+      connectBtn.disabled = false;
+      disconnectBtn.disabled = true;
+      log('Disconnected from channel WebSocket');
+    };
+  };
+
+  disconnectBtn.onclick = () => {
+    if (ws) {
+      ws.close();
+    }
+  };
+</script>
+
+</body>
+</html>
