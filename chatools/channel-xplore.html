@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Channel List</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+  <div class="content-wrapper p-4">
+    <div class="container">
+      <div class="card card-primary">
+        <div class="card-header">
+          <h3 class="card-title">View Chat Channels</h3>
+        </div>
+        <div class="card-body">
+          <form id="channelForm">
+            <div class="form-group">
+              <label for="token">Authorization Bearer Token</label>
+              <input type="text" class="form-control" id="token" placeholder="Enter Bearer Token" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Fetch Channels</button>
+          </form>
+
+          <hr>
+
+          <div id="result" class="mt-4">
+            <h5>Channel List</h5>
+            <table class="table table-bordered table-hover" id="channelTable" style="display: none;">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>ID</th>
+                  <th>Room Name</th>
+                  <th>Room Type</th>
+                  <th>Is Group</th>
+                  <th>Created At</th>
+                </tr>
+              </thead>
+              <tbody id="channelBody"></tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('channelForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const token = document.getElementById('token').value;
+
+  fetch('https://www.gopher.bicarakan.id/brown/conversation/channel/list', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json',
+      'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+      'App-Version-Code': '353',
+      'App-Version-Name': '0.35.3',
+      'locale': 'id',
+      'platform': 'Android',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({
+      offset: 0,
+      limit: 10
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    const list = data?.data?.chat_channel_summary_list;
+    const table = document.getElementById('channelTable');
+    const body = document.getElementById('channelBody');
+    body.innerHTML = '';
+
+    if (Array.isArray(list)) {
+      table.style.display = '';
+      list.forEach((channel, index) => {
+        const row = `<tr>
+          <td>${index + 1}</td>
+          <td>${channel.id}</td>
+          <td>${channel.room_name}</td>
+          <td>${channel.room_type}</td>
+          <td>${channel.is_group ? 'Yes' : 'No'}</td>
+          <td>${new Date(channel.created_at).toLocaleString()}</td>
+        </tr>`;
+        body.insertAdjacentHTML('beforeend', row);
+      });
+    } else {
+      table.style.display = '';
+      body.innerHTML = `<tr><td colspan="6" class="text-center text-danger">No channels found or invalid token.</td></tr>`;
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to fetch channel list. Check console or try again.');
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat Room</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+    }
+    #chat-container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #documentation {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #e9ecef;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      display: none;
+    }
+    #messages {
+      max-height: 400px;
+      overflow-y: scroll;
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 5px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+    .message:last-child {
+      border-bottom: none;
+    }
+    input[type="text"], input[type="file"] {
+      width: calc(100% - 110px);
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      background-color: #28a745;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    #learn-more-btn {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #learn-more-btn:hover {
+      background-color: #0056b3;
+    }
+    #file-preview {
+      margin-bottom: 10px;
+    }
+    #file-preview img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .file-type {
+      font-size: 14px;
+      color: #555;
+    }
+    #reply-preview {
+      display: none;
+      padding: 10px;
+      background-color: #eef;
+      border-left: 3px solid #007bff;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    #ws-status {
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #ffc107;
+      color: #856404;
+      border-radius: 5px;
+      display: none;
+      text-align: center;
+    }
+    #ws-status button {
+      background-color: #007bff;
+      margin-left: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 5px;
+    }
+    #ws-status button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chat-container">
+  <h1>Chat Room</h1>
+
+  <button id="learn-more-btn" onclick="toggleDocumentation()">Learn More</button>
+
+  <div id="documentation"></div>
+
+  <div id="ws-status"></div>
+
+  <div id="messages"></div>
+
+  <div id="reply-preview">
+    <div id="reply-content" style="font-size: 14px; color: #333;"></div>
+    <button onclick="cancelReply()" style="margin-top: 5px; background-color: #dc3545;">Cancel Reply</button>
+  </div>
+
+  <div id="file-preview"></div>
+  <input type="text" id="message-input" placeholder="Type a message...">
+  <input type="file" id="file-input" />
+  <button id="send-btn" onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+  let user = "";
+  let roomId = "";
+  let socket;
+  let replyToMessage = null;
+  let keepAliveInterval;
+
+  function promptUsernameAndRoom() {
+    user = prompt("Please enter your username:");
+    if (!user) user = "Guest";
+
+    roomId = prompt("Enter Room ID:");
+    if (!roomId) roomId = "general";
+
+    initChat();
+  }
+
+  function displayMessage(packet) {
+    const msg = packet.data;
+    const messagesContainer = document.getElementById("messages");
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("message");
+
+    messageElement.onclick = () => setReplyTo(msg);
+
+    let contentHTML = '';
+
+    if (msg.message_reply_to) {
+      const reply = msg.message_reply_to;
+      contentHTML += `<div style="font-size: 13px; padding: 5px; border-left: 2px solid #007bff; background: #eef; margin-bottom: 4px;">
+        <strong>${reply.message_sender.sender_displayed_name}:</strong> ${reply.message_content}
+      </div>`;
+    }
+
+    contentHTML += `<strong>${msg.message_sender.sender_displayed_name}:</strong> ${msg.message_content}`;
+
+    if (msg.message_attachment_list && msg.message_attachment_list.length > 0) {
+      msg.message_attachment_list.forEach(att => {
+        if (att.attachment_asset_url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+          contentHTML += `<div><img src="${att.attachment_asset_url}" alt="Image" style="max-width: 100%; margin-top: 5px;" /></div>`;
+        } else {
+          const type = att.attachment_asset_url.split('.').pop().toUpperCase();
+          contentHTML += `<div class="file-type">📎 ${type} File: <a href="${att.attachment_asset_url}" target="_blank">Download</a></div>`;
+        }
+      });
+    }
+
+    contentHTML += ` <em>(${new Date(msg.message_timestamp).toLocaleTimeString()})</em>`;
+    messageElement.innerHTML = contentHTML;
+
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  function setReplyTo(msg) {
+    replyToMessage = msg;
+    const preview = document.getElementById("reply-preview");
+    const content = document.getElementById("reply-content");
+
+    content.innerHTML = `<strong>Replying to:</strong> ${msg.message_sender.sender_displayed_name}: ${msg.message_content}`;
+    preview.style.display = "block";
+  }
+
+  function cancelReply() {
+    replyToMessage = null;
+    document.getElementById("reply-preview").style.display = "none";
+  }
+
+  function fetchMessageHistory() {
+    return fetch(`https://gopher.bicarakan.id/messages/${roomId}`)
+      .then(res => res.json())
+      .then(data => {
+        const messagesContainer = document.getElementById("messages");
+        messagesContainer.innerHTML = '';
+        data.forEach(displayMessage);
+      });
+  }
+
+  function openWebSocket() {
+    socket = new WebSocket(`wss://gopher.bicarakan.id/ws/brown/conversation/message/subscribe/{room_id}${roomId}?user=${encodeURIComponent(user)}`);
+
+    socket.onopen = () => {
+      console.log('WebSocket opened');
+      setWsStatus(null);
+      enableInput(true);
+      startKeepAlive();
+    };
+
+    socket.onmessage = event => {
+      displayMessage(JSON.parse(event.data));
+    };
+
+    socket.onerror = error => {
+      console.error('WebSocket error:', error);
+    };
+
+    socket.onclose = event => {
+      console.log('WebSocket closed');
+      enableInput(false);
+      const closedAt = new Date().toLocaleTimeString();
+      setWsStatus(`WebSocket connection closed at ${closedAt}.`, true);
+      clearInterval(keepAliveInterval);
+    };
+  }
+
+  function startKeepAlive() {
+    if (keepAliveInterval) clearInterval(keepAliveInterval);
+
+    keepAliveInterval = setInterval(() => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        const keepAliveMessage = {
+          message_id: "",
+          message_type: "keepalive",
+          message_sender: {
+            sender_id: user,
+            sender_displayed_name: user
+          },
+          message_timestamp: new Date().toISOString(),
+          message_content: "ping",
+          message_status: "sent",
+          message_attachment_list: [],
+          message_reply_to: null
+        };
+        socket.send(JSON.stringify(keepAliveMessage));
+        console.log("Sent keepalive ping");
+      }
+    }, 50000); // every 60 seconds
+  }
+
+  async function uploadFile(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch('https://www.gopher.bicarakan.id/wundt/attachment/upload', {
+    method: 'POST',
+    headers: {
+      'Accept': '*/*'
+    },
+    body: formData
+  });
+
+  if (!res.ok) throw new Error('File upload failed');
+  const result = await res.json();
+
+  return {
+    attachment_type: 'file',
+    attachment_asset_url: result.data.asset_url_path,
+    attachment_thumb_url: result.data.asset_thumbnail_url_path,
+    attachment_metadata: result.data.asset_id
+  };
+}
+
+
+  async function sendMessage() {
+    const messageInput = document.getElementById("message-input");
+    const fileInput = document.getElementById("file-input");
+
+    let messageText = messageInput.value.trim();
+    const file = fileInput.files[0];
+
+    if (file) {
+      let attachmentLabel = "";
+
+      if (file.type.startsWith("image/")) {
+        attachmentLabel = "📷 Image attachment";
+      } else if (file.type.startsWith("video/")) {
+        attachmentLabel = "🎥 Video attachment";
+      } else if (file.type.startsWith("audio/")) {
+        attachmentLabel = "🎵 Audio attachment";
+      } else {
+        attachmentLabel = "📄 Document attachment";
+      }
+
+      // Add a line break if user wrote a message
+      messageText = messageText
+        ? `${messageText}\n${attachmentLabel}`
+        : attachmentLabel;
+    }
+    
+    if (!messageText && !file) return;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+    let attachmentList = [];
+
+    if (file) {
+      try {
+        const uploaded = await uploadFile(file);
+        attachmentList.push(uploaded);
+      } catch (e) {
+        alert('Failed to upload file.');
+        console.error(e);
+        return;
+      }
+    }
+
+    const messageChat = {
+      message_id: "",
+      message_type: "user",
+      message_sender: {
+        sender_id: user,
+        sender_displayed_name: user
+      },
+      message_timestamp: new Date().toISOString(),
+      message_content: messageText,
+      message_status: "sent",
+      message_attachment_list: attachmentList,
+      message_reply_to: replyToMessage ? {
+        message_id: replyToMessage.message_id,
+        message_type: replyToMessage.message_type,
+        message_sender: replyToMessage.message_sender,
+        message_timestamp: replyToMessage.message_timestamp,
+        message_content: replyToMessage.message_content,
+        message_status: replyToMessage.message_status,
+        message_attachment_list: [],
+        message_reply_to: null
+      } : null
+    };
+
+    socket.send(JSON.stringify(messageChat));
+    messageInput.value = '';
+    fileInput.value = '';
+    document.getElementById("file-preview").innerHTML = '';
+    cancelReply();
+  }
+
+  function previewFile() {
+    const fileInput = document.getElementById("file-input");
+    const filePreview = document.getElementById("file-preview");
+    const file = fileInput.files[0];
+
+    if (!file) {
+      filePreview.innerHTML = '';
+      return;
+    }
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        filePreview.innerHTML = `<img src="${e.target.result}" alt="Preview" />`;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      filePreview.innerHTML = `<div class="file-type">📄 File selected: ${file.name}</div>`;
+    }
+  }
+
+  function setWsStatus(message, showContinueBtn = false) {
+    const statusDiv = document.getElementById("ws-status");
+    if (!message) {
+      statusDiv.style.display = "none";
+      statusDiv.innerHTML = '';
+      return;
+    }
+
+    statusDiv.style.display = "block";
+    statusDiv.innerHTML = `
+      ${message}
+      ${showContinueBtn ? '<button id="continue-btn">Continue</button>' : ''}
+    `;
+
+    if (showContinueBtn) {
+      document.getElementById("continue-btn").onclick = async () => {
+        setWsStatus('Rejoining the room...');
+        await fetchMessageHistory();
+        openWebSocket();
+      };
+    }
+  }
+
+  function enableInput(enable) {
+    document.getElementById("message-input").disabled = !enable;
+    document.getElementById("file-input").disabled = !enable;
+    document.getElementById("send-btn").disabled = !enable;
+  }
+
+  function initChat() {
+    fetchMessageHistory();
+    openWebSocket();
+    startKeepAlive();
+
+    document.getElementById("message-input").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") sendMessage();
+    });
+
+    document.getElementById("file-input").addEventListener("change", previewFile);
+  }
+
+  function toggleDocumentation() {
+    const documentation = document.getElementById("documentation");
+    const button = document.getElementById("learn-more-btn");
+
+    if (documentation.style.display === "none" || documentation.style.display === "") {
+      documentation.style.display = "block";
+      button.textContent = "Learn Less";
+    } else {
+      documentation.style.display = "none";
+      button.textContent = "Learn More";
+    }
+  }
+
+  window.onload = promptUsernameAndRoom;
+</script>
+
+</body>
+</html>
