@@ -225,7 +225,7 @@
   }
 
   function openWebSocket() {
-    socket = new WebSocket(`wss://gopher.bicarakan.id/ws/v1/${roomId}?user=${encodeURIComponent(user)}`);
+    socket = new WebSocket(`wss://gopher.bicarakan.id/ws/${roomId}?user=${encodeURIComponent(user)}`);
 
     socket.onopen = () => {
       console.log('WebSocket opened');
@@ -299,97 +299,77 @@
 }
 
 
- async function sendMessage() {
-  const messageInput = document.getElementById("message-input");
-  const fileInput = document.getElementById("file-input");
+  async function sendMessage() {
+    const messageInput = document.getElementById("message-input");
+    const fileInput = document.getElementById("file-input");
 
-  let messageText = messageInput.value.trim();
-  const file = fileInput.files[0];
+    let messageText = messageInput.value.trim();
+    const file = fileInput.files[0];
 
-  if (file) {
-    let attachmentLabel = "";
+    if (file) {
+      let attachmentLabel = "";
 
-    if (file.type.startsWith("image/")) {
-      attachmentLabel = "📷 Image attachment";
-    } else if (file.type.startsWith("video/")) {
-      attachmentLabel = "🎥 Video attachment";
-    } else if (file.type.startsWith("audio/")) {
-      attachmentLabel = "🎵 Audio attachment";
-    } else {
-      attachmentLabel = "📄 Document attachment";
+      if (file.type.startsWith("image/")) {
+        attachmentLabel = "📷 Image attachment";
+      } else if (file.type.startsWith("video/")) {
+        attachmentLabel = "🎥 Video attachment";
+      } else if (file.type.startsWith("audio/")) {
+        attachmentLabel = "🎵 Audio attachment";
+      } else {
+        attachmentLabel = "📄 Document attachment";
+      }
+
+      // Add a line break if user wrote a message
+      messageText = messageText
+        ? `${messageText}\n${attachmentLabel}`
+        : attachmentLabel;
+    }
+    
+    if (!messageText && !file) return;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+    let attachmentList = [];
+
+    if (file) {
+      try {
+        const uploaded = await uploadFile(file);
+        attachmentList.push(uploaded);
+      } catch (e) {
+        alert('Failed to upload file.');
+        console.error(e);
+        return;
+      }
     }
 
-    messageText = messageText
-      ? `${messageText}\n${attachmentLabel}`
-      : attachmentLabel;
+    const messageChat = {
+      message_id: "",
+      message_type: "user",
+      message_sender: {
+        sender_id: user,
+        sender_displayed_name: user
+      },
+      message_timestamp: new Date().toISOString(),
+      message_content: messageText,
+      message_status: "sent",
+      message_attachment_list: attachmentList,
+      message_reply_to: replyToMessage ? {
+        message_id: replyToMessage.message_id,
+        message_type: replyToMessage.message_type,
+        message_sender: replyToMessage.message_sender,
+        message_timestamp: replyToMessage.message_timestamp,
+        message_content: replyToMessage.message_content,
+        message_status: replyToMessage.message_status,
+        message_attachment_list: [],
+        message_reply_to: null
+      } : null
+    };
+
+    socket.send(JSON.stringify(messageChat));
+    messageInput.value = '';
+    fileInput.value = '';
+    document.getElementById("file-preview").innerHTML = '';
+    cancelReply();
   }
-
-  if (!messageText && !file) return;
-  if (!socket || socket.readyState !== WebSocket.OPEN) return;
-
-  let attachmentList = [];
-
-  if (file) {
-    try {
-      const uploaded = await uploadFile(file);
-      attachmentList.push({
-        attachment_file_name: file.name,
-        attachment_type: uploaded.attachment_type,
-        attachment_asset_url: uploaded.attachment_asset_url,
-        attachment_thumb_url: uploaded.attachment_thumb_url || "",
-        attachment_metadata: uploaded.attachment_metadata || "",
-      });
-    } catch (e) {
-      alert('Failed to upload file.');
-      console.error(e);
-      return;
-    }
-  }
-
-  const replyTo = replyToMessage ? {
-    message_id: replyToMessage.message_id,
-    message_type: replyToMessage.message_type,
-    message_sender: {
-      sender_id: replyToMessage.message_sender.sender_id,
-      sender_type: replyToMessage.message_sender.sender_type || "",
-      sender_displayed_name: replyToMessage.message_sender.sender_displayed_name,
-    },
-    message_timestamp: replyToMessage.message_timestamp,
-    message_content: replyToMessage.message_content,
-    message_status: replyToMessage.message_status,
-    message_attachment_list: [],
-    message_reply_to: null
-  } : null;
-
-  const messageChat = {
-    message_id: "",
-    message_type: "user",
-    message_sender: {
-      sender_id: user,
-      sender_type: "user",
-      sender_displayed_name: user,
-    },
-    message_timestamp: new Date().toISOString(),
-    message_content: messageText,
-    message_status: "sent",
-    message_attachment_list: attachmentList,
-    message_reply_to: replyTo
-  };
-
-  // Wrap inside WebhookPacket
-  const webhookPacket = {
-    id: "", // can generate or leave empty
-    type: "message_send",
-    data: messageChat
-  };
-
-  socket.send(JSON.stringify(webhookPacket));
-
-  messageInput.value = '';
-  fileInput.value = '';
-  document.getElementById("file-preview").innerHTML = '';
-  cancelReply();
-}
 
   function previewFile() {
     const fileInput = document.getElementById("file-input");
