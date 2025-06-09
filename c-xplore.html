@@ -231,7 +231,7 @@
       console.log('WebSocket opened');
       setWsStatus(null);
       enableInput(true);
-      startKeepAlive();
+      //startKeepAlive();
     };
 
     socket.onmessage = event => {
@@ -444,7 +444,7 @@
   function initChat() {
     fetchMessageHistory();
     openWebSocket();
-    startKeepAlive();
+    //startKeepAlive();
 
     document.getElementById("message-input").addEventListener("keypress", function(event) {
       if (event.key === "Enter") sendMessage();
