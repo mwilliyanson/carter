@@ -2,60 +2,137 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Status Control</title>
+  <title>Status Controller</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-    #statusDisplay {
+
+    .card {
+      background: #ffffff;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
       margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: #f9f9f9;
+      transition: border-color 0.3s;
+    }
+
+    select:focus {
+      border-color: #007BFF;
+      outline: none;
+    }
+
+    #statusDisplay {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #444;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
-  <h1>Status Controller</h1>
-  <div id="statusDisplay">Current status: <strong>Loading...</strong></div>
 
-  <label for="statusSelect">Set new status:</label>
-  <select id="statusSelect">
-    <option value="wakeup">wakeup</option>
-    <option value="inactive">inactive</option>
-  </select>
-  <button onclick="updateStatus()">Update</button>
+  <div class="card">
+    <h1>Status Controller</h1>
+
+    <label for="keySelect">Select Key</label>
+    <select id="keySelect" onchange="fetchStatus()">
+      <option value="POWER">POWER</option>
+      <option value="WAKEUP">WAKEUP</option>
+    </select>
+
+    <div id="statusDisplay">Current status: <strong>Loading...</strong></div>
+
+    <label for="valueSelect">Set New Value</label>
+    <select id="valueSelect">
+      <option value="ACTIVE">ACTIVE</option>
+      <option value="INACTIVE">INACTIVE</option>
+    </select>
+
+    <button onclick="updateStatus()">Update Status</button>
+  </div>
 
   <script>
     async function fetchStatus() {
+      const key = document.getElementById('keySelect').value;
+      const display = document.getElementById('statusDisplay');
+      display.innerHTML = 'Current status: <strong>Loading...</strong>';
       try {
-        const res = await fetch('https://nexus.mindlabs.id/wolverine/get-status', {
+        const res = await fetch(`https://nexus.mindlabs.id/wolverine/get-status?key=${key}`, {
           method: 'GET'
         });
-        const statusText = await res.text(); // Expecting plain string response
-        document.getElementById('statusDisplay').innerHTML =
-          `Current status: <strong>${statusText || 'unknown'}</strong>`;
+        const statusText = await res.text();
+        display.innerHTML = `Current status of <strong>${key}</strong>: <strong>${statusText || 'unknown'}</strong>`;
+        document.getElementById('valueSelect').value = statusText;
       } catch (err) {
         console.error('Failed to fetch status', err);
-        document.getElementById('statusDisplay').innerText = 'Error fetching status';
+        display.innerText = 'Error fetching status';
       }
     }
 
-
     async function updateStatus() {
-      const newStatus = document.getElementById('statusSelect').value;
+      const key = document.getElementById('keySelect').value;
+      const value = document.getElementById('valueSelect').value;
       try {
         await fetch('https://nexus.mindlabs.id/wolverine/set-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ Status: newStatus })
+          body: JSON.stringify({ key: key, value: value })
         });
-        fetchStatus(); // Refresh display
+        fetchStatus();
       } catch (err) {
         console.error('Failed to update status', err);
         alert('Error updating status');
       }
     }
 
-    // Fetch status on page load
     window.onload = fetchStatus;
   </script>
 
