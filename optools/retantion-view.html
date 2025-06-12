@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cohort Retention Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    h2, h3 {
+      margin-bottom: 10px;
+    }
+    label, select, button {
+      font-size: 14px;
+      margin: 5px;
+      padding: 6px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #dee2e6;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f1f3f5;
+    }
+    .heatmap {
+      background-color: #e0f3ff;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Cohort Retention Dashboard</h2>
+
+  <label for="psychologist">Psychologist:</label>
+  <select id="psychologist">
+    <option value="">-- Select --</option>
+  </select>
+
+  <label for="periodType">Period Type:</label>
+  <select id="periodType">
+    <option value="MONTHLY">MONTHLY</option>
+    <option value="WEEKLY">WEEKLY</option>
+  </select>
+
+  <button id="submitBtn">Fetch Retention</button>
+
+  <div>
+    <h3>Selected Psychologist ID: <span id="selectedIdDisplay">None</span></h3>
+  </div>
+
+  <div id="cohortTable"></div>
+
+  <script>
+    const dropdown = document.getElementById('psychologist');
+    const periodTypeSelector = document.getElementById('periodType');
+    const selectedIdDisplay = document.getElementById('selectedIdDisplay');
+    const cohortTableContainer = document.getElementById('cohortTable');
+    const submitBtn = document.getElementById('submitBtn');
+    let selectedPsychologistId = null;
+
+    // Load psychologists
+    fetch('https://gopher.bicarakan.id/freud/account/counselor/list', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+        'App-Version-Code': '7',
+        'App-Version-Name': '0.0.7',
+        'locale': 'en_US',
+        'platform': 'Web'
+      },
+      body: JSON.stringify({})
+    })
+    .then(res => res.json())
+    .then(data => {
+      const list = data?.data?.account_list || [];
+      list.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.account_id;
+        option.textContent = item.displayed_name;
+        dropdown.appendChild(option);
+      });
+    })
+    .catch(err => alert('Could not load psychologists.'));
+
+    dropdown.addEventListener('change', () => {
+      selectedPsychologistId = dropdown.value;
+      selectedIdDisplay.textContent = selectedPsychologistId || "None";
+    });
+
+    submitBtn.addEventListener('click', () => {
+      if (!selectedPsychologistId) return alert('Please select a psychologist first.');
+      const periodType = periodTypeSelector.value;
+
+      fetch('https://www.gopher.bicarakan.id/limbo/intools/get-retention', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+          'App-Version-Code': '340',
+          'App-Version-Name': '0.34.0',
+          'locale': 'id',
+          'platform': 'Android',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3NDU1NjksImlhdCI6MTc0Nzk3NzU2OSwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6ImQ5ODg1OTg1LWIyOWMtZGEzMy0wMDcwLWNlYTg3ZGIzMjI0NCJ9.U1k1aThKr8rxKKhP6KScWWYQK23W-hB2ZGiKmXW9Zaw'
+        },
+        body: JSON.stringify({
+          psychologist_id: selectedPsychologistId,
+          period_type: periodType
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const items = data?.data?.ItemResult;
+        if (!items || items.length === 0) {
+          cohortTableContainer.innerHTML = '<p>No data found.</p>';
+          return;
+        }
+
+        const maxPeriods = 12;
+
+        const buildTable = (items, transformFn, title, isPercentage = false) => {
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+
+        const maxPeriods = 12;
+        const headerRow = ['Cohort'].concat(Array.from({ length: maxPeriods + 1 }, (_, i) => `P${i}`));
+        thead.innerHTML = `<tr>${headerRow.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+        let allPercentages = Array(maxPeriods + 1).fill(0);
+        let validRows = 0;
+
+        items.forEach(item => {
+          const row = document.createElement('tr');
+          const cohortDate = new Date(item.cohort_month).toISOString().split('T')[0];
+          const base = item.period_0 || 0;
+
+          const cells = Array.from({ length: maxPeriods + 1 }, (_, i) => {
+            const value = transformFn(item, i);
+            let cellHTML = `<td>${value}</td>`;
+
+            if (isPercentage && i > 0 && base > 0) {
+              const percent = item[`period_${i}`] / base * 100;
+              allPercentages[i] += percent;
+              const green = 255 - Math.round((percent / 100) * 200);
+              cellHTML = `<td style="background-color: rgb(0, ${green}, 0); color: white;">${value}</td>`;
+            } else if (isPercentage && i === 0 && base > 0) {
+              allPercentages[0] += 100;
+            }
+
+            return cellHTML;
+          });
+
+          if (base > 0) validRows++;
+
+          row.innerHTML = `<td>${cohortDate}</td>${cells.join('')}`;
+          tbody.appendChild(row);
+        });
+
+        // Average row for % table
+        if (isPercentage && validRows > 0) {
+          const avgRow = document.createElement('tr');
+          const avgCells = allPercentages.map((sum, i) =>
+            validRows === 0 ? '-' : (sum / validRows).toFixed(1) + '%'
+          );
+          avgRow.innerHTML = `<td><strong>Average</strong></td>` +
+                            avgCells.map(p => `<td><strong>${p}</strong></td>`).join('');
+          tbody.appendChild(avgRow);
+        }
+
+        const container = document.createElement('div');
+        const heading = document.createElement('h3');
+        heading.textContent = title;
+        container.appendChild(heading);
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        container.appendChild(table);
+        return container;
+      };
+
+
+        // Build and append tables
+        const rawCountTable = buildTable(items, (item, i) => item[`period_${i}`] ?? 0, '🧮 Raw Cohort Counts');
+        const percentageTable = buildTable(
+          items,
+          (item, i) => {
+            const base = item.period_0 || 0;
+            const val = item[`period_${i}`] || 0;
+            return base === 0 ? '-' : (i === 0 ? '100%' : (val / base * 100).toFixed(1) + '%');
+          },
+          '📊 Retention Percentages (based on Period 0)',
+          true
+        );
+
+        cohortTableContainer.innerHTML = '';
+        cohortTableContainer.appendChild(rawCountTable);
+        cohortTableContainer.appendChild(percentageTable);
+      })
+
+      .catch(err => {
+        console.error('Error fetching cohort data:', err);
+        alert('Could not load cohort data.');
+      });
+    });
+  </script>
+
+</body>
+</html>
