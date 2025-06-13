@@ -1,185 +1,129 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Halaman Login & Kalender</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3-Day Calendar View</title>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #f3f3f3; margin: 0; padding: 0; }
-    .container { max-width: 900px; margin: 50px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
-    button { background-color: rgb(21,73,197); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
-    .logout-button { background: #e74c3c; margin-top: 20px; width: 100%; }
-    .contact-button { background: #25D366; width: 100%; margin-top: 10px; }
-    .hidden { display: none; }
-    .calendar-grid { display: grid; gap: 10px; }
-    @media (min-width: 768px) {
-      .calendar-grid { grid-template-columns: repeat(7, 1fr); }
-    }
-    @media (max-width: 767px) {
-      .calendar-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    .day-column { background: #f9f9f9; border-radius: 6px; padding: 10px; }
-    .day-header { font-weight: bold; margin-bottom: 8px; text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
-    .event { background-color: #e0f7e9; border-left: 4px solid #4CAF50; padding: 6px; margin: 4px 0; border-radius: 4px; }
-    .user-info { font-size: 0.95em; color: #555; margin-bottom: 10px; }
+    body { font-family: sans-serif; margin: 2rem; background: #f9fafb; }
+    .input-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+    .calendar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .card { background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .event { border: 1px solid #e5e7eb; padding: 0.75rem; border-radius: 8px; background: #fff; margin-bottom: 0.5rem; }
+    .event-title { font-weight: 600; }
+    .controls { display: flex; justify-content: space-between; margin: 1rem 0; }
+    input { padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; }
+    button { padding: 0.5rem 1rem; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; }
+    button:hover { background: #e5e7eb; }
   </style>
 </head>
 <body>
-  <div class="container" id="loginPage">
-    <h2>Masuk ke Kalender</h2>
-    <label for="username">Nomor HP:</label>
-    <input type="text" id="username" placeholder="Contoh: 62818882789">
-    <label for="password">Kata Sandi:</label>
-    <input type="password" id="password" placeholder="Masukkan kata sandi">
-    <button onclick="login()">Masuk</button>
-    <p id="loginError" style="color: red;"></p>
+
+  <div class="input-grid">
+    <input type="text" id="purchaser_id" placeholder="purchaser_id">
+    <input type="text" id="product_type" placeholder="product_type">
+    <input type="text" id="provider_id" placeholder="provider_id">
+    <input type="text" id="author_id" placeholder="author_id">
   </div>
 
-  <div class="container hidden" id="calendarPage">
-    <h2>Kalender</h2>
-    <div class="user-info" id="userPhone"></div>
-    <div style="margin-bottom: 10px;">
-      <button onclick="prevRange()">← Sebelumnya</button>
-      <button onclick="goToToday()">Hari Ini</button>
-      <button onclick="nextRange()">Berikutnya →</button>
-    </div>
-    <h3 id="weekRange"></h3>
-    <div class="calendar-grid" id="calendarGrid"></div>
-    <a href="http://wa.me/6282123459610" target="_blank">
-      <button class="contact-button">Hubungi Admin</button>
-    </a>
-    <button onclick="logout()" class="logout-button">Keluar</button>
+  <div class="controls">
+    <button id="prevBtn">Previous</button>
+    <button id="nextBtn">Next</button>
   </div>
+
+  <div class="calendar" id="calendar"></div>
 
   <script>
-    const users = {
-      '62818882789': { password: 'kompas', provider_id: '6e6841d7-dfdc-4418-b072-ca15bbaf9c2d' },
-      '628188827890': { password: 'wuah', provider_id: '6e6841d7-dfdc-4418-b072-asd' }
-    };
+    const calendarEl = document.getElementById('calendar');
+    let data = [];
+    let currentStartDate = new Date('2025-05-13');
 
-    let currentDate = new Date();
+    const fetchData = async () => {
+      const filter = {
+        purchaser_id: document.getElementById('purchaser_id').value,
+        product_type: document.getElementById('product_type').value,
+        provider_id: document.getElementById('provider_id').value,
+        author_id: document.getElementById('author_id').value
+      };
 
-    function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const user = users[username];
-
-      if (user && user.password === password) {
-        localStorage.setItem('provider_id', user.provider_id);
-        localStorage.setItem('logged_in_phone', username);
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('calendarPage').classList.remove('hidden');
-        document.getElementById('userPhone').textContent = `Masuk sebagai: ${username}`;
-        loadEvents();
-      } else {
-        document.getElementById('loginError').textContent = 'Username atau kata sandi salah';
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem('provider_id');
-      localStorage.removeItem('logged_in_phone');
-      location.reload();
-    }
-
-    function goToToday() {
-      currentDate = new Date();
-      loadEvents();
-    }
-
-    window.onload = function() {
-      const pid = localStorage.getItem('provider_id');
-      const phone = localStorage.getItem('logged_in_phone');
-      if (pid && phone) {
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('calendarPage').classList.remove('hidden');
-        document.getElementById('userPhone').textContent = `Masuk sebagai: ${phone}`;
-        loadEvents();
+      try {
+        const res = await fetch('https://gopher.bicarakan.id/rujak/calendar/product/list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filter,
+            start_date: '2024-06-13 08:00:00',
+            end_date: '2025-06-13 18:00:00'
+          })
+        });
+        const json = await res.json();
+        data = json.data.product_summary_list || [];
+        renderCalendar();
+      } catch (err) {
+        calendarEl.innerHTML = '<p>Error loading data</p>';
+        console.error(err);
       }
     };
 
-    function formatDate(date) {
-      return date.toISOString().split('T')[0];
-    }
+    const renderCalendar = () => {
+      calendarEl.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        const date = new Date(currentStartDate);
+        date.setDate(date.getDate() + i);
 
-    function getDateRange(date) {
-      const width = window.innerWidth;
-      const start = new Date(date);
-      const end = new Date(start);
-      const rangeDays = width >= 768 ? 6 : 2;
-      end.setDate(start.getDate() + rangeDays);
-      return { start, end, days: rangeDays + 1, text: `${start.toLocaleDateString('id-ID')} - ${end.toLocaleDateString('id-ID')}` };
-    }
+        const dayEvents = data.filter(event => new Date(event.miscproduct_date).toDateString() === date.toDateString());
 
-    function prevRange() {
-      const width = window.innerWidth;
-      const days = width >= 768 ? 7 : 3;
-      currentDate.setDate(currentDate.getDate() - days);
-      loadEvents();
-    }
+        const dayCard = document.createElement('div');
+        dayCard.className = 'card';
 
-    function nextRange() {
-      const width = window.innerWidth;
-      const days = width >= 768 ? 7 : 3;
-      currentDate.setDate(currentDate.getDate() + days);
-      loadEvents();
-    }
-
-    async function loadEvents() {
-      const providerId = localStorage.getItem('provider_id');
-      const range = getDateRange(new Date(currentDate));
-      document.getElementById('weekRange').textContent = `Tanggal: ${range.text}`;
-
-      const response = await fetch('https://www.gopher.bicarakan.id/rujak/calendar/product/list', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product_type: 'KIDS',
-          provider_id: providerId,
-          start_date: formatDate(range.start),
-          end_date: formatDate(range.end)
-        })
-      });
-
-      const result = await response.json();
-      const events = result.data.product_summary_list;
-
-      const days = Array.from({ length: range.days }, (_, i) => new Date(range.start.getTime() + i * 86400000));
-      const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-
-      const grid = document.getElementById('calendarGrid');
-      grid.innerHTML = '';
-
-      days.forEach(day => {
-        const col = document.createElement('div');
-        col.className = 'day-column';
-
-        const header = document.createElement('div');
-        header.className = 'day-header';
-        header.textContent = `${dayNames[day.getDay()]}, ${day.toLocaleDateString('id-ID')}`;
-        col.appendChild(header);
-
-        const dayEvents = events.filter(e => e.miscproduct_date === formatDate(day));
+        const heading = document.createElement('h2');
+        heading.textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        heading.style.marginBottom = '0.5rem';
+        dayCard.appendChild(heading);
 
         if (dayEvents.length === 0) {
-          const empty = document.createElement('div');
-          empty.textContent = '(Tidak ada jadwal)';
-          empty.style.fontSize = '0.9em';
-          empty.style.color = '#777';
-          col.appendChild(empty);
-        } else {
-          dayEvents.forEach(e => {
-            const eventEl = document.createElement('div');
-            eventEl.className = 'event';
-            eventEl.innerHTML = `<strong>${e.miscproduct_title || '(Tanpa Judul)'}</strong><br>${e.miscproduct_start_time} - ${e.miscproduct_end_time}`;
-            col.appendChild(eventEl);
-          });
+          const noEvents = document.createElement('p');
+          noEvents.textContent = 'No events';
+          noEvents.style.color = '#9ca3af';
+          dayCard.appendChild(noEvents);
         }
 
-        grid.appendChild(col);
-      });
-    }
+        dayEvents.forEach(event => {
+          const eventEl = document.createElement('div');
+          eventEl.className = 'event';
+
+          const title = document.createElement('div');
+          title.className = 'event-title';
+          title.textContent = event.miscproduct_title || 'No Title';
+
+          const time = document.createElement('div');
+          time.textContent = `${event.miscproduct_start_time} - ${event.miscproduct_end_time} (${event.miscproduct_status})`;
+
+          eventEl.appendChild(title);
+          eventEl.appendChild(time);
+          dayCard.appendChild(eventEl);
+        });
+
+        calendarEl.appendChild(dayCard);
+      }
+    };
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      currentStartDate.setDate(currentStartDate.getDate() - 3);
+      renderCalendar();
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      currentStartDate.setDate(currentStartDate.getDate() + 3);
+      renderCalendar();
+    });
+
+    // Watch filter inputs
+    document.querySelectorAll('input').forEach(input =>
+      input.addEventListener('input', fetchData)
+    );
+
+    fetchData(); // Initial load
   </script>
 </body>
 </html>
