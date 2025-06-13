@@ -3,17 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendar Product View</title>
+  <title>Google-style Weekly Calendar</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dayjs/dayjs.min.js"></script>
+  <style>
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: 80px repeat(7, 1fr);
+      border: 1px solid #dee2e6;
+    }
+    .calendar-header {
+      background: #f8f9fa;
+      text-align: center;
+      font-weight: bold;
+      padding: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+      border-right: 1px solid #dee2e6;
+    }
+    .calendar-time-label {
+      padding: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+      border-right: 1px solid #dee2e6;
+      background: #f1f1f1;
+      font-size: 0.75rem;
+    }
+    .calendar-cell {
+      border-bottom: 1px solid #dee2e6;
+      border-right: 1px solid #dee2e6;
+      min-height: 50px;
+      padding: 2px;
+      font-size: 0.75rem;
+    }
+    .event {
+      color: white;
+      border-radius: 0.25rem;
+      padding: 2px 4px;
+      font-size: 0.7rem;
+      margin-bottom: 2px;
+    }
+    .WAITING_PAYMENT { background-color: #ffc107; }     /* yellow */
+    .PAYMENT_VERIFIED { background-color: #0dcaf0; }    /* cyan */
+    .SCHEDULE_CONFIRMED { background-color: #198754; }  /* green */
+    .SCHEDULE_DONE { background-color: #6c757d; }       /* gray */
+    .CANCELLED, .REFUNDED { background-color: #dc3545; }/* red */
+
+    @media (max-width: 768px) {
+      .calendar-grid {
+        grid-template-columns: 40px repeat(7, 1fr);
+        font-size: 0.6rem;
+      }
+    }
+  </style>
 </head>
 <body class="bg-light p-4">
-  <div class="container">
-    <h2 class="mb-4">Product Calendar</h2>
-
+  <div class="container-fluid">
+    <h2 class="mb-4">Weekly Calendar</h2>
     <div class="row mb-3">
-      <div class="col-md-4">
+      <div class="col-md-4 col-12">
         <select id="providerSelect" class="form-select">
           <option value="">All Providers</option>
           <option value="7c7b7b03-b095-48e2-ba3b-9b18e111baac" data-type="KIDS_THERAPHY">Risydah Amani Mujahidah - KIDS_THERAPHY</option>
@@ -25,22 +72,22 @@
           <option value="e30994bc-2806-42fe-a461-e584941d8659" data-type="KIDS_PSYCHOLOGY">Joe Irene - KIDS_PSYCHOLOGY</option>
         </select>
       </div>
-      <div class="col-md-8 text-end">
+      <div class="col-md-8 col-12 text-end">
         <button class="btn btn-secondary" onclick="changeDate(-1)">Prev</button>
         <button class="btn btn-info" onclick="resetToToday()">Today</button>
         <button class="btn btn-secondary" onclick="changeDate(1)">Next</button>
       </div>
     </div>
 
-    <div id="calendarView" class="row g-3"></div>
+    <div id="calendarView" class="calendar-grid"></div>
   </div>
 
   <script>
-    let currentStartDate = dayjs().startOf('day');
+    let currentStartDate = dayjs().startOf('week');
 
     function fetchCalendar() {
       const start = currentStartDate.format('YYYY-MM-DD 08:00:00');
-      const end = currentStartDate.add(3, 'day').format('YYYY-MM-DD 18:00:00');
+      const end = currentStartDate.add(6, 'day').format('YYYY-MM-DD 18:00:00');
       const providerSelect = document.getElementById('providerSelect');
       const providerId = providerSelect.value;
       const productType = providerSelect.options[providerSelect.selectedIndex].dataset.type || "";
@@ -57,55 +104,40 @@
       };
 
       axios.post('https://www.gopher.bicarakan.id/rujak/calendar/product/list', payload)
-        .then(response => {
-          displayCalendar(response.data.data.product_summary_list);
-        })
-        .catch(error => {
-          console.error(error);
-          alert('Failed to fetch calendar data.');
-        });
+        .then(response => displayCalendar(response.data.data.product_summary_list))
+        .catch(error => alert('Failed to fetch calendar data.'));
     }
 
     function displayCalendar(events) {
       const container = document.getElementById('calendarView');
       container.innerHTML = '';
 
-      const grouped = {};
-      events.forEach(item => {
-        if (!grouped[item.miscproduct_date]) grouped[item.miscproduct_date] = [];
-        grouped[item.miscproduct_date].push(item);
-      });
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        days.push(currentStartDate.add(i, 'day').format('YYYY-MM-DD'));
+      }
 
-      Object.keys(grouped).sort().forEach(date => {
-        const card = document.createElement('div');
-        card.className = 'col-md-6 col-lg-4';
-        card.innerHTML = `
-          <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-              ${date}
-            </div>
-            <div class="card-body">
-              ${grouped[date].map(ev => `
-                <div class="mb-2">
-                  <strong>${ev.miscproduct_title || 'No Title'}</strong><br>
-                  ${ev.miscproduct_start_time} - ${ev.miscproduct_end_time}<br>
-                  <span class="badge bg-${ev.miscproduct_status === 'SCHEDULE_CONFIRMED' ? 'success' : 'warning'}">${ev.miscproduct_status}</span>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
+      const hours = Array.from({ length: 10 }, (_, i) => `${(8 + i).toString().padStart(2, '0')}:00`);
+
+      container.innerHTML += `<div class="calendar-header"></div>` +
+        days.map(d => `<div class="calendar-header">${dayjs(d).format('ddd D')}</div>`).join('');
+
+      for (const hour of hours) {
+        container.innerHTML += `<div class="calendar-time-label">${hour}</div>`;
+        for (const day of days) {
+          const matches = events.filter(e => e.miscproduct_date === day && e.miscproduct_start_time.startsWith(hour));
+          container.innerHTML += `<div class="calendar-cell">${matches.map(m => `<div class='event ${m.miscproduct_status}'>${m.miscproduct_title || 'No Title'}</div>`).join('')}</div>`;
+        }
+      }
     }
 
     function changeDate(offset) {
-      currentStartDate = currentStartDate.add(offset * 4, 'day');
+      currentStartDate = currentStartDate.add(offset * 7, 'day');
       fetchCalendar();
     }
 
     function resetToToday() {
-      currentStartDate = dayjs().startOf('day');
+      currentStartDate = dayjs().startOf('week');
       fetchCalendar();
     }
 
