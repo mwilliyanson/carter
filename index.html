@@ -1,129 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3-Day Calendar View</title>
-  <style>
-    body { font-family: sans-serif; margin: 2rem; background: #f9fafb; }
-    .input-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
-    .calendar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-    .card { background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    .event { border: 1px solid #e5e7eb; padding: 0.75rem; border-radius: 8px; background: #fff; margin-bottom: 0.5rem; }
-    .event-title { font-weight: 600; }
-    .controls { display: flex; justify-content: space-between; margin: 1rem 0; }
-    input { padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; }
-    button { padding: 0.5rem 1rem; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; }
-    button:hover { background: #e5e7eb; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar Product View</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs/dayjs.min.js"></script>
 </head>
-<body>
+<body class="bg-light p-4">
+  <div class="container">
+    <h2 class="mb-4">Product Calendar</h2>
 
-  <div class="input-grid">
-    <input type="text" id="purchaser_id" placeholder="purchaser_id">
-    <input type="text" id="product_type" placeholder="product_type">
-    <input type="text" id="provider_id" placeholder="provider_id">
-    <input type="text" id="author_id" placeholder="author_id">
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <select id="providerSelect" class="form-select">
+          <option value="">All Providers</option>
+          <option value="7c7b7b03-b095-48e2-ba3b-9b18e111baac" data-type="KIDS_THERAPHY">Risydah Amani Mujahidah - KIDS_THERAPHY</option>
+          <option value="fbbdb41d-0635-42c6-ba82-6a110e459e26" data-type="KIDS_THERAPHY">Maulida Rahmatillah - KIDS_THERAPHY</option>
+          <option value="08c8a8ed-e61f-1b58-8cca-afb362bb64da" data-type="KIDS_THERAPHY">Artha Nisa Thohiroh Triyantari - KIDS_THERAPHY</option>
+          <option value="1afc9f11-af2c-492c-9658-341d63f87a77" data-type="KIDS_THERAPHY">Anindita Sylvie Asyura Putri - KIDS_THERAPHY</option>
+          <option value="230aaee5-5a63-416a-834d-335b4afa4398" data-type="KIDS_PSYCHOLOGY">Gracia Ivonika - KIDS_PSYCHOLOGY</option>
+          <option value="e2e1520b-7e15-490a-be61-dd2d4b490bd6" data-type="KIDS_PSYCHOLOGY">Mariska - KIDS_PSYCHOLOGY</option>
+          <option value="e30994bc-2806-42fe-a461-e584941d8659" data-type="KIDS_PSYCHOLOGY">Joe Irene - KIDS_PSYCHOLOGY</option>
+        </select>
+      </div>
+      <div class="col-md-8 text-end">
+        <button class="btn btn-secondary" onclick="changeDate(-1)">Prev</button>
+        <button class="btn btn-info" onclick="resetToToday()">Today</button>
+        <button class="btn btn-secondary" onclick="changeDate(1)">Next</button>
+      </div>
+    </div>
+
+    <div id="calendarView" class="row g-3"></div>
   </div>
-
-  <div class="controls">
-    <button id="prevBtn">Previous</button>
-    <button id="nextBtn">Next</button>
-  </div>
-
-  <div class="calendar" id="calendar"></div>
 
   <script>
-    const calendarEl = document.getElementById('calendar');
-    let data = [];
-    let currentStartDate = new Date('2025-05-13');
+    let currentStartDate = dayjs().startOf('day');
 
-    const fetchData = async () => {
-      const filter = {
-        purchaser_id: document.getElementById('purchaser_id').value,
-        product_type: document.getElementById('product_type').value,
-        provider_id: document.getElementById('provider_id').value,
-        author_id: document.getElementById('author_id').value
+    function fetchCalendar() {
+      const start = currentStartDate.format('YYYY-MM-DD 08:00:00');
+      const end = currentStartDate.add(3, 'day').format('YYYY-MM-DD 18:00:00');
+      const providerSelect = document.getElementById('providerSelect');
+      const providerId = providerSelect.value;
+      const productType = providerSelect.options[providerSelect.selectedIndex].dataset.type || "";
+
+      const payload = {
+        filter: {
+          purchaser_id: "",
+          product_type: productType,
+          provider_id: providerId,
+          author_id: ""
+        },
+        start_date: start,
+        end_date: end
       };
 
-      try {
-        const res = await fetch('https://gopher.bicarakan.id/rujak/calendar/product/list', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            filter,
-            start_date: '2024-06-13 08:00:00',
-            end_date: '2025-06-13 18:00:00'
-          })
+      axios.post('https://www.gopher.bicarakan.id/rujak/calendar/product/list', payload)
+        .then(response => {
+          displayCalendar(response.data.data.product_summary_list);
+        })
+        .catch(error => {
+          console.error(error);
+          alert('Failed to fetch calendar data.');
         });
-        const json = await res.json();
-        data = json.data.product_summary_list || [];
-        renderCalendar();
-      } catch (err) {
-        calendarEl.innerHTML = '<p>Error loading data</p>';
-        console.error(err);
-      }
-    };
+    }
 
-    const renderCalendar = () => {
-      calendarEl.innerHTML = '';
-      for (let i = 0; i < 3; i++) {
-        const date = new Date(currentStartDate);
-        date.setDate(date.getDate() + i);
+    function displayCalendar(events) {
+      const container = document.getElementById('calendarView');
+      container.innerHTML = '';
 
-        const dayEvents = data.filter(event => new Date(event.miscproduct_date).toDateString() === date.toDateString());
+      const grouped = {};
+      events.forEach(item => {
+        if (!grouped[item.miscproduct_date]) grouped[item.miscproduct_date] = [];
+        grouped[item.miscproduct_date].push(item);
+      });
 
-        const dayCard = document.createElement('div');
-        dayCard.className = 'card';
+      Object.keys(grouped).sort().forEach(date => {
+        const card = document.createElement('div');
+        card.className = 'col-md-6 col-lg-4';
+        card.innerHTML = `
+          <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+              ${date}
+            </div>
+            <div class="card-body">
+              ${grouped[date].map(ev => `
+                <div class="mb-2">
+                  <strong>${ev.miscproduct_title || 'No Title'}</strong><br>
+                  ${ev.miscproduct_start_time} - ${ev.miscproduct_end_time}<br>
+                  <span class="badge bg-${ev.miscproduct_status === 'SCHEDULE_CONFIRMED' ? 'success' : 'warning'}">${ev.miscproduct_status}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
 
-        const heading = document.createElement('h2');
-        heading.textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-        heading.style.marginBottom = '0.5rem';
-        dayCard.appendChild(heading);
+    function changeDate(offset) {
+      currentStartDate = currentStartDate.add(offset * 4, 'day');
+      fetchCalendar();
+    }
 
-        if (dayEvents.length === 0) {
-          const noEvents = document.createElement('p');
-          noEvents.textContent = 'No events';
-          noEvents.style.color = '#9ca3af';
-          dayCard.appendChild(noEvents);
-        }
+    function resetToToday() {
+      currentStartDate = dayjs().startOf('day');
+      fetchCalendar();
+    }
 
-        dayEvents.forEach(event => {
-          const eventEl = document.createElement('div');
-          eventEl.className = 'event';
-
-          const title = document.createElement('div');
-          title.className = 'event-title';
-          title.textContent = event.miscproduct_title || 'No Title';
-
-          const time = document.createElement('div');
-          time.textContent = `${event.miscproduct_start_time} - ${event.miscproduct_end_time} (${event.miscproduct_status})`;
-
-          eventEl.appendChild(title);
-          eventEl.appendChild(time);
-          dayCard.appendChild(eventEl);
-        });
-
-        calendarEl.appendChild(dayCard);
-      }
-    };
-
-    document.getElementById('prevBtn').addEventListener('click', () => {
-      currentStartDate.setDate(currentStartDate.getDate() - 3);
-      renderCalendar();
-    });
-
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      currentStartDate.setDate(currentStartDate.getDate() + 3);
-      renderCalendar();
-    });
-
-    // Watch filter inputs
-    document.querySelectorAll('input').forEach(input =>
-      input.addEventListener('input', fetchData)
-    );
-
-    fetchData(); // Initial load
+    document.getElementById('providerSelect').addEventListener('change', fetchCalendar);
+    window.onload = fetchCalendar;
   </script>
 </body>
 </html>
