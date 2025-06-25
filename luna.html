@@ -487,6 +487,11 @@
             }
 
             handleIncomingMessage(data) {
+                // ✅ Skip if it's a system message
+                if (data.type === 'system' || (data.data && data.data.message_type === 'system')) {
+                    return;
+                }
+
                 // Check if the message has the expected structure
                 if (data.data && data.data.message_content) {
                     const messageData = data.data;
