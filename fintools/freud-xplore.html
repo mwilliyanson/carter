@@ -72,6 +72,7 @@
           <tr>
             <th class="session-id">Session ID</th>
             <th>Status</th>
+            <th>Platform</th>
             <th>Counseling Date</th>
             <th>Session Created Date</th>
             <th class="promo-code">Promo Code</th>
@@ -151,6 +152,7 @@
         row.innerHTML = `
           <td class="session-id">${item.session_id}</td>
           <td>${item.status}</td>
+          <td>${item.session_platform || "-"}</td>
           <td>${item.counseling_date.split("T")[0]}</td>
           <td>${item.session_created_date.split("T")[0]}</td>
           <td class="promo-code">${item.promo_code || "-"}</td>
