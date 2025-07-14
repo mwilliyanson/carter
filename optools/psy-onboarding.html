@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Onboard Psychologist</title>
+</head>
+<body>
+  <h2>Onboard Psychologist</h2>
+  <form id="onboardForm">
+    <input type="text" name="full_name" placeholder="Full Name" value="Chrestella Elaine S.Psi., M.Psi., Psikolog"><br>
+    <input type="email" name="email" placeholder="Email" value="ella.mpsi@gmail.com"><br>
+    <input type="text" name="phone" placeholder="Phone" value="08176608323"><br>
+    <input type="text" name="motto" placeholder="Motto" value="Belajar setiap hari adalah cara kita memuliakan hidup dan hadir sebagai jawaban bagi sesama."><br>
+    <textarea name="description" placeholder="Description">Saya adalah psikolog klinis dengan pengalaman lebih dari sembilan tahun...</textarea><br>
+    <input type="text" name="degree" placeholder="Degree" value="S.Psi., M.Psi., Psikolog"><br>
+    <input type="text" name="education" placeholder="Education" value="S2 Magister Profesi Psikolog"><br>
+    <input type="text" name="certification" placeholder="Certification" value="SIPP: 20160238-2023-03-2891"><br>
+    <input type="text" name="secret_key" placeholder="Secret Key" value="walala"><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  <pre id="responseOutput"></pre>
+
+  <script>
+    const form = document.getElementById('onboardForm');
+    const output = document.getElementById('responseOutput');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const payload = {};
+      formData.forEach((value, key) => payload[key] = value);
+
+      try {
+        const response = await fetch('http://localhost:3407/limbo/intools/onboard-psy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+            'App-Version-Code': '119',
+            'App-Version-Name': '0.11.9',
+            'locale': 'en_US',
+            'platform': 'Android',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Njc2Njc3MDgsImlhdCI6MTc1MTg5OTcwOCwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6ImJiMjBmOTI4LWI3M2ItNDIzOC1hMGUzLTU5ZjBkYzMyYjRiMyJ9.s6yEkZOIVp3FBOBqn5SILgCp2VyyvzvsVnltYiXybLc'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
