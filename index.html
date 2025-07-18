@@ -144,13 +144,13 @@
         col.innerHTML = `<h5>${dateStr}</h5><div class='date-column'>${sessions.length > 0 ? sessions.map(s => `
           <div class='session ${getStatusClass(s.miscproduct_status)}'>
             <strong>${s.miscproduct_start_time} - ${s.miscproduct_end_time}</strong><br>
-            ${s.miscproduct_title || "(No Title)"}
+            <strong>[${s.miscproduct_id}]</strong> ${s.miscproduct_title || "(No Title)"}
           </div>
         `).join("") : "<div class='text-muted'>No sessions</div>"}</div>`;
         container.appendChild(col);
       });
     }
-
+  
     document.getElementById("providerMenu").addEventListener("click", function(e) {
       if (e.target.closest('a')) {
         e.preventDefault();
