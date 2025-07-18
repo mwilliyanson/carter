@@ -74,6 +74,10 @@
       return date.toISOString().split('T')[0];
     }
 
+    function formatDayName(date) {
+      return date.toLocaleDateString('en-US', { weekday: 'long' });
+    }
+
     function getRollingDates(startDate, days = 4) {
       const dates = [];
       const tempDate = new Date(startDate);
@@ -138,15 +142,21 @@
       const displayDates = getRollingDates(currentStartDate);
       displayDates.forEach(dateObj => {
         const dateStr = formatDate(dateObj);
+        const dayName = formatDayName(dateObj);
         const sessions = (grouped[dateStr] || []).sort((a, b) => a.miscproduct_start_time.localeCompare(b.miscproduct_start_time));
         const col = document.createElement("div");
         col.className = "col-md-3";
-        col.innerHTML = `<h5>${dateStr}</h5><div class='date-column'>${sessions.length > 0 ? sessions.map(s => `
-          <div class='session ${getStatusClass(s.miscproduct_status)}'>
-            <strong>${s.miscproduct_start_time} - ${s.miscproduct_end_time}</strong><br>
-            <strong>[${s.miscproduct_id}]</strong> ${s.miscproduct_title || "(No Title)"}
+        col.innerHTML = `
+          <h5>${dayName}, ${dateStr}</h5>
+          <div class='date-column'>
+            ${sessions.length > 0 ? sessions.map(s => `
+              <div class='session ${getStatusClass(s.miscproduct_status)}'>
+                <strong>${s.miscproduct_start_time} - ${s.miscproduct_end_time}</strong><br>
+                <strong>[${s.miscproduct_id}]</strong> ${s.miscproduct_title || "(No Title)"}
+              </div>
+            `).join("") : "<div class='text-muted'>No sessions</div>"}
           </div>
-        `).join("") : "<div class='text-muted'>No sessions</div>"}</div>`;
+        `;
         container.appendChild(col);
       });
     }
