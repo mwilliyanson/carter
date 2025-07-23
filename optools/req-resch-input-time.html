@@ -8,19 +8,19 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-6 text-center">Schedule Input Request</h2>
+    <h2 class="text-2xl font-bold mb-6 text-center">Schedule Switch Request</h2>
     <form id="scheduleForm" class="space-y-4">
       <div>
         <label for="request_id" class="block text-sm font-medium text-gray-700">Request ID</label>
         <input type="number" id="request_id" name="request_id" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
       </div>
       <div>
-        <label for="request_date" class="block text-sm font-medium text-gray-700">Date (DD-MM-YY)</label>
-        <input type="text" id="request_date" name="request_date" pattern="\\d{2}-\\d{2}-\\d{2}" placeholder="23-07-25" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+        <label for="request_date" class="block text-sm font-medium text-gray-700">Date</label>
+        <input type="date" id="request_date" name="request_date" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
       </div>
       <div>
-        <label for="request_start_time" class="block text-sm font-medium text-gray-700">Time (HH:MM)</label>
-        <input type="text" id="request_start_time" name="request_start_time" pattern="\\d{2}:\\d{2}" placeholder="14:30" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+        <label for="request_start_time" class="block text-sm font-medium text-gray-700">Time</label>
+        <input type="time" id="request_start_time" name="request_start_time" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
       </div>
       <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-xl hover:bg-indigo-700">Submit</button>
     </form>
@@ -32,8 +32,12 @@
       e.preventDefault();
 
       const request_id = document.getElementById('request_id').value;
-      const request_date = document.getElementById('request_date').value;
-      const request_start_time = document.getElementById('request_start_time').value;
+      const request_date_raw = document.getElementById('request_date').value; // format: YYYY-MM-DD
+      const request_start_time = document.getElementById('request_start_time').value; // format: HH:MM
+
+      // Convert YYYY-MM-DD to DD-MM-YY
+      const [year, month, day] = request_date_raw.split("-");
+      const request_date = `${day}-${month}-${year.slice(2)}`; // DD-MM-YY
 
       const payload = {
         request_id: parseInt(request_id),
@@ -46,7 +50,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-            // No Bearer header needed
+            // No Authorization header needed
           },
           body: JSON.stringify(payload)
         });
