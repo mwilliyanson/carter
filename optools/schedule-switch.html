@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Schedule Switch</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Schedule Switch</h2>
+
+    <div class="mb-4">
+      <label for="requestId" class="block text-gray-700 mb-2">Request ID</label>
+      <input type="number" id="requestId" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter request ID" />
+    </div>
+
+    <button
+      onclick="submitRequest()"
+      id="submitBtn"
+      class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+    >
+      Submit
+    </button>
+
+    <div id="message" class="mt-4 text-center text-sm"></div>
+  </div>
+
+  <script>
+    async function submitRequest() {
+      const requestId = document.getElementById("requestId").value;
+      const messageEl = document.getElementById("message");
+      const submitBtn = document.getElementById("submitBtn");
+
+      if (!requestId) {
+        messageEl.textContent = "❌ Please enter a request ID.";
+        messageEl.className = "mt-4 text-center text-red-600";
+        return;
+      }
+
+      messageEl.textContent = "⏳ Sending...";
+      messageEl.className = "mt-4 text-center text-gray-600";
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Processing...";
+
+      try {
+        const response = await fetch("https://www.gopher.bicarakan.id/limbo/intools/schedule-switch", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ request_id: parseInt(requestId) })
+        });
+
+        const resultText = response.ok
+          ? "✅ Success!"
+          : `❌ Error: ${response.statusText}`;
+
+        messageEl.textContent = resultText;
+        messageEl.className = `mt-4 text-center ${response.ok ? 'text-green-600' : 'text-red-600'}`;
+
+      } catch (err) {
+        messageEl.textContent = "❌ Network error: " + err.message;
+        messageEl.className = "mt-4 text-center text-red-600";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit";
+      }
+    }
+  </script>
+
+</body>
+</html>
