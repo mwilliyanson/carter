@@ -1,124 +1,84 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Pengajuan Jadwal Baru</title>
+  <meta charset="UTF-8" />
+  <title>Login - Bicarakan</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md border border-blue-200">
-    <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">Pengajuan Jadwal Baru</h1>
-
-    <form id="rescheduleForm" class="space-y-5">
+<body class="bg-gradient-to-r from-indigo-100 to-blue-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm">
+    <h1 class="text-2xl font-bold text-center text-indigo-700 mb-6">Login ke Bicarakan</h1>
+    <form id="loginForm" class="space-y-4">
       <div>
-        <label class="block font-semibold text-blue-700 mb-1">Session ID</label>
-        <input type="text" id="sessionId" required class="w-full border border-blue-300 rounded-md p-2" />
+        <label class="block text-indigo-600 font-semibold mb-1">Nomor Telepon</label>
+        <input type="text" id="username" required placeholder="628xxxxxxxxx" class="w-full border border-indigo-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
 
       <div>
-        <label class="block font-semibold text-blue-700 mb-1">Psychologist ID</label>
-        <input type="text" id="psychologistId" required class="w-full border border-blue-300 rounded-md p-2" />
+        <label class="block text-indigo-600 font-semibold mb-1">Password</label>
+        <input type="password" id="password" required class="w-full border border-indigo-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
 
-      <div>
-        <label class="block font-semibold text-blue-700 mb-1">Tanggal Baru</label>
-        <input type="date" id="appointmentDate" required class="w-full border border-blue-300 rounded-md p-2" />
-      </div>
-
-      <div>
-        <label class="block font-semibold text-blue-700 mb-1">Waktu Mulai</label>
-        <input type="time" id="startTime" required class="w-full border border-blue-300 rounded-md p-2" />
-      </div>
-
-      <div>
-        <label class="block font-semibold text-blue-700 mb-1">Waktu Selesai</label>
-        <input type="time" id="endTime" required class="w-full border border-blue-300 rounded-md p-2" />
-      </div>
-
-      <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
-        Kirim Pengajuan
+      <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-200">
+        Login
       </button>
     </form>
 
-    <div id="responseMessage" class="mt-4 text-center text-sm font-medium"></div>
+    <div id="loginMessage" class="mt-4 text-center text-sm font-medium"></div>
   </div>
 
   <script>
-    const token = localStorage.getItem("access_token");
-    const userId = localStorage.getItem("user_id");
-
-    if (!token || !userId) {
-      alert("Anda belum login. Silakan login terlebih dahulu.");
-      window.location.href = "sch-req-login.html";
-    }
-
-    const form = document.getElementById("rescheduleForm");
-    const responseMessage = document.getElementById("responseMessage");
+    const form = document.getElementById("loginForm");
+    const loginMessage = document.getElementById("loginMessage");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
 
-      const sessionId = document.getElementById("sessionId").value;
-      const psychologistId = document.getElementById("psychologistId").value;
-      const appointmentDate = document.getElementById("appointmentDate").value;
-      const startTime = document.getElementById("startTime").value;
-      const endTime = document.getElementById("endTime").value;
-
-      const requestMetadata = {
-        external_id: sessionId,
-        appointment_new_provider_id: psychologistId,
-        appointment_option_data_list: [{
-          appointment_option_date: `${appointmentDate}T00:00:00.000`,
-          appointment_option_start_time: startTime,
-          appointment_option_end_time: endTime
-        }]
-      };
-
-      const payload = {
-        request_id: "",
-        request_type: "APPOINTMENT_RESCHEDULE",
-        request_reasoning: "",
-        request_metadata: JSON.stringify(requestMetadata),
-        request_displayed_title: "",
-        request_external_displayed_title: "",
-        request_displayed_data: "",
-        request_status: "",
-        request_external_id: sessionId,
-        request_scheduled_timestamp: "",
-        request_approval_user_id: "",
-        request_author_id: userId,
-        request_approval_timestamp: "",
-        request_created_timestamp: new Date().toISOString(),
-        request_category: "",
-        request_supporting_document_asset_url: ""
+      const body = {
+        username,
+        password,
+        access_type: "PHONE_PASSWORD",
+        application_identifier: "BCRA",
+        access_meta_data: {
+          external_token_id: ""
+        },
+        device_meta_data: {
+          token: "",
+          device_id: "",
+          type: "web"
+        }
       };
 
       try {
-        const res = await fetch("https://gopher.bicarakan.id/freud/request/create", {
+        const res = await fetch("https://gopher.bicarakan.id/stansbury/user/login", {
           method: "POST",
           headers: {
-            "Content-type": "application/json",
-            "x-api-key": "B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT",
-            "App-Version-Code": "124",
-            "App-Version-Name": "0.12.4",
-            "locale": "en_US",
-            "platform": "Android",
-            "Accept-Language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Content-Language": "id-ID",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-            "Authorization": "Bearer " + token
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(body)
         });
 
-        if (!res.ok) throw new Error("Gagal mengirim");
-
         const result = await res.json();
-        responseMessage.textContent = "✅ Pengajuan berhasil dikirim!";
-        responseMessage.className = "mt-4 text-green-600 text-center text-sm font-medium";
+
+        if (result.data?.sign_in_status === "SUCCESS") {
+          const token = result.data.token_context.access_token_context.token_data;
+          const userId = result.data.user_login_data.user_id;
+
+          // Store token and user ID
+          localStorage.setItem("access_token", token);
+          localStorage.setItem("user_id", userId);
+
+          // Redirect
+          window.location.href = "pengajuan.html";
+        } else {
+          loginMessage.textContent = "Login gagal. Periksa kembali nomor dan password Anda.";
+          loginMessage.className = "text-red-600 text-center mt-4";
+        }
       } catch (err) {
-        responseMessage.textContent = "❌ Gagal mengirim pengajuan.";
-        responseMessage.className = "mt-4 text-red-600 text-center text-sm font-medium";
+        loginMessage.textContent = "Terjadi kesalahan. Silakan coba lagi.";
+        loginMessage.className = "text-red-600 text-center mt-4";
       }
     });
   </script>
