@@ -12,27 +12,27 @@
     <form id="rescheduleForm" class="space-y-5">
       <div>
         <label class="block font-semibold text-blue-700 mb-1">Session ID</label>
-        <input type="text" id="sessionId" required class="w-full border border-blue-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="text" id="sessionId" required class="w-full border border-blue-300 rounded-md p-2" />
       </div>
 
       <div>
         <label class="block font-semibold text-blue-700 mb-1">Tanggal Janji</label>
-        <input type="date" id="appointmentDate" required class="w-full border border-blue-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="date" id="appointmentDate" required class="w-full border border-blue-300 rounded-md p-2" />
       </div>
 
       <div>
         <label class="block font-semibold text-blue-700 mb-1">Waktu Mulai</label>
-        <input type="time" id="startTime" required class="w-full border border-blue-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="time" id="startTime" required class="w-full border border-blue-300 rounded-md p-2" />
       </div>
 
       <div>
         <label class="block font-semibold text-blue-700 mb-1">Waktu Selesai</label>
-        <input type="time" id="endTime" required class="w-full border border-blue-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="time" id="endTime" required class="w-full border border-blue-300 rounded-md p-2" />
       </div>
 
       <div>
         <label class="block font-semibold text-blue-700 mb-1">Psychologist ID</label>
-        <input type="text" id="psychologistId" required class="w-full border border-blue-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="text" id="authorId" required class="w-full border border-blue-300 rounded-md p-2" />
       </div>
 
       <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
@@ -45,9 +45,8 @@
 
   <script>
     const token = localStorage.getItem("access_token");
-    const userId = localStorage.getItem("user_id");
 
-    if (!token || !userId) {
+    if (!token) {
       alert("Anda belum login. Silakan login terlebih dahulu.");
       window.location.href = "sch-req-login.html";
     }
@@ -58,4 +57,71 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const sessionId =
+      const sessionId = document.getElementById("sessionId").value;
+      const appointmentDate = document.getElementById("appointmentDate").value;
+      const startTime = document.getElementById("startTime").value;
+      const endTime = document.getElementById("endTime").value;
+      const authorId = document.getElementById("authorId").value;
+
+      const payload = {
+        request_id: "",
+        request_type: "APPOINTMENT_RESCHEDULE",
+        request_reasoning: "",
+        request_metadata: JSON.stringify({
+          external_id: sessionId,
+          appointment_new_provider_id: authorId,
+          appointment_option_data_list: [
+            {
+              appointment_option_date: `${appointmentDate}T00:00:00.000`,
+              appointment_option_start_time: startTime,
+              appointment_option_end_time: endTime
+            }
+          ]
+        }),
+        request_displayed_title: "",
+        request_external_displayed_title: "",
+        request_displayed_data: "",
+        request_status: "",
+        request_external_id: sessionId,
+        request_scheduled_timestamp: "",
+        request_approval_user_id: "",
+        request_author_id: authorId,
+        request_approval_timestamp: "",
+        request_created_timestamp: new Date().toISOString(),
+        request_category: "",
+        request_supporting_document_asset_url: ""
+      };
+
+      try {
+        const res = await fetch("https://gopher.bicarakan.id/freud/request/create", {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+            "x-api-key": "B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT",
+            "App-Version-Code": "124",
+            "App-Version-Name": "0.12.4",
+            "locale": "en_US",
+            "platform": "Android",
+            "Accept-Language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Content-Language": "id-ID",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          throw new Error("Gagal mengirim pengajuan");
+        }
+
+        const result = await res.json();
+        responseMessage.textContent = "✅ Pengajuan berhasil dikirim!";
+        responseMessage.className = "mt-4 text-green-600 text-center text-sm font-medium";
+      } catch (error) {
+        responseMessage.textContent = "❌ Gagal mengirim pengajuan.";
+        responseMessage.className = "mt-4 text-red-600 text-center text-sm font-medium";
+      }
+    });
+  </script>
+</body>
+</html>
