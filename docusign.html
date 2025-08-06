@@ -13,95 +13,124 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f8fafc;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #334155;
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
 
+        .header-banner {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+        }
+
+        .header-banner h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-banner p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
         .card {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 24px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
             overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .card-header {
-            padding: 24px;
+            padding: 32px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             border-bottom: 1px solid #e2e8f0;
         }
 
         .card-content {
-            padding: 24px;
+            padding: 32px;
         }
 
         .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
+            color: #1e293b;
         }
 
         .card-description {
             color: #64748b;
-            font-size: 0.875rem;
+            font-size: 1rem;
+            font-weight: 500;
         }
 
         .badge {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.875rem;
+            font-weight: 600;
             margin-left: auto;
-        }
-
-        .badge.pending {
-            background: #fef3c7;
-            color: #92400e;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
         }
 
         .badge.completed {
-            background: #d1fae5;
-            color: #065f46;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
         .document-content {
-            background: #f8fafc;
-            padding: 24px;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            line-height: 1.7;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 32px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            border: 1px solid #e2e8f0;
         }
 
         .document-content h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1e293b;
+            text-align: center;
         }
 
         .document-content h4 {
             font-weight: 600;
-            margin: 16px 0 8px 0;
+            margin: 24px 0 12px 0;
+            color: #374151;
+            font-size: 1.1rem;
         }
 
         .document-content p {
             margin-bottom: 16px;
+            color: #4b5563;
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 16px;
+            gap: 24px;
         }
 
         .form-grid.two-cols {
@@ -111,179 +140,260 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
         }
 
         .form-label {
-            font-weight: 500;
-            font-size: 0.875rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #374151;
         }
 
         .form-input {
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            transition: border-color 0.2s;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
         }
 
         .form-input:focus {
             outline: none;
             border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .signature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 24px;
+        }
+
+        .signature-option {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .signature-option:hover {
+            border-color: #3b82f6;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(59, 130, 246, 0.15);
+        }
+
+        .signature-option.has-content {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+
+        .signature-option-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .signature-input {
-            font-family: 'Brush Script MT', cursive;
-            font-size: 1.25rem;
+            font-family: 'Brush Script MT', 'Dancing Script', cursive;
+            font-size: 1.5rem;
             font-style: italic;
-        }
-
-        .signature-tabs {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .tab-button {
-            padding: 8px 16px;
-            border: 1px solid #d1d5db;
+            text-align: center;
             background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.2s;
+            border: 2px dashed #d1d5db;
+            padding: 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
 
-        .tab-button.active {
-            background: #3b82f6;
-            color: white;
+        .signature-input:focus {
             border-color: #3b82f6;
+            border-style: solid;
         }
 
         .signature-canvas-container {
             border: 2px dashed #d1d5db;
-            border-radius: 8px;
-            padding: 16px;
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .signature-canvas-container:hover {
+            border-color: #3b82f6;
         }
 
         .signature-canvas {
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             cursor: crosshair;
             width: 100%;
-            max-width: 600px;
-            height: 150px;
+            height: 120px;
             display: block;
             margin: 0 auto;
+            background: #fafafa;
+        }
+
+        .canvas-instructions {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 12px;
+            font-style: italic;
         }
 
         .button {
-            padding: 12px 24px;
+            padding: 16px 32px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-weight: 500;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .button-primary {
-            background: #3b82f6;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
         }
 
         .button-primary:hover:not(:disabled) {
-            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(59, 130, 246, 0.4);
         }
 
         .button-secondary {
             background: white;
             color: #374151;
-            border: 1px solid #d1d5db;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .button-secondary:hover {
             background: #f9fafb;
+            border-color: #d1d5db;
+            transform: translateY(-2px);
+        }
+
+        .button-clear {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            margin-top: 12px;
         }
 
         .button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none !important;
         }
 
         .button-group {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
+            margin-top: 32px;
         }
 
         .agreement-notice {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 2px solid #bfdbfe;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
         }
 
         .agreement-notice h4 {
             color: #1e40af;
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            font-size: 1.125rem;
         }
 
         .agreement-notice ul {
             color: #1e40af;
-            font-size: 0.875rem;
-            margin-left: 20px;
+            font-size: 1rem;
+            margin-left: 24px;
         }
 
         .agreement-notice li {
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            font-weight: 500;
         }
 
         .success-container {
             text-align: center;
-            padding: 40px 24px;
+            padding: 60px 32px;
         }
 
         .success-icon {
-            width: 64px;
-            height: 64px;
-            background: #d1fae5;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 24px;
-            font-size: 2rem;
-            color: #059669;
+            margin: 0 auto 32px;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 12px 24px rgba(16, 185, 129, 0.3);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
         }
 
         .success-title {
-            font-size: 1.875rem;
-            font-weight: 600;
+            font-size: 2.5rem;
+            font-weight: 700;
             color: #065f46;
-            margin-bottom: 8px;
+            margin-bottom: 16px;
         }
 
         .success-description {
             color: #059669;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
+            font-size: 1.25rem;
+            font-weight: 500;
         }
 
         .date-info {
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #64748b;
-            font-size: 0.875rem;
-            margin-top: 16px;
+            justify-content: center;
+            gap: 12px;
+            color: #6b7280;
+            font-size: 1rem;
+            margin-top: 24px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            font-weight: 500;
         }
 
         .hidden {
@@ -291,14 +401,64 @@
         }
 
         .icon {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             fill: currentColor;
         }
 
+        .signature-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .signature-status.complete {
+            color: #059669;
+        }
+
+        .signature-status.incomplete {
+            color: #dc2626;
+        }
+
+        .checkmark {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #10b981;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .x-mark {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
         @media (max-width: 768px) {
+            .header-banner h1 {
+                font-size: 2rem;
+            }
+            
             .form-grid.two-cols {
                 grid-template-columns: 1fr;
+            }
+            
+            .signature-section {
+                grid-template-columns: 1fr;
+                gap: 24px;
             }
             
             .button-group {
@@ -306,14 +466,20 @@
                 align-items: stretch;
             }
             
-            .signature-tabs {
-                flex-direction: column;
+            .card-content {
+                padding: 24px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header Banner -->
+        <div class="header-banner">
+            <h1>✍️ Digital Document Signing</h1>
+            <p>Secure, fast, and legally binding electronic signatures</p>
+        </div>
+
         <!-- Main Document Interface -->
         <div id="documentInterface">
             <!-- Header -->
@@ -328,7 +494,7 @@
                             <polyline points="10,9 9,9 8,9"></polyline>
                         </svg>
                         Service Agreement Contract
-                        <span class="badge pending" id="statusBadge">Pending Signature</span>
+                        <span class="badge" id="statusBadge">Pending Signature</span>
                     </div>
                     <div class="card-description">Please review and sign the document below</div>
                 </div>
@@ -337,35 +503,35 @@
             <!-- Document Content -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">Contract Terms & Conditions</div>
+                    <div class="card-title">📋 Contract Terms & Conditions</div>
                 </div>
                 <div class="card-content">
                     <div class="document-content">
-                        <h3>SERVICE AGREEMENT</h3>
+                        <h3>🤝 SERVICE AGREEMENT</h3>
                         <p>
                             This Service Agreement ("Agreement") is entered into between <strong>TechCorp Solutions</strong> ("Company") 
                             and the undersigned client ("Client") for the provision of professional consulting services.
                         </p>
                         
-                        <h4>1. SCOPE OF SERVICES</h4>
+                        <h4>1. 🎯 SCOPE OF SERVICES</h4>
                         <p>
                             Company agrees to provide web development and digital marketing consulting services as outlined 
                             in the attached project specification document.
                         </p>
 
-                        <h4>2. PAYMENT TERMS</h4>
+                        <h4>2. 💰 PAYMENT TERMS</h4>
                         <p>
-                            Client agrees to pay the total project fee of $5,000 USD, with 50% due upon signing this agreement 
+                            Client agrees to pay the total project fee of <strong>$5,000 USD</strong>, with 50% due upon signing this agreement 
                             and the remaining 50% due upon project completion.
                         </p>
 
-                        <h4>3. PROJECT TIMELINE</h4>
+                        <h4>3. ⏰ PROJECT TIMELINE</h4>
                         <p>
-                            The estimated project completion time is 6-8 weeks from the start date, subject to timely 
+                            The estimated project completion time is <strong>6-8 weeks</strong> from the start date, subject to timely 
                             feedback and approval from the Client.
                         </p>
 
-                        <h4>4. INTELLECTUAL PROPERTY</h4>
+                        <h4>4. 🔒 INTELLECTUAL PROPERTY</h4>
                         <p>
                             Upon full payment, all deliverables and intellectual property created specifically for this 
                             project will be transferred to the Client.
@@ -382,7 +548,7 @@
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
-                        Client Information
+                        👤 Client Information
                     </div>
                     <div class="card-description">Please fill in your details below</div>
                 </div>
@@ -397,7 +563,7 @@
                             <input type="email" id="email" class="form-input" placeholder="john@example.com" required>
                         </div>
                     </div>
-                    <div class="form-grid two-cols" style="margin-top: 16px;">
+                    <div class="form-grid two-cols" style="margin-top: 24px;">
                         <div class="form-group">
                             <label class="form-label" for="phone">Phone Number</label>
                             <input type="tel" id="phone" class="form-input" placeholder="+1 (555) 123-4567">
@@ -420,37 +586,41 @@
                             <path d="M2 2l7.586 7.586"></path>
                             <circle cx="11" cy="11" r="2"></circle>
                         </svg>
-                        Digital Signature
+                        ✍️ Digital Signature
                     </div>
-                    <div class="card-description">Please provide your signature to complete the agreement</div>
+                    <div class="card-description">Please provide your signature using either method below</div>
                 </div>
                 <div class="card-content">
-                    <div class="signature-tabs">
-                        <button class="tab-button active" id="typeTab" onclick="switchSignatureType('type')">
-                            Type Signature
-                        </button>
-                        <button class="tab-button" id="drawTab" onclick="switchSignatureType('draw')">
-                            Draw Signature
-                        </button>
-                    </div>
-
-                    <!-- Type Signature -->
-                    <div id="typeSignature">
-                        <div class="form-group">
-                            <label class="form-label" for="signatureText">Type your full name as signature</label>
-                            <input type="text" id="signatureText" class="form-input signature-input" placeholder="John Doe">
+                    <div class="signature-section">
+                        <!-- Type Signature -->
+                        <div class="signature-option" id="typeSignatureOption">
+                            <div class="signature-option-title">
+                                ⌨️ Type Your Signature
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="signatureText" class="form-input signature-input" placeholder="Type your full name here">
+                            </div>
+                            <div class="signature-status incomplete" id="typeStatus">
+                                <div class="x-mark">✕</div>
+                                <span>Signature required</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Draw Signature -->
-                    <div id="drawSignature" class="hidden">
-                        <div class="form-group">
-                            <label class="form-label">Draw your signature below</label>
+                        <!-- Draw Signature -->
+                        <div class="signature-option" id="drawSignatureOption">
+                            <div class="signature-option-title">
+                                🎨 Draw Your Signature
+                            </div>
                             <div class="signature-canvas-container">
-                                <canvas id="signatureCanvas" class="signature-canvas" width="600" height="150"></canvas>
-                                <button type="button" class="button button-secondary" onclick="clearCanvas()" style="margin-top: 12px;">
-                                    Clear Signature
+                                <div class="canvas-instructions">Draw your signature in the box below</div>
+                                <canvas id="signatureCanvas" class="signature-canvas" width="400" height="120"></canvas>
+                                <button type="button" class="button button-clear" onclick="clearCanvas()">
+                                    🗑️ Clear Signature
                                 </button>
+                            </div>
+                            <div class="signature-status incomplete" id="drawStatus">
+                                <div class="x-mark">✕</div>
+                                <span>Signature required</span>
                             </div>
                         </div>
                     </div>
@@ -462,7 +632,7 @@
                             <line x1="8" y1="2" x2="8" y2="6"></line>
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
-                        <span>Date: <span id="currentDate"></span></span>
+                        <span>📅 Date: <span id="currentDate"></span></span>
                     </div>
                 </div>
             </div>
@@ -471,20 +641,20 @@
             <div class="card">
                 <div class="card-content">
                     <div class="agreement-notice">
-                        <h4>By signing this document, you agree to:</h4>
+                        <h4>📝 By signing this document, you agree to:</h4>
                         <ul>
-                            <li>The terms and conditions outlined in this agreement</li>
-                            <li>The payment schedule and project timeline</li>
-                            <li>The scope of services as described above</li>
+                            <li>✅ The terms and conditions outlined in this agreement</li>
+                            <li>💳 The payment schedule and project timeline</li>
+                            <li>🎯 The scope of services as described above</li>
                         </ul>
                     </div>
                     
                     <div class="button-group">
                         <button type="button" class="button button-secondary">
-                            Save as Draft
+                            💾 Save as Draft
                         </button>
                         <button type="button" id="submitButton" class="button button-primary" onclick="submitDocument()">
-                            Complete & Sign Document
+                            ✅ Complete & Sign Document
                         </button>
                     </div>
                 </div>
@@ -496,14 +666,14 @@
             <div class="card">
                 <div class="success-container">
                     <div class="success-icon">✓</div>
-                    <h1 class="success-title">Document Completed!</h1>
+                    <h1 class="success-title">🎉 Document Completed!</h1>
                     <p class="success-description">Your document has been successfully signed and submitted.</p>
-                    <p style="margin-bottom: 24px; font-size: 0.875rem; color: #64748b;">
-                        Signed by: <strong id="signerName"></strong> on <span id="signatureDate"></span>
+                    <p style="margin-bottom: 32px; font-size: 1rem; color: #64748b; font-weight: 500;">
+                        📝 Signed by: <strong id="signerName"></strong> on <span id="signatureDate"></span>
                     </p>
-                    <div class="button-group" style="justify-content: center; gap: 16px;">
-                        <button type="button" class="button button-secondary">Download PDF</button>
-                        <button type="button" class="button button-primary">Send Copy via Email</button>
+                    <div class="button-group" style="justify-content: center; gap: 20px;">
+                        <button type="button" class="button button-secondary">📄 Download PDF</button>
+                        <button type="button" class="button button-primary">📧 Send Copy via Email</button>
                     </div>
                 </div>
             </div>
@@ -512,9 +682,10 @@
 
     <script>
         // Global variables
-        let currentSignatureType = 'type';
         let isDrawing = false;
         let canvas, ctx;
+        let hasTypedSignature = false;
+        let hasDrawnSignature = false;
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
@@ -529,19 +700,12 @@
             ctx.lineCap = 'round';
             
             // Add canvas event listeners
-            canvas = document.getElementById('signatureCanvas');
-            ctx = canvas.getContext('2d');
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            
-            // Add canvas event listeners
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', stopDrawing);
             canvas.addEventListener('mouseout', stopDrawing);
 
-            // Add touch support for mobile - replace the existing touch listeners
+            // Add touch support for mobile
             canvas.addEventListener('touchstart', handleTouch, { passive: false });
             canvas.addEventListener('touchmove', handleTouch, { passive: false });
             canvas.addEventListener('touchend', handleTouch, { passive: false });
@@ -551,22 +715,10 @@
             inputs.forEach(id => {
                 document.getElementById(id).addEventListener('input', validateForm);
             });
-        });
 
-        // Switch between signature types
-        function switchSignatureType(type) {
-            currentSignatureType = type;
-            
-            // Update tabs
-            document.getElementById('typeTab').classList.toggle('active', type === 'type');
-            document.getElementById('drawTab').classList.toggle('active', type === 'draw');
-            
-            // Show/hide signature sections
-            document.getElementById('typeSignature').classList.toggle('hidden', type !== 'type');
-            document.getElementById('drawSignature').classList.toggle('hidden', type !== 'draw');
-            
+            // Initial validation
             validateForm();
-        }
+        });
 
         // Canvas drawing functions
         function getCanvasCoordinates(e, canvas) {
@@ -602,7 +754,7 @@
             const coords = getCanvasCoordinates(e, canvas);
             ctx.lineTo(coords.x, coords.y);
             ctx.stroke();
-            validateForm();
+            updateDrawSignatureStatus();
         }
 
         function stopDrawing() {
@@ -621,7 +773,7 @@
                 const coords = getCanvasCoordinates(e, canvas);
                 ctx.lineTo(coords.x, coords.y);
                 ctx.stroke();
-                validateForm();
+                updateDrawSignatureStatus();
             } else if (e.type === 'touchend') {
                 isDrawing = false;
             }
@@ -629,7 +781,7 @@
 
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            validateForm();
+            updateDrawSignatureStatus();
         }
 
         function isCanvasEmpty() {
@@ -637,16 +789,48 @@
             return imageData.data.every(pixel => pixel === 0);
         }
 
+        function updateDrawSignatureStatus() {
+            hasDrawnSignature = !isCanvasEmpty();
+            const drawStatus = document.getElementById('drawStatus');
+            const drawOption = document.getElementById('drawSignatureOption');
+            
+            if (hasDrawnSignature) {
+                drawStatus.className = 'signature-status complete';
+                drawStatus.innerHTML = '<div class="checkmark">✓</div><span>Signature complete</span>';
+                drawOption.classList.add('has-content');
+            } else {
+                drawStatus.className = 'signature-status incomplete';
+                drawStatus.innerHTML = '<div class="x-mark">✕</div><span>Signature required</span>';
+                drawOption.classList.remove('has-content');
+            }
+            validateForm();
+        }
+
+        function updateTypeSignatureStatus() {
+            const signatureText = document.getElementById('signatureText').value.trim();
+            hasTypedSignature = signatureText.length > 0;
+            const typeStatus = document.getElementById('typeStatus');
+            const typeOption = document.getElementById('typeSignatureOption');
+            
+            if (hasTypedSignature) {
+                typeStatus.className = 'signature-status complete';
+                typeStatus.innerHTML = '<div class="checkmark">✓</div><span>Signature complete</span>';
+                typeOption.classList.add('has-content');
+            } else {
+                typeStatus.className = 'signature-status incomplete';
+                typeStatus.innerHTML = '<div class="x-mark">✕</div><span>Signature required</span>';
+                typeOption.classList.remove('has-content');
+            }
+        }
+
         // Form validation
         function validateForm() {
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
-            const signatureText = document.getElementById('signatureText').value.trim();
-            const hasDrawnSignature = !isCanvasEmpty();
             
-            const isValid = fullName && email && 
-                           ((currentSignatureType === 'type' && signatureText) || 
-                            (currentSignatureType === 'draw' && hasDrawnSignature));
+            updateTypeSignatureStatus();
+            
+            const isValid = fullName && email && (hasTypedSignature || hasDrawnSignature);
             
             document.getElementById('submitButton').disabled = !isValid;
         }
@@ -661,13 +845,8 @@
                 return;
             }
             
-            if (currentSignatureType === 'type' && !document.getElementById('signatureText').value.trim()) {
-                alert('Please provide your signature.');
-                return;
-            }
-            
-            if (currentSignatureType === 'draw' && isCanvasEmpty()) {
-                alert('Please draw your signature.');
+            if (!hasTypedSignature && !hasDrawnSignature) {
+                alert('Please provide at least one signature.');
                 return;
             }
             
