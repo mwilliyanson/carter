@@ -175,6 +175,8 @@
             width: 100%;
             max-width: 600px;
             height: 150px;
+            display: block;
+            margin: 0 auto;
         }
 
         .button {
@@ -567,17 +569,38 @@
         }
 
         // Canvas drawing functions
+        function getCanvasCoordinates(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX, clientY;
+            
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
         function startDrawing(e) {
             isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
+            const coords = getCanvasCoordinates(e, canvas);
             ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.moveTo(coords.x, coords.y);
         }
 
         function draw(e) {
             if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            const coords = getCanvasCoordinates(e, canvas);
+            ctx.lineTo(coords.x, coords.y);
             ctx.stroke();
             validateForm();
         }
@@ -588,19 +611,15 @@
 
         function handleTouch(e) {
             e.preventDefault();
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            
-            // Calculate the correct position relative to the canvas
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
             
             if (e.type === 'touchstart') {
                 isDrawing = true;
+                const coords = getCanvasCoordinates(e, canvas);
                 ctx.beginPath();
-                ctx.moveTo(x, y);
+                ctx.moveTo(coords.x, coords.y);
             } else if (e.type === 'touchmove' && isDrawing) {
-                ctx.lineTo(x, y);
+                const coords = getCanvasCoordinates(e, canvas);
+                ctx.lineTo(coords.x, coords.y);
                 ctx.stroke();
                 validateForm();
             } else if (e.type === 'touchend') {
