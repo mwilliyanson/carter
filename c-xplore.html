@@ -225,8 +225,8 @@
   }
 
   function openWebSocket() {
-    //socket = new WebSocket(`wss://gopher.bicarakan.id/ws/v1/${roomId}?token=${encodeURIComponent(user)}`);
-    socket = new WebSocket(`ws://localhost:3407/ws/v1/${roomId}?token=${encodeURIComponent(user)}`);
+    socket = new WebSocket(`wss://gopher.bicarakan.id/ws/v1/${roomId}?token=${encodeURIComponent(user)}`);
+    //socket = new WebSocket(`ws://localhost:3407/ws/v1/${roomId}?token=${encodeURIComponent(user)}`);
 
     socket.onopen = () => {
       console.log('WebSocket opened');

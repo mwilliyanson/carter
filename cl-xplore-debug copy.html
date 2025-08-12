@@ -45,8 +45,8 @@
       return;
     }
     
-    //const wsUrl = `wss://gopher.bicarakan.id/ws/brown/conversation/channel/subscribe?user=${encodeURIComponent(userID)}`;
-    const wsUrl = `ws://localhost:3407/ws/brown/conversation/channel/subscribe?user=${encodeURIComponent(userID)}`;
+    const wsUrl = `wss://gopher.bicarakan.id/ws/brown/conversation/channel/subscribe?user=${encodeURIComponent(userID)}`;
+    //const wsUrl = `ws://localhost:3407/ws/brown/conversation/channel/subscribe?user=${encodeURIComponent(userID)}`;
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
