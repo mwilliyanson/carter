@@ -1,87 +1,115 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Channel WebSocket Test</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chat Channel List</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    #log { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; background: #f9f9f9; }
-    #status { margin-bottom: 10px; }
-    input, button { padding: 8px; font-size: 1rem; }
+    body{font-family: Arial, sans-serif;background:#f5f7fa;margin:0;padding:20px;}
+    h1{text-align:center;margin-bottom:20px;}
+    .container{max-width:1000px;margin:0 auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
+    table{width:100%;border-collapse:collapse;margin-top:20px;}
+    th,td{padding:12px;border-bottom:1px solid #ddd;text-align:left;}
+    th{background:#f0f2f5;}
+    tr:hover{background:#f9fafb;}
+    .pagination{display:flex;justify-content:center;align-items:center;margin-top:20px;gap:10px;}
+    button{background:#007bff;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;}
+    button:disabled{background:#ccc;cursor:not-allowed;}
+    select{padding:6px;border-radius:5px;border:1px solid #ccc;}
   </style>
 </head>
 <body>
-
-<h2>Channel WebSocket Test</h2>
-
-<label for="userID">User ID:</label>
-<input type="text" id="userID" placeholder="Enter your user ID" />
-<button id="connectBtn">Connect</button>
-<button id="disconnectBtn" disabled>Disconnect</button>
-
-<div id="status">Status: Disconnected</div>
-
-<div id="log"></div>
-
-<script>
-  let ws;
-  const logEl = document.getElementById('log');
-  const statusEl = document.getElementById('status');
-  const userIDInput = document.getElementById('userID');
-  const connectBtn = document.getElementById('connectBtn');
-  const disconnectBtn = document.getElementById('disconnectBtn');
-
-  function log(message) {
-    const p = document.createElement('p');
-    p.textContent = message;
-    logEl.appendChild(p);
-    logEl.scrollTop = logEl.scrollHeight;
-  }
-
-  connectBtn.onclick = () => {
-    const userID = userIDInput.value.trim();
-    if (!userID) {
-      alert('Please enter a User ID');
-      return;
-    }
-    
-    const wsUrl = `wss://gopher.bicarakan.id/ws/brown/conversation/channel/subscribe?user=${encodeURIComponent(userID)}`;
-    ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-      statusEl.textContent = 'Status: Connected';
-      connectBtn.disabled = true;
-      disconnectBtn.disabled = false;
-      log('Connected to channel WebSocket');
+  <div class="container">
+    <h1>Chat Channel List</h1>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        Show <select id="limitSelect">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+        </select> entries
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Room Type</th>
+          <th>Group</th>
+          <th>External ID</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <button id="prevBtn">Prev</button>
+      <span id="pageInfo"></span>
+      <button id="nextBtn">Next</button>
+    </div>
+  </div>
+  <script>
+    const API_URL = 'https://gopher.bicarakan.id/brown/conversation/channel/list';
+    const HEADERS = {
+      'Content-type': 'application/json',
+      'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+      'App-Version-Code': '125',
+      'App-Version-Name': '0.12.5',
+      'locale': 'en_US',
+      'platform': 'Android',
+      'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+      'Content-Language': 'id-ID',
+      'User-Agent': 'Mozilla/5.0',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAyMzUxMzQsImlhdCI6MTc1NDQ2NzEzNCwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6IjM1MDc0ZTRkLTUxYWEtNDI5Mi04NjNlLWUzY2YyNDI0NzU2MSJ9.BFb2_XihWzAASabKaeSaXofT0O0IMiL5G2KayDtEtb8'
     };
 
-    ws.onmessage = (event) => {
+    let offset = 0;
+    let limit = 10;
+
+    const tableBody = document.getElementById('tableBody');
+    const pageInfo = document.getElementById('pageInfo');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const limitSelect = document.getElementById('limitSelect');
+
+    async function fetchData() {
+      pageInfo.textContent = `Page ${Math.floor(offset/limit) + 1}`;
+      prevBtn.disabled = offset === 0;
+      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>`;
       try {
-        const data = JSON.parse(event.data);
-        log('Received: ' + JSON.stringify(data));
-      } catch(e) {
-        log('Received (non-JSON): ' + event.data);
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: HEADERS,
+          body: JSON.stringify({ filter_chat: {}, offset, limit })
+        });
+        const json = await res.json();
+        const list = json.data?.chat_channel_summary_list || [];
+        if (list.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No data</td></tr>`;
+          return;
+        }
+        tableBody.innerHTML = list.map(c => `
+          <tr>
+            <td>${c.id}</td>
+            <td>${c.room_name || ''}</td>
+            <td>${c.room_type || ''}</td>
+            <td>${c.is_group ? 'Yes' : 'No'}</td>
+            <td>${c.external_id || ''}</td>
+            <td>${new Date(c.created_at).toLocaleString()}</td>
+          </tr>`).join('');
+      } catch (err) {
+        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Error: ${err.message}</td></tr>`;
       }
-    };
-
-    ws.onerror = (err) => {
-      log('WebSocket error: ' + err.message);
-    };
-
-    ws.onclose = () => {
-      statusEl.textContent = 'Status: Disconnected';
-      connectBtn.disabled = false;
-      disconnectBtn.disabled = true;
-      log('Disconnected from channel WebSocket');
-    };
-  };
-
-  disconnectBtn.onclick = () => {
-    if (ws) {
-      ws.close();
     }
-  };
-</script>
 
+    prevBtn.addEventListener('click', () => { offset = Math.max(0, offset - limit); fetchData(); });
+    nextBtn.addEventListener('click', () => { offset += limit; fetchData(); });
+    limitSelect.addEventListener('change', (e) => { limit = parseInt(e.target.value); offset = 0; fetchData(); });
+
+    fetchData();
+  </script>
 </body>
 </html>
