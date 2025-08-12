@@ -7,9 +7,9 @@
   <style>
     body{font-family: Arial, sans-serif;background:#f5f7fa;margin:0;padding:20px;}
     h1{text-align:center;margin-bottom:20px;}
-    .container{max-width:1000px;margin:0 auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
+    .container{max-width:1200px;margin:0 auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
     table{width:100%;border-collapse:collapse;margin-top:20px;}
-    th,td{padding:12px;border-bottom:1px solid #ddd;text-align:left;}
+    th,td{padding:12px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top;}
     th{background:#f0f2f5;}
     tr:hover{background:#f9fafb;}
     .pagination{display:flex;justify-content:center;align-items:center;margin-top:20px;gap:10px;}
@@ -39,10 +39,12 @@
           <th>Group</th>
           <th>External ID</th>
           <th>Created At</th>
+          <th>Last Sender Name</th>
+          <th>Message Content</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+        <tr><td colspan="8" style="text-align:center;">Loading...</td></tr>
       </tbody>
     </table>
     <div class="pagination">
@@ -78,7 +80,7 @@
     async function fetchData() {
       pageInfo.textContent = `Page ${Math.floor(offset/limit) + 1}`;
       prevBtn.disabled = offset === 0;
-      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Loading...</td></tr>`;
       try {
         const res = await fetch(API_URL, {
           method: 'POST',
@@ -88,7 +90,7 @@
         const json = await res.json();
         const list = json.data?.chat_channel_summary_list || [];
         if (list.length === 0) {
-          tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No data</td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No data</td></tr>`;
           return;
         }
         tableBody.innerHTML = list.map(c => `
@@ -99,9 +101,11 @@
             <td>${c.is_group ? 'Yes' : 'No'}</td>
             <td>${c.external_id || ''}</td>
             <td>${new Date(c.created_at).toLocaleString()}</td>
+            <td>${c.last_message?.message_sender?.sender_displayed_name || ''}</td>
+            <td>${c.last_message?.message_content || ''}</td>
           </tr>`).join('');
       } catch (err) {
-        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Error: ${err.message}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:red;">Error: ${err.message}</td></tr>`;
       }
     }
 
