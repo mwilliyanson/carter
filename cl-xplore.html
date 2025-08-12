@@ -11,11 +11,17 @@
     table{width:100%;border-collapse:collapse;margin-top:20px;}
     th,td{padding:12px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top;}
     th{background:#f0f2f5;}
-    tr:hover{background:#f9fafb;}
+    tr:hover{background:#f9fafb;cursor:pointer;}
     .pagination{display:flex;justify-content:center;align-items:center;margin-top:20px;gap:10px;}
     button{background:#007bff;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;}
     button:disabled{background:#ccc;cursor:not-allowed;}
     select{padding:6px;border-radius:5px;border:1px solid #ccc;}
+    /* Modal */
+    .modal {display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;overflow:auto;
+            background-color:rgba(0,0,0,0.5);}
+    .modal-content {background:#fff;margin:10% auto;padding:20px;border-radius:10px;max-width:800px;max-height:80vh;overflow:auto;}
+    .close {color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer;}
+    pre {background:#f4f4f4;padding:10px;border-radius:5px;white-space:pre-wrap;word-wrap:break-word;}
   </style>
 </head>
 <body>
@@ -53,6 +59,16 @@
       <button id="nextBtn">Next</button>
     </div>
   </div>
+
+  <!-- Modal -->
+  <div id="jsonModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Raw JSON</h2>
+      <pre id="jsonOutput"></pre>
+    </div>
+  </div>
+
   <script>
     const API_URL = 'https://gopher.bicarakan.id/brown/conversation/channel/list';
     const HEADERS = {
@@ -70,12 +86,20 @@
 
     let offset = 0;
     let limit = 10;
+    let currentData = [];
 
     const tableBody = document.getElementById('tableBody');
     const pageInfo = document.getElementById('pageInfo');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const limitSelect = document.getElementById('limitSelect');
+
+    const modal = document.getElementById('jsonModal');
+    const modalClose = document.querySelector('.close');
+    const jsonOutput = document.getElementById('jsonOutput');
+
+    modalClose.onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => { if (event.target == modal) modal.style.display = 'none'; };
 
     async function fetchData() {
       pageInfo.textContent = `Page ${Math.floor(offset/limit) + 1}`;
@@ -88,13 +112,13 @@
           body: JSON.stringify({ filter_chat: {}, offset, limit })
         });
         const json = await res.json();
-        const list = json.data?.chat_channel_summary_list || [];
-        if (list.length === 0) {
+        currentData = json.data?.chat_channel_summary_list || [];
+        if (currentData.length === 0) {
           tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No data</td></tr>`;
           return;
         }
-        tableBody.innerHTML = list.map(c => `
-          <tr>
+        tableBody.innerHTML = currentData.map((c, index) => `
+          <tr data-index="${index}">
             <td>${c.id}</td>
             <td>${c.room_name || ''}</td>
             <td>${c.room_type || ''}</td>
@@ -104,6 +128,17 @@
             <td>${c.last_message?.message_sender?.sender_displayed_name || ''}</td>
             <td>${c.last_message?.message_content || ''}</td>
           </tr>`).join('');
+
+        // Add click event for each row
+        document.querySelectorAll('#tableBody tr').forEach(row => {
+          row.addEventListener('click', () => {
+            const idx = row.getAttribute('data-index');
+            const rawJson = JSON.stringify(currentData[idx], null, 2);
+            jsonOutput.textContent = rawJson;
+            modal.style.display = 'block';
+          });
+        });
+
       } catch (err) {
         tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:red;">Error: ${err.message}</td></tr>`;
       }
