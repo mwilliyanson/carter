@@ -13,7 +13,7 @@
     <div id="reasonCounts" class="flex flex-wrap gap-2 mb-4"></div>
 
     <!-- Date Range Selection -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <div>
         <label for="start" class="block text-sm font-medium text-gray-700 mb-1">Start Timestamp</label>
         <input type="datetime-local" id="start" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -27,11 +27,16 @@
           Fetch Data
         </button>
       </div>
+      <div class="flex items-end">
+        <button id="exportBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
+          Export CSV
+        </button>
+      </div>
     </div>
 
     <!-- Results Table -->
     <div class="overflow-x-auto">
-      <table class="min-w-full text-sm text-left border border-gray-200">
+      <table id="resultsTable" class="min-w-full text-sm text-left border border-gray-200">
         <thead class="bg-gray-50 border-b border-gray-200">
           <tr>
             <th class="px-4 py-2 font-semibold text-gray-700">Username</th>
@@ -69,6 +74,8 @@
       }
     });
 
+    let lastResults = []; // Store last fetched data for CSV export
+
     document.getElementById('fetchBtn').addEventListener('click', async () => {
       const start = document.getElementById('start').value;
       const end = document.getElementById('end').value;
@@ -102,6 +109,7 @@
 
         const data = await res.json();
         const results = data?.data?.ItemResult || [];
+        lastResults = results; // Store for CSV export
 
         // Count reasons
         const reasonMap = {};
@@ -145,6 +153,32 @@
         alert('Failed to fetch data. Check console for details.');
       }
     });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const table = document.getElementById("resultsTable");
+      const rows = Array.from(table.querySelectorAll("tr"));
+      
+      if (rows.length <= 1) {
+        alert("No data to export. Please fetch data first.");
+        return;
+      }
+
+      let csvData = rows.map(row => {
+        const cols = Array.from(row.querySelectorAll("th, td")).map(col => {
+          return `"${col.innerText.replace(/"/g, '""')}"`;
+        });
+        return cols.join(",");
+      }).join("\n");
+
+      const csvContent = "data:text/csv;charset=utf-8," + csvData;
+      const link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `bounce_customers_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
   </script>
 </body>
 </html>
