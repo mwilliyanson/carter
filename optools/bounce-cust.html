@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bounce Customer Viewer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6 hidden" id="pageContent">
+  <div class="max-w-7xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Bounce Customer Search</h1>
+
+    <!-- Reason Counts -->
+    <div id="reasonCounts" class="flex flex-wrap gap-2 mb-4"></div>
+
+    <!-- Date Range Selection -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div>
+        <label for="start" class="block text-sm font-medium text-gray-700 mb-1">Start Timestamp</label>
+        <input type="datetime-local" id="start" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+      </div>
+      <div>
+        <label for="end" class="block text-sm font-medium text-gray-700 mb-1">End Timestamp</label>
+        <input type="datetime-local" id="end" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+      </div>
+      <div class="flex items-end">
+        <button id="fetchBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
+          Fetch Data
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left border border-gray-200">
+        <thead class="bg-gray-50 border-b border-gray-200">
+          <tr>
+            <th class="px-4 py-2 font-semibold text-gray-700">Username</th>
+            <th class="px-4 py-2 font-semibold text-gray-700">First Name</th>
+            <th class="px-4 py-2 font-semibold text-gray-700">Last Name</th>
+            <th class="px-4 py-2 font-semibold text-gray-700">Email</th>
+            <th class="px-4 py-2 font-semibold text-gray-700">Reason</th>
+            <th class="px-4 py-2 font-semibold text-gray-700 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody" class="divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Password protection
+    window.addEventListener('load', () => {
+      const password = prompt("Enter password:");
+      if (password === "Kompas") {
+        document.getElementById('pageContent').classList.remove('hidden');
+      } else {
+        alert("Access denied");
+        document.body.innerHTML = "<div class='flex items-center justify-center h-screen text-xl font-bold'>Unauthorized</div>";
+      }
+    });
+
+    // Auto-set end timestamp +24h when start changes
+    document.getElementById('start').addEventListener('change', () => {
+      const startVal = document.getElementById('start').value;
+      if (startVal) {
+        const startDate = new Date(startVal);
+        const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+        document.getElementById('end').value = endDate.toISOString().slice(0,16);
+      }
+    });
+
+    document.getElementById('fetchBtn').addEventListener('click', async () => {
+      const start = document.getElementById('start').value;
+      const end = document.getElementById('end').value;
+      if (!start || !end) {
+        alert('Please select both start and end timestamps.');
+        return;
+      }
+
+      const bodyData = {
+        start_timestamp: start.replace('T', ' ') + ":00",
+        end_timestamp: end.replace('T', ' ') + ":00"
+      };
+
+      try {
+        const res = await fetch('https://gopher.bicarakan.id/limbo/intools/get-bounce-customer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': 'B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT',
+            'App-Version-Code': '125',
+            'App-Version-Name': '0.12.5',
+            'locale': 'en_US',
+            'platform': 'Android',
+            'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Content-Language': 'id-ID',
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X)',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAyMzUxMzQsImlhdCI6MTc1NDQ2NzEzNCwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6IjM1MDc0ZTRkLTUxYWEtNDI5Mi04NjNlLWUzY2YyNDI0NzU2MSJ9.BFb2_XihWzAASabKaeSaXofT0O0IMiL5G2KayDtEtb8'
+          },
+          body: JSON.stringify(bodyData)
+        });
+
+        const data = await res.json();
+        const results = data?.data?.ItemResult || [];
+
+        // Count reasons
+        const reasonMap = {};
+        results.forEach(item => {
+          reasonMap[item.Reason] = (reasonMap[item.Reason] || 0) + 1;
+        });
+
+        const reasonContainer = document.getElementById('reasonCounts');
+        reasonContainer.innerHTML = '';
+        Object.entries(reasonMap).forEach(([reason, count]) => {
+          const badge = document.createElement('span');
+          badge.className = 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium';
+          badge.innerText = `${reason}: ${count}`;
+          reasonContainer.appendChild(badge);
+        });
+
+        // Fill table
+        const tableBody = document.getElementById('resultsBody');
+        tableBody.innerHTML = '';
+        results.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-4 py-2">${item.Username}</td>
+            <td class="px-4 py-2">${item.FirstName}</td>
+            <td class="px-4 py-2">${item.LastName}</td>
+            <td class="px-4 py-2">${item.Email}</td>
+            <td class="px-4 py-2">${item.Reason}</td>
+            <td class="px-4 py-2 text-center">
+              <a href="https://bo-bicarakan.web.app/#/user/${item.CreatorID}" 
+                 target="_blank" 
+                 class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded shadow">
+                View
+              </a>
+            </td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error(err);
+        alert('Failed to fetch data. Check console for details.');
+      }
+    });
+  </script>
+</body>
+</html>
