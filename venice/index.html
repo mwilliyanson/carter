@@ -74,6 +74,24 @@
       25% { transform: translateX(-10px); }
       75% { transform: translateX(10px); }
     }
+    /* toast for soft loss message */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.1);
+      color: #ccc;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 18px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    #toast.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -87,6 +105,7 @@
     <button id="spin">SPIN ⚡</button>
   </div>
   <div id="celebration"></div>
+  <div id="toast"></div>
 
   <script>
     const symbols = ["🍒","🍋","🍊","🍇","🍉","💎","⚡","💰"];
@@ -94,11 +113,11 @@
     const balanceEl = document.getElementById("balance");
     const celebration = document.getElementById("celebration");
     const spinBtn = document.getElementById("spin");
+    const toast = document.getElementById("toast");
 
     let balance = 1000;
     const bet = 10;
 
-    // assign values (low/med/high)
     const values = {
       "🍒": "low",
       "🍋": "low",
@@ -125,7 +144,7 @@
     }
 
     function spin() {
-      if (balance < bet) return alert("Not enough balance!");
+      if (balance < bet) return showToast("Not enough balance!");
       balance -= bet;
       balanceEl.textContent = balance;
       spinBtn.disabled = true;
@@ -136,9 +155,7 @@
       });
 
       setTimeout(()=>{
-        // final stop
         cells.forEach(c=>c.textContent = randomSymbol());
-
         evaluateWin();
       },1000);
     }
@@ -149,7 +166,6 @@
       let winType = null;
 
       if (symbolsRow[0]===symbolsRow[1] && symbolsRow[1]===symbolsRow[2]) {
-        // same 3
         const value = values[symbolsRow[0]];
         if (value==="low") winType="small";
         if (value==="med") winType="medium";
@@ -163,7 +179,12 @@
         balanceEl.textContent = balance;
         celebrate(winType);
       } else {
-        celebrate("none");
+        // subtle shake on loss + soft toast
+        midRow.forEach(c=>{
+          c.classList.add("shake");
+          setTimeout(()=>c.classList.remove("shake"),500);
+        });
+        showToast("👉 Try again!");
       }
 
       spinBtn.disabled = false;
@@ -190,10 +211,12 @@
         fireworks();
         setTimeout(()=>celebration.style.display="none",4000);
       }
-      else {
-        celebration.textContent = "👉 Try again! 👀";
-        setTimeout(()=>celebration.style.display="none",1000);
-      }
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"),1500);
     }
 
     function reelShake() {
