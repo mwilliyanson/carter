@@ -143,19 +143,39 @@
       return symbols[Math.floor(Math.random()*symbols.length)];
     }
 
+    // generate middle row with ~20% chance to win
+    function randomMiddleRow() {
+      if (Math.random() < 0.2) { // 20% chance of 3-of-a-kind
+        const sym = symbols[Math.floor(Math.random()*symbols.length)];
+        return [sym, sym, sym];
+      } else {
+        return [randomSymbol(), randomSymbol(), randomSymbol()];
+      }
+    }
+
     function spin() {
       if (balance < bet) return showToast("Not enough balance!");
       balance -= bet;
       balanceEl.textContent = balance;
       spinBtn.disabled = true;
 
-      // spin animation
+      // spin animation for all cells
       cells.forEach((c,i)=>{
         c.textContent = symbols[Math.floor(Math.random()*symbols.length)];
       });
 
       setTimeout(()=>{
-        cells.forEach(c=>c.textContent = randomSymbol());
+        // set middle row
+        const midRow = randomMiddleRow();
+        cells[3].textContent = midRow[0];
+        cells[4].textContent = midRow[1];
+        cells[5].textContent = midRow[2];
+
+        // randomize other cells
+        [0,1,2,6,7,8].forEach(i=>{
+          cells[i].textContent = randomSymbol();
+        });
+
         evaluateWin();
       },1000);
     }
