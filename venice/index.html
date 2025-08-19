@@ -1,278 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>⚡ ZEUS SPINS — Prototype</title>
-  <style>
-    body {
-      background: #111;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      overflow: hidden;
-    }
-    h1 {
-      margin: 10px 0;
-    }
-    #game {
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(3, 100px);
-      grid-template-rows: repeat(3, 100px);
-      gap: 10px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .cell {
-      width: 100px;
-      height: 100px;
-      font-size: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #222;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.6);
-    }
-    #controls {
-      margin-top: 20px;
-    }
-    #celebration {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.6);
-      font-size: 60px;
-      font-weight: bold;
-      z-index: 100;
-      flex-direction: column;
-      color: gold;
-    }
-    .confetti {
-      position: absolute;
-      font-size: 24px;
-      animation: fall linear forwards;
-    }
-    @keyframes fall {
-      to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-    }
-    .flash {
-      animation: flash 0.2s alternate 5;
-    }
-    @keyframes flash {
-      from { background: rgba(255,255,255,0.8); }
-      to { background: rgba(0,0,0,0); }
-    }
-    .shake {
-      animation: shake 0.5s ease-in-out;
-    }
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
-    }
-    /* toast for soft loss message */
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255,255,255,0.1);
-      color: #ccc;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 18px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-    }
-    #toast.show {
-      opacity: 1;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>⚡ ZEUS SPINS — Smooth Casino Reel</title>
+<style>
+body { background:#111; color:#fff; font-family:Arial,sans-serif; text-align:center; margin:0; overflow:hidden; }
+h1{margin:10px 0;}
+#game{ display:flex; justify-content:center; gap:10px; margin-top:20px;}
+.column{ width:100px; height:300px; overflow:hidden; background:#222; border-radius:12px; display:flex; flex-direction:column; align-items:center; padding:5px 0;}
+.reel{ display:flex; flex-direction:column; }
+.cell{ width:100px; height:100px; font-size:60px; display:flex; align-items:center; justify-content:center; background:#333; border-radius:12px; }
+#controls{margin-top:20px;}
+#celebration{position:fixed;top:0;left:0;right:0;bottom:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); font-size:60px; font-weight:bold; z-index:100; flex-direction:column; color:gold;}
+.confetti{position:absolute; font-size:24px; animation:fall linear forwards;}
+@keyframes fall{ to { transform:translateY(100vh) rotate(360deg); opacity:0; } }
+#toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(255,255,255,0.1); color:#ccc; padding:8px 16px; border-radius:8px; font-size:18px; opacity:0; pointer-events:none; transition:opacity 0.5s ease;}
+#toast.show{opacity:1;}
+#rules{ max-width:600px; margin:20px auto; text-align:left; background:#222; padding:15px; border-radius:12px; }
+</style>
 </head>
 <body>
-  <h1>⚡ ZEUS SPINS — Prototype</h1>
-  <p>Emoji slot • One payline (middle row) • Not for real-money use</p>
-  <div id="game"></div>
-  <div id="controls">
-    Balance: <span id="balance">1000</span> | 
-    Bet: <span id="bet">10</span>
-    <br><br>
-    <button id="spin">SPIN ⚡</button>
-  </div>
-  <div id="celebration"></div>
-  <div id="toast"></div>
+<h1>⚡ ZEUS SPINS — Smooth Casino Reel</h1>
+<p>Emoji slot • One payline (middle row) • Not for real-money use</p>
 
-  <script>
-    const symbols = ["🍒","🍋","🍊","🍇","🍉","💎","⚡","💰"];
-    const game = document.getElementById("game");
-    const balanceEl = document.getElementById("balance");
-    const celebration = document.getElementById("celebration");
-    const spinBtn = document.getElementById("spin");
-    const toast = document.getElementById("toast");
+<div id="game"></div>
+<div id="controls">Balance: <span id="balance">1000</span> | Bet: <span id="bet">10</span><br><br><button id="spin">SPIN ⚡</button></div>
+<div id="celebration"></div>
+<div id="toast"></div>
 
-    let balance = 1000;
-    const bet = 10;
+<div id="rules">
+<h2>Game Rules & Payouts</h2>
+<ul>
+<li>Spin the reels using the "SPIN ⚡" button.</li>
+<li>One payline: middle row of 3 symbols determines wins.</li>
+<li>Winning combinations (middle row all identical):</li>
+<ul>
+<li>Low symbols (🍒, 🍋, 🍊) → Small win: +20 balance</li>
+<li>Medium symbols (🍇, 🍉, 💎) → Medium win: +100 balance</li>
+<li>High symbols (⚡, 💰) → Big win: +500 balance</li>
+</ul>
+</div>
 
-    const values = {
-      "🍒": "low",
-      "🍋": "low",
-      "🍊": "low",
-      "🍇": "med",
-      "🍉": "med",
-      "💎": "med",
-      "⚡": "high",
-      "💰": "high"
-    };
+<audio id="spinSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+<audio id="winSound" src="https://www.soundjay.com/misc/sounds/coins-1.mp3"></audio>
 
-    // initialize grid
-    let cells = [];
-    for (let i=0;i<9;i++) {
-      const div = document.createElement("div");
-      div.className = "cell";
-      div.textContent = symbols[Math.floor(Math.random()*symbols.length)];
-      game.appendChild(div);
-      cells.push(div);
+<script>
+const symbols=["🍒","🍋","🍊","🍇","🍉","💎","⚡","💰"];
+const game=document.getElementById("game");
+const balanceEl=document.getElementById("balance");
+const celebration=document.getElementById("celebration");
+const spinBtn=document.getElementById("spin");
+const toast=document.getElementById("toast");
+const spinSound=document.getElementById("spinSound");
+const winSound=document.getElementById("winSound");
+
+let balance=1000;
+const bet=10;
+const values={"🍒":"low","🍋":"low","🍊":"low","🍇":"med","🍉":"med","💎":"med","⚡":"high","💰":"high"};
+
+let columns=[];
+for(let c=0;c<3;c++){
+  const col=document.createElement("div");
+  col.className="column";
+  const reel=document.createElement("div");
+  reel.className="reel";
+  let cells=[];
+  for(let i=0;i<30;i++){ // extra symbols for multiple loops
+    const div=document.createElement("div");
+    div.className="cell";
+    div.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+    reel.appendChild(div);
+    cells.push(div);
+  }
+  col.appendChild(reel);
+  game.appendChild(col);
+  columns.push({col,reel,cells});
+}
+
+function randomSymbol(){ return symbols[Math.floor(Math.random()*symbols.length)]; }
+function randomMiddleRow(){ if(Math.random()<0.2){ const sym=symbols[Math.floor(Math.random()*symbols.length)]; return [sym,sym,sym]; } else { return [randomSymbol(),randomSymbol(),randomSymbol()]; } }
+
+function spin(){
+  if(balance<bet) return showToast("Not enough balance!");
+  balance-=bet;
+  balanceEl.textContent=balance;
+  spinBtn.disabled=true;
+
+  spinSound.currentTime=0; spinSound.play();
+  const midRow=randomMiddleRow();
+
+  columns.forEach((colObj,index)=>{
+    const {reel,cells}=colObj;
+    reel.style.transition="none";
+    reel.style.transform="translateY(0)";
+
+    // Arrange symbols so that middle row symbol is pre-set at target position
+    const targetCellIndex=4; // middle row
+    const startIndex=Math.floor(Math.random()*(cells.length-10));
+    for(let i=0;i<cells.length;i++){
+      if(i===targetCellIndex) cells[i].textContent=midRow[index];
+      else cells[i].textContent=randomSymbol();
     }
 
-    function randomSymbol() {
-      return symbols[Math.floor(Math.random()*symbols.length)];
-    }
+    const loops=3+index; // reels spin multiple loops
+    const totalMove=-100*(targetCellIndex + loops*3); // slide distance
 
-    // generate middle row with ~20% chance to win
-    function randomMiddleRow() {
-      if (Math.random() < 0.2) { // 20% chance of 3-of-a-kind
-        const sym = symbols[Math.floor(Math.random()*symbols.length)];
-        return [sym, sym, sym];
-      } else {
-        return [randomSymbol(), randomSymbol(), randomSymbol()];
-      }
-    }
+    setTimeout(()=>{
+      reel.style.transition=`transform ${1.5+index*0.3}s cubic-bezier(0.5,0,0.5,1)`;
+      reel.style.transform=`translateY(${totalMove}px)`;
+      if(index===2) setTimeout(()=>evaluateWin(), 1500+index*300);
+    }, index*200);
+  });
+}
 
-    function spin() {
-      if (balance < bet) return showToast("Not enough balance!");
-      balance -= bet;
-      balanceEl.textContent = balance;
-      spinBtn.disabled = true;
+function evaluateWin(){
+  const midRow=columns.map(c=>c.cells[4]);
+  const symbolsRow=midRow.map(c=>c.textContent);
+  let winType=null;
+  if(symbolsRow[0]===symbolsRow[1] && symbolsRow[1]===symbolsRow[2]){
+    const value=values[symbolsRow[0]];
+    if(value==="low") winType="small";
+    if(value==="med") winType="medium";
+    if(value==="high") winType="big";
+  }
+  if(winType){
+    if(winType==="small") balance+=20;
+    if(winType==="medium") balance+=100;
+    if(winType==="big") balance+=500;
+    balanceEl.textContent=balance;
+    winSound.currentTime=0; winSound.play();
+    celebrate(winType);
+  } else {
+    midRow.forEach(c=>{ c.classList.add("shake"); setTimeout(()=>c.classList.remove("shake"),500); });
+    showToast("👉 Try again!");
+  }
+  spinBtn.disabled=false;
+}
 
-      // spin animation for all cells
-      cells.forEach((c,i)=>{
-        c.textContent = symbols[Math.floor(Math.random()*symbols.length)];
-      });
+function celebrate(type){
+  celebration.innerHTML=""; celebration.style.display="flex";
+  if(type==="small"){ celebration.textContent="✨ Nice! ✨"; setTimeout(()=>celebration.style.display="none",1000); }
+  else if(type==="medium"){ celebration.textContent="🎊 WIN! 🎊"; dropConfetti(20); setTimeout(()=>celebration.style.display="none",2000); }
+  else if(type==="big"){ celebration.textContent="💥 BIG WIN!!! 💥"; dropConfetti(50); fireworks(); setTimeout(()=>celebration.style.display="none",4000); }
+}
 
-      setTimeout(()=>{
-        // set middle row
-        const midRow = randomMiddleRow();
-        cells[3].textContent = midRow[0];
-        cells[4].textContent = midRow[1];
-        cells[5].textContent = midRow[2];
+function showToast(msg){ toast.textContent=msg; toast.classList.add("show"); setTimeout(()=>toast.classList.remove("show"),1500); }
 
-        // randomize other cells
-        [0,1,2,6,7,8].forEach(i=>{
-          cells[i].textContent = randomSymbol();
-        });
+function dropConfetti(count){
+  for(let i=0;i<count;i++){
+    const conf=document.createElement("div");
+    conf.className="confetti";
+    conf.textContent=["🎉","✨","💰","⭐","🎊"][Math.floor(Math.random()*5)];
+    conf.style.left=Math.random()*window.innerWidth+"px";
+    conf.style.top="-20px";
+    conf.style.animationDuration=(1+Math.random()*2)+"s";
+    celebration.appendChild(conf);
+    setTimeout(()=>conf.remove(),3000);
+  }
+}
 
-        evaluateWin();
-      },1000);
-    }
+function fireworks(){
+  for(let i=0;i<10;i++){
+    const fire=document.createElement("div");
+    fire.className="confetti";
+    fire.textContent="🎆";
+    fire.style.left=Math.random()*window.innerWidth+"px";
+    fire.style.top=Math.random()*window.innerHeight/2+"px";
+    fire.style.animationDuration="2s";
+    celebration.appendChild(fire);
+    setTimeout(()=>fire.remove(),3000);
+  }
+}
 
-    function evaluateWin() {
-      const midRow = [cells[3], cells[4], cells[5]];
-      const symbolsRow = midRow.map(c=>c.textContent);
-      let winType = null;
-
-      if (symbolsRow[0]===symbolsRow[1] && symbolsRow[1]===symbolsRow[2]) {
-        const value = values[symbolsRow[0]];
-        if (value==="low") winType="small";
-        if (value==="med") winType="medium";
-        if (value==="high") winType="big";
-      }
-
-      if (winType) {
-        if (winType==="small") balance+=20;
-        if (winType==="medium") balance+=100;
-        if (winType==="big") balance+=500;
-        balanceEl.textContent = balance;
-        celebrate(winType);
-      } else {
-        // subtle shake on loss + soft toast
-        midRow.forEach(c=>{
-          c.classList.add("shake");
-          setTimeout(()=>c.classList.remove("shake"),500);
-        });
-        showToast("👉 Try again!");
-      }
-
-      spinBtn.disabled = false;
-    }
-
-    function celebrate(type) {
-      celebration.innerHTML = "";
-      celebration.style.display = "flex";
-      if (type==="small") {
-        celebration.textContent = "✨ Nice! ✨";
-        celebration.classList.add("flash");
-        setTimeout(()=>celebration.style.display="none",1000);
-      }
-      else if (type==="medium") {
-        celebration.textContent = "🎊 WIN! 🎊";
-        reelShake();
-        dropConfetti(20);
-        setTimeout(()=>celebration.style.display="none",2000);
-      }
-      else if (type==="big") {
-        celebration.textContent = "💥 BIG WIN!!! 💥";
-        reelShake();
-        dropConfetti(50);
-        fireworks();
-        setTimeout(()=>celebration.style.display="none",4000);
-      }
-    }
-
-    function showToast(msg) {
-      toast.textContent = msg;
-      toast.classList.add("show");
-      setTimeout(()=>toast.classList.remove("show"),1500);
-    }
-
-    function reelShake() {
-      cells.forEach(c=>{
-        c.classList.add("shake");
-        setTimeout(()=>c.classList.remove("shake"),500);
-      });
-    }
-
-    function dropConfetti(count) {
-      for (let i=0;i<count;i++) {
-        const conf = document.createElement("div");
-        conf.className="confetti";
-        conf.textContent = ["🎉","✨","💰","⭐","🎊"][Math.floor(Math.random()*5)];
-        conf.style.left = Math.random()*window.innerWidth+"px";
-        conf.style.top = "-20px";
-        conf.style.animationDuration = (1+Math.random()*2)+"s";
-        celebration.appendChild(conf);
-        setTimeout(()=>conf.remove(),3000);
-      }
-    }
-
-    function fireworks() {
-      for (let i=0;i<10;i++) {
-        const fire = document.createElement("div");
-        fire.className="confetti";
-        fire.textContent="🎆";
-        fire.style.left = Math.random()*window.innerWidth+"px";
-        fire.style.top = Math.random()*window.innerHeight/2+"px";
-        fire.style.animationDuration = "2s";
-        celebration.appendChild(fire);
-        setTimeout(()=>fire.remove(),3000);
-      }
-    }
-
-    spinBtn.addEventListener("click", spin);
-  </script>
+spinBtn.addEventListener("click", spin);
+</script>
 </body>
 </html>
