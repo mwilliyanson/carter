@@ -17,6 +17,43 @@ h1{margin:10px 0;}
 #toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(255,255,255,0.1); color:#ccc; padding:8px 16px; border-radius:8px; font-size:18px; opacity:0; pointer-events:none; transition:opacity 0.5s ease;}
 #toast.show{opacity:1;}
 #rules{ max-width:600px; margin:20px auto; text-align:left; background:#222; padding:15px; border-radius:12px; }
+
+/* ---------------- SPIN BUTTON ---------------- */
+#spin {
+  background: linear-gradient(45deg, #ffdd00, #ff5500, #ffdd00);
+  border: none;
+  padding: 20px 60px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 0 20px #ffdd00, 0 0 40px #ff5500, 0 0 60px #ffdd00 inset;
+  animation: pulse 1.5s infinite, glow 2s infinite alternate;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#spin:hover {
+  transform: scale(1.15) rotate(-2deg);
+  box-shadow: 0 0 40px #ffdd00, 0 0 60px #ff5500, 0 0 80px #ffdd00 inset;
+}
+
+#spin:active {
+  transform: scale(1.05) rotate(2deg);
+  box-shadow: 0 0 60px #ffdd00, 0 0 80px #ff5500, 0 0 100px #ffdd00 inset;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.05) rotate(0deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 20px #ffdd00, 0 0 40px #ff5500, 0 0 60px #ffdd00 inset; }
+  50% { box-shadow: 0 0 30px #ffdd00, 0 0 60px #ff5500, 0 0 80px #ffdd00 inset; }
+  100% { box-shadow: 0 0 20px #ffdd00, 0 0 40px #ff5500, 0 0 60px #ffdd00 inset; }
+}
 </style>
 </head>
 <body>
@@ -39,10 +76,12 @@ h1{margin:10px 0;}
 <li>Medium symbols (🍇, 🍉, 💎) → Medium win: +100 balance</li>
 <li>High symbols (⚡, 💰) → Big win: +500 balance</li>
 </ul>
+</ul>
 </div>
 
 <audio id="spinSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
 <audio id="winSound" src="https://www.soundjay.com/misc/sounds/coins-1.mp3"></audio>
+<audio id="tinyRewardSound" src="https://www.soundjay.com/button/sounds/button-3.mp3"></audio>
 
 <script>
 const symbols=["🍒","🍋","🍊","🍇","🍉","💎","⚡","💰"];
@@ -53,6 +92,7 @@ const spinBtn=document.getElementById("spin");
 const toast=document.getElementById("toast");
 const spinSound=document.getElementById("spinSound");
 const winSound=document.getElementById("winSound");
+const tinyRewardSound=document.getElementById("tinyRewardSound");
 
 let balance=1000;
 const bet=10;
@@ -65,7 +105,7 @@ for(let c=0;c<3;c++){
   const reel=document.createElement("div");
   reel.className="reel";
   let cells=[];
-  for(let i=0;i<30;i++){ // extra symbols for multiple loops
+  for(let i=0;i<30;i++){
     const div=document.createElement("div");
     div.className="cell";
     div.textContent=symbols[Math.floor(Math.random()*symbols.length)];
@@ -80,11 +120,41 @@ for(let c=0;c<3;c++){
 function randomSymbol(){ return symbols[Math.floor(Math.random()*symbols.length)]; }
 function randomMiddleRow(){ if(Math.random()<0.2){ const sym=symbols[Math.floor(Math.random()*symbols.length)]; return [sym,sym,sym]; } else { return [randomSymbol(),randomSymbol(),randomSymbol()]; } }
 
+// ---------------- Tiny visual reward ----------------
+function tinyRewardVisual(){
+  // Button bounce
+  spinBtn.style.transform = "scale(1.2) rotate(2deg)";
+  spinBtn.style.transition = "transform 0.15s";
+  setTimeout(()=>{ spinBtn.style.transform="scale(1) rotate(0deg)"; },150);
+
+  // Small sparkles
+  for(let i=0;i<5;i++){
+    const spark = document.createElement("div");
+    spark.textContent=["✨","💫","⚡"][Math.floor(Math.random()*3)];
+    spark.style.position="fixed";
+    spark.style.left=(spinBtn.getBoundingClientRect().left + spinBtn.offsetWidth/2 + (Math.random()*40-20))+"px";
+    spark.style.top=(spinBtn.getBoundingClientRect().top - 10)+"px";
+    spark.style.fontSize="20px";
+    spark.style.transition="all 0.8s ease-out";
+    document.body.appendChild(spark);
+    setTimeout(()=>{
+      spark.style.top=(spark.getBoundingClientRect().top - 50)+"px";
+      spark.style.opacity="0";
+    },50);
+    setTimeout(()=>spark.remove(),850);
+  }
+
+  tinyRewardSound.currentTime=0; tinyRewardSound.play();
+}
+
+// ---------------- Spin function ----------------
 function spin(){
   if(balance<bet) return showToast("Not enough balance!");
-  balance-=bet;
-  balanceEl.textContent=balance;
-  spinBtn.disabled=true;
+  balance -= bet;
+  balanceEl.textContent = balance;
+  spinBtn.disabled = true;
+
+  tinyRewardVisual(); // purely visual reward
 
   spinSound.currentTime=0; spinSound.play();
   const midRow=randomMiddleRow();
@@ -94,16 +164,14 @@ function spin(){
     reel.style.transition="none";
     reel.style.transform="translateY(0)";
 
-    // Arrange symbols so that middle row symbol is pre-set at target position
-    const targetCellIndex=4; // middle row
-    const startIndex=Math.floor(Math.random()*(cells.length-10));
+    const targetCellIndex=4;
     for(let i=0;i<cells.length;i++){
       if(i===targetCellIndex) cells[i].textContent=midRow[index];
       else cells[i].textContent=randomSymbol();
     }
 
-    const loops=3+index; // reels spin multiple loops
-    const totalMove=-100*(targetCellIndex + loops*3); // slide distance
+    const loops=3+index;
+    const totalMove=-100*(targetCellIndex + loops*3);
 
     setTimeout(()=>{
       reel.style.transition=`transform ${1.5+index*0.3}s cubic-bezier(0.5,0,0.5,1)`;
