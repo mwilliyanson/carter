@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>⚡ ZEUS SPINS — Emoji Slot Prototype</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+  <style>
+    body { margin: 0; background: #111; color: #fff; font-family: sans-serif; text-align: center; }
+    canvas { display: block; margin: auto; }
+  </style>
+</head>
+<body>
+  <script>
+    const symbols = ["🍒","💎","⚡","🎰","🍋","7️⃣","⭐","🔔"];
+    let balance = 1000;
+    let bet = 10;
+    let spinning = false;
+
+    class SlotScene extends Phaser.Scene {
+      constructor() { super("SlotScene"); }
+
+      create() {
+        this.add.text(400, 30, "⚡ ZEUS SPINS — Prototype", { fontSize: "28px", color: "#FFD700" }).setOrigin(0.5);
+        this.balanceText = this.add.text(400, 70, `Balance: ${balance}`, { fontSize: "22px", color: "#fff" }).setOrigin(0.5);
+
+        // 3x3 grid
+        this.reels = [];
+        for (let row = 0; row < 3; row++) {
+          let reelRow = [];
+          for (let col = 0; col < 3; col++) {
+            let emoji = this.add.text(300 + col*80, 150 + row*80, "❓", { fontSize: "50px" }).setOrigin(0.5);
+            reelRow.push(emoji);
+          }
+          this.reels.push(reelRow);
+        }
+
+        // Spin button
+        this.spinBtn = this.add.text(400, 420, "SPIN ⚡", {
+          fontSize: "28px",
+          backgroundColor: "#ff4757",
+          padding: { x: 20, y: 10 },
+          color: "#fff"
+        }).setOrigin(0.5).setInteractive();
+
+        this.spinBtn.on("pointerdown", () => this.startSpin());
+        this.tweens.add({ targets: this.spinBtn, scale: 1.05, yoyo: true, repeat: -1, duration: 800 });
+      }
+
+      startSpin() {
+        if (spinning || balance < bet) return;
+        spinning = true;
+        balance -= bet;
+        this.balanceText.setText(`Balance: ${balance}`);
+
+        let finalSymbols = [];
+        for (let row=0; row<3; row++) {
+          finalSymbols[row] = [];
+          for (let col=0; col<3; col++) {
+            finalSymbols[row][col] = Phaser.Utils.Array.GetRandom(symbols);
+          }
+        }
+
+        // Animate reels (drop effect)
+        for (let col=0; col<3; col++) {
+          for (let row=0; row<3; row++) {
+            let emoji = this.reels[row][col];
+            let newSym = finalSymbols[row][col];
+            this.tweens.add({
+              targets: emoji,
+              y: emoji.y + 200,
+              alpha: 0,
+              duration: 300,
+              delay: col*200 + row*100,
+              onComplete: () => {
+                emoji.setText(newSym);
+                emoji.y -= 200;
+                this.tweens.add({ targets: emoji, y: emoji.y+200, alpha: 1, duration: 300 });
+              }
+            });
+          }
+        }
+
+        // After animation ends, evaluate win
+        this.time.delayedCall(1200, () => {
+          this.evaluateWin(finalSymbols[1]); // check middle row
+        });
+      }
+
+      evaluateWin(rowSymbols) {
+        let win = 0;
+        if (rowSymbols[0] === rowSymbols[1] && rowSymbols[1] === rowSymbols[2]) {
+          win = bet * 5;
+          balance += win;
+          this.balanceText.setText(`Balance: ${balance}`);
+          this.celebrateWin(win);
+        }
+        spinning = false;
+      }
+
+      celebrateWin(amount) {
+        // Big WIN text
+        let winText = this.add.text(400, 300, `🎉 WIN +${amount}! 🎉`, {
+          fontSize: "48px", color: "#FFD700", fontStyle: "bold"
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+          targets: winText,
+          scale: { from: 0.5, to: 1.2 },
+          yoyo: true,
+          repeat: 4,
+          duration: 300,
+          onComplete: () => winText.destroy()
+        });
+
+        // Screen flash
+        let flash = this.add.rectangle(400, 250, 800, 500, 0xffffff).setAlpha(0);
+        this.tweens.add({ targets: flash, alpha: { from: 0.8, to: 0 }, duration: 500, onComplete: () => flash.destroy() });
+
+        // Reels shake
+        this.tweens.add({
+          targets: this.reels.flat(),
+          x: "+=10",
+          yoyo: true,
+          repeat: 5,
+          duration: 60
+        });
+
+        // Confetti / coins
+        for (let i=0; i<20; i++) {
+          let emoji = Phaser.Utils.Array.GetRandom(["💰","✨","⚡","⭐"]);
+          let part = this.add.text(Phaser.Math.Between(100,700), -50, emoji, { fontSize: "32px" }).setOrigin(0.5);
+          this.tweens.add({
+            targets: part,
+            y: 500,
+            rotation: Phaser.Math.Between(-1,1),
+            duration: Phaser.Math.Between(1000,2000),
+            onComplete: () => part.destroy()
+          });
+        }
+      }
+    }
+
+    const config = {
+      type: Phaser.AUTO,
+      width: 800,
+      height: 500,
+      backgroundColor: "#222",
+      scene: [SlotScene]
+    };
+
+    new Phaser.Game(config);
+  </script>
+</body>
+</html>
