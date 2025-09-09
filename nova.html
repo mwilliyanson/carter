@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100">
+  <div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Reload Nova</h1>
+    <p class="text-gray-500 mb-6">Enter your code below to process.</p>
+
+    <form id="reloadForm" class="space-y-4">
+      <input 
+        type="text" 
+        id="code" 
+        name="code" 
+        placeholder="Enter code..." 
+        required
+        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none text-gray-700"
+      />
+
+      <button 
+        type="submit" 
+        class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 rounded-xl shadow-md transition-all"
+      >
+        Process
+      </button>
+    </form>
+
+    <p id="message" class="mt-4 text-lg font-medium"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("reloadForm");
+    const message = document.getElementById("message");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const code = document.getElementById("code").value.trim();
+
+      // Check last submission
+      const lastSubmit = localStorage.getItem("lastSubmitTime");
+      const now = Date.now();
+
+      if (lastSubmit && now - lastSubmit < 60 * 1000) {
+        message.textContent = "⏳ Please wait 1 minute before submitting again.";
+        message.className = "mt-4 text-red-500 font-semibold";
+        return;
+      }
+
+      if (code) {
+        // Normally you'd call an API here with fetch(...)
+        message.textContent = "✅ Processed successfully!";
+        message.className = "mt-4 text-green-600 font-semibold";
+
+        // Save timestamp to block for 1 minute
+        localStorage.setItem("lastSubmitTime", now);
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
