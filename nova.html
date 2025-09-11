@@ -23,6 +23,7 @@
 
       <button 
         type="submit" 
+        id="submitBtn"
         class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 rounded-xl shadow-md transition-all"
       >
         Process
@@ -35,29 +36,61 @@
   <script>
     const form = document.getElementById("reloadForm");
     const message = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
 
-    form.addEventListener("submit", function(e) {
+    function startCountdown(remaining) {
+      submitBtn.disabled = true;
+      const interval = setInterval(() => {
+        if (remaining <= 0) {
+          clearInterval(interval);
+          message.textContent = "";
+          submitBtn.disabled = false;
+          return;
+        }
+        message.textContent = `⏳ Please wait ${remaining}s before submitting again.`;
+        message.className = "mt-4 text-red-500 font-semibold";
+        remaining--;
+      }, 1000);
+    }
+
+    // Resume countdown if user refreshes
+    const lastSubmit = localStorage.getItem("lastSubmitTime");
+    if (lastSubmit) {
+      const now = Date.now();
+      const diff = now - lastSubmit;
+      if (diff < 60 * 1000) {
+        startCountdown(Math.ceil(60 - diff / 1000));
+      }
+    }
+
+    form.addEventListener("submit", async function(e) {
       e.preventDefault();
       const code = document.getElementById("code").value.trim();
-
-      // Check last submission
-      const lastSubmit = localStorage.getItem("lastSubmitTime");
       const now = Date.now();
 
+      const lastSubmit = localStorage.getItem("lastSubmitTime");
       if (lastSubmit && now - lastSubmit < 60 * 1000) {
-        message.textContent = "⏳ Please wait 1 minute before submitting again.";
-        message.className = "mt-4 text-red-500 font-semibold";
+        const remaining = Math.ceil(60 - (now - lastSubmit) / 1000);
+        startCountdown(remaining);
         return;
       }
 
       if (code) {
-        // Normally you'd call an API here with fetch(...)
-        message.textContent = "✅ Processed successfully!";
-        message.className = "mt-4 text-green-600 font-semibold";
+        try {
+          const res = await fetch(`https://gopher.bicarakan.id/gantt/gopher/reload?code=${encodeURIComponent(code)}`);
+          if (!res.ok) throw new Error("Network error");
 
-        // Save timestamp to block for 1 minute
-        localStorage.setItem("lastSubmitTime", now);
-        form.reset();
+          message.textContent = "✅ Processed successfully!";
+          message.className = "mt-4 text-green-600 font-semibold";
+
+          // Save timestamp & start countdown
+          localStorage.setItem("lastSubmitTime", now);
+          startCountdown(60);
+          form.reset();
+        } catch (err) {
+          message.textContent = "❌ Failed to process. Please try again.";
+          message.className = "mt-4 text-red-500 font-semibold";
+        }
       }
     });
   </script>
