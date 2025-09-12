@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Self Attendance</title>
+  <title>Self Attendance with Liveness</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -45,6 +45,10 @@
       width: 100%;
       border-radius: 10px;
     }
+    .message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -53,10 +57,11 @@
     <video id="video" autoplay muted playsinline></video>
     <canvas id="canvas" style="display:none;"></canvas>
     <button id="takeSelfie" disabled>Take Selfie</button>
+    <div class="message" id="message">Please blink to verify liveness.</div>
     <img id="photoPreview" alt="Your selfie will appear here">
   </div>
 
-  <!-- Load face-api.js UMD for browser -->
+  <!-- Load face-api.js UMD -->
   <script src="https://cdn.jsdelivr.net/npm/face-api.js/dist/face-api.min.js"></script>
 
   <script>
@@ -65,6 +70,10 @@
     const context = canvas.getContext('2d');
     const photoPreview = document.getElementById('photoPreview');
     const takeButton = document.getElementById('takeSelfie');
+    const message = document.getElementById('message');
+
+    let blinked = false;
+    let currentPosition = null;
 
     // Start camera
     async function startCamera() {
@@ -77,18 +86,67 @@
       }
     }
 
-    // Load tiny face detector
+    // Get geolocation
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          currentPosition = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          };
+        }, err => {
+          console.error("Geolocation error:", err);
+        });
+      }
+    }
+
+    // Load models
     async function loadModels() {
-      await faceapi.nets.tinyFaceDetector.loadFromUri('/models'); // /models folder must have tiny_face_detector files
-      console.log('Model loaded');
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+      await faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models');
+      console.log('Models loaded');
       takeButton.disabled = false;
     }
 
-    // Take selfie with liveness check
+    // Calculate eye aspect ratio (EAR) for blink detection
+    function eyeAspectRatio(eye) {
+      const a = Math.hypot(eye[1]._x - eye[5]._x, eye[1]._y - eye[5]._y);
+      const b = Math.hypot(eye[2]._x - eye[4]._x, eye[2]._y - eye[4]._y);
+      const c = Math.hypot(eye[0]._x - eye[3]._x, eye[0]._y - eye[3]._y);
+      return (a + b) / (2.0 * c);
+    }
+
+    async function detectBlink() {
+      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks(true);
+      if (!detection) return;
+
+      const landmarks = detection.landmarks;
+      const leftEye = landmarks.getLeftEye();
+      const rightEye = landmarks.getRightEye();
+
+      const leftEAR = eyeAspectRatio(leftEye);
+      const rightEAR = eyeAspectRatio(rightEye);
+
+      const EAR_THRESHOLD = 0.25;
+
+      if (leftEAR < EAR_THRESHOLD && rightEAR < EAR_THRESHOLD) {
+        blinked = true;
+        message.innerText = "Blink detected! You can take a selfie.";
+      }
+    }
+
+    // Blink detection loop
+    setInterval(detectBlink, 200);
+
+    // Take selfie
     takeButton.addEventListener('click', async () => {
-      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
-      if (!detection) {
-        alert("No face detected! Please look at the camera.");
+      if (!blinked) {
+        alert("Please blink first for liveness check!");
+        return;
+      }
+
+      if (!currentPosition) {
+        alert("Waiting for geolocation. Please try again in a moment.");
         return;
       }
 
@@ -96,15 +154,24 @@
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Preview
+      // Draw timestamp
+      const timestamp = new Date();
+      context.font = "20px Arial";
+      context.fillStyle = "white";
+      context.fillText(timestamp.toLocaleString(), 10, canvas.height - 10);
+
       const imageData = canvas.toDataURL("image/png");
       photoPreview.src = imageData;
 
-      // Send to backend (optional)
+      // Send to backend
       fetch("/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imageData, timestamp: new Date().toISOString() })
+        body: JSON.stringify({
+          image: imageData,
+          timestamp: timestamp.toISOString(),
+          location: currentPosition
+        })
       })
       .then(res => res.json())
       .then(() => alert("Attendance recorded!"))
@@ -113,6 +180,7 @@
 
     // Initialize
     startCamera();
+    getLocation();
     loadModels();
   </script>
 </body>
