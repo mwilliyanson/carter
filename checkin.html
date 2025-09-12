@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Self Attendance with Liveness</title>
+  <title>Self Attendance</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -57,7 +57,7 @@
     <video id="video" autoplay muted playsinline></video>
     <canvas id="canvas" style="display:none;"></canvas>
     <button id="takeSelfie" disabled>Take Selfie</button>
-    <div class="message" id="message">Please blink to verify liveness.</div>
+    <div class="message" id="message">Waiting for face detection...</div>
     <img id="photoPreview" alt="Your selfie will appear here">
   </div>
 
@@ -72,9 +72,8 @@
     const takeButton = document.getElementById('takeSelfie');
     const message = document.getElementById('message');
 
-    let blinked = false;
-    let eyeClosedFrames = 0;
     let currentPosition = null;
+    let faceDetected = false;
 
     // Start camera
     async function startCamera() {
@@ -101,53 +100,32 @@
       }
     }
 
-    // Load models
+    // Load face-api models
     async function loadModels() {
       await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-      await faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models');
       console.log('Models loaded');
     }
 
-    // Eye aspect ratio (EAR) for blink detection
-    function eyeAspectRatio(eye) {
-      const a = Math.hypot(eye[1]._x - eye[5]._x, eye[1]._y - eye[5]._y);
-      const b = Math.hypot(eye[2]._x - eye[4]._x, eye[2]._y - eye[4]._y);
-      const c = Math.hypot(eye[0]._x - eye[3]._x, eye[0]._y - eye[3]._y);
-      return (a + b) / (2.0 * c);
-    }
-
-    async function detectBlink() {
-      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks(true);
-      if (!detection) return;
-
-      const landmarks = detection.landmarks;
-      const leftEye = landmarks.getLeftEye();
-      const rightEye = landmarks.getRightEye();
-
-      const leftEAR = eyeAspectRatio(leftEye);
-      const rightEAR = eyeAspectRatio(rightEye);
-
-      const EAR_THRESHOLD = 0.25;
-
-      if (leftEAR < EAR_THRESHOLD && rightEAR < EAR_THRESHOLD) {
-        eyeClosedFrames++;
+    // Detect face continuously
+    async function detectFace() {
+      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+      if (detection) {
+        faceDetected = true;
+        message.innerText = "Face detected! You can take a selfie.";
+        takeButton.disabled = false;
       } else {
-        if (eyeClosedFrames >= 2 && !blinked) { // blink detected
-          blinked = true;
-          message.innerText = "Blink detected! You can take a selfie.";
-          takeButton.disabled = false;
-        }
-        eyeClosedFrames = 0;
+        faceDetected = false;
+        message.innerText = "Waiting for face detection...";
+        takeButton.disabled = true;
       }
     }
 
-    // Blink detection loop
-    setInterval(detectBlink, 200);
+    setInterval(detectFace, 500);
 
     // Take selfie
-    takeButton.addEventListener('click', async () => {
-      if (!blinked) {
-        alert("Please blink first for liveness check!");
+    takeButton.addEventListener('click', () => {
+      if (!faceDetected) {
+        alert("No face detected! Please look at the camera.");
         return;
       }
 
@@ -169,7 +147,7 @@
       const imageData = canvas.toDataURL("image/png");
       photoPreview.src = imageData;
 
-      // Send to backend
+      // Optional backend upload
       fetch("/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
