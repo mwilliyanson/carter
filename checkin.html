@@ -73,6 +73,7 @@
     const message = document.getElementById('message');
 
     let blinked = false;
+    let eyeClosedFrames = 0;
     let currentPosition = null;
 
     // Start camera
@@ -105,10 +106,9 @@
       await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
       await faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models');
       console.log('Models loaded');
-      takeButton.disabled = false;
     }
 
-    // Calculate eye aspect ratio (EAR) for blink detection
+    // Eye aspect ratio (EAR) for blink detection
     function eyeAspectRatio(eye) {
       const a = Math.hypot(eye[1]._x - eye[5]._x, eye[1]._y - eye[5]._y);
       const b = Math.hypot(eye[2]._x - eye[4]._x, eye[2]._y - eye[4]._y);
@@ -130,8 +130,14 @@
       const EAR_THRESHOLD = 0.25;
 
       if (leftEAR < EAR_THRESHOLD && rightEAR < EAR_THRESHOLD) {
-        blinked = true;
-        message.innerText = "Blink detected! You can take a selfie.";
+        eyeClosedFrames++;
+      } else {
+        if (eyeClosedFrames >= 2 && !blinked) { // blink detected
+          blinked = true;
+          message.innerText = "Blink detected! You can take a selfie.";
+          takeButton.disabled = false;
+        }
+        eyeClosedFrames = 0;
       }
     }
 
