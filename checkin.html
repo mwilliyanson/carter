@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Selfie Attendance</title>
+  <title>Selfie Attendance with Liveness</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #f5f7fa;
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -18,52 +19,44 @@
       background: #fff;
       padding: 20px;
       border-radius: 15px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
       text-align: center;
-      width: 350px;
+      width: 360px;
     }
-    video {
+    .video-wrapper {
+      position: relative;
+    }
+    video, canvas {
       width: 100%;
       border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    canvas {
-      display: none;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    #photoPreview {
-      width: 100%;
-      border-radius: 10px;
-      margin-top: 10px;
-    }
-    button {
-      background: #4CAF50;
-      color: #fff;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #45a049;
     }
     .timestamp {
       position: absolute;
       bottom: 10px;
       left: 10px;
-      color: #fff;
+      color: white;
       background: rgba(0,0,0,0.5);
       padding: 2px 5px;
       border-radius: 5px;
       font-size: 12px;
     }
-    .video-wrapper {
-      position: relative;
-      display: inline-block;
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #photoPreview {
       width: 100%;
+      margin-top: 10px;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -71,11 +64,11 @@
   <div class="container">
     <h2>Selfie Attendance</h2>
     <div class="video-wrapper">
-      <video id="video" autoplay playsinline></video>
+      <video id="video" autoplay muted playsinline></video>
       <div class="timestamp" id="timestamp">00:00:00</div>
     </div>
-    <canvas id="canvas" width="320" height="240"></canvas>
-    <button onclick="takePhoto()">Take Selfie</button>
+    <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+    <button id="takeSelfie">Take Selfie</button>
     <img id="photoPreview" alt="Your selfie will appear here">
   </div>
 
@@ -85,25 +78,60 @@
     const context = canvas.getContext('2d');
     const photoPreview = document.getElementById('photoPreview');
     const timestampDiv = document.getElementById('timestamp');
+    const takeButton = document.getElementById('takeSelfie');
+
+    let currentPosition = null;
 
     // Start camera
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
-      })
-      .catch(err => {
+      } catch(err) {
         alert("Camera access denied or not supported");
         console.error(err);
-      });
+      }
+    }
 
-    // Update timestamp every second
+    // Update timestamp
     setInterval(() => {
       const now = new Date();
       timestampDiv.innerText = now.toLocaleTimeString();
     }, 1000);
 
-    function takePhoto() {
-      // Draw video frame onto canvas
+    // Get geolocation
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          currentPosition = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          };
+        }, err => {
+          console.error('Geolocation error:', err);
+          alert('Unable to get location');
+        });
+      } else {
+        alert('Geolocation not supported');
+      }
+    }
+
+    // Load face-api models
+    async function loadModels() {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/models');
+      console.log('Models loaded');
+    }
+
+    // Take selfie with liveness check
+    takeButton.addEventListener('click', async () => {
+      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+
+      if (!detection) {
+        alert('No face detected! Please look at the camera.');
+        return;
+      }
+
+      // Capture image
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       // Draw timestamp
@@ -111,19 +139,34 @@
       context.fillStyle = "white";
       context.fillText(new Date().toLocaleString(), 10, canvas.height - 10);
 
-      // Convert to image
       const imageData = canvas.toDataURL('image/png');
-
-      // Show preview
       photoPreview.src = imageData;
 
-      // TODO: Send to backend
-      // fetch('/upload', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ image: imageData }),
-      //   headers: { 'Content-Type': 'application/json' }
-      // });
-    }
+      if (!currentPosition) {
+        getLocation();
+        alert('Fetching location, try again in a moment.');
+        return;
+      }
+
+      // Send to server
+      fetch('/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: imageData,
+          timestamp: new Date().toISOString(),
+          location: currentPosition
+        })
+      })
+      .then(res => res.json())
+      .then(data => alert('Attendance recorded!'))
+      .catch(err => console.error(err));
+    });
+
+    // Initialize
+    startCamera();
+    getLocation();
+    loadModels();
   </script>
 </body>
 </html>
