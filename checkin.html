@@ -3,43 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Selfie Upload</title>
+  <title>Selfie Attendance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-    video, canvas { border: 2px solid #333; border-radius: 8px; max-width: 100%; }
-    button { margin-top: 15px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    /* Make selfie camera mirrored */
+    #video {
+      transform: scaleX(-1);
+    }
+    #canvas {
+      transform: scaleX(-1);
+    }
   </style>
 </head>
-<body>
-  <h2>Selfie Attendance</h2>
-  <video id="video" autoplay playsinline width="320" height="240"></video>
-  <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
-  <br/>
-  <button id="snap">📸 Take & Upload</button>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+  <div class="bg-white shadow-lg rounded-2xl p-6 w-full max-w-sm">
+    <h2 class="text-2xl font-bold text-center mb-4">📸 Selfie Attendance</h2>
+
+    <!-- Camera preview -->
+    <div class="relative aspect-[3/4] w-full">
+      <video id="video" autoplay playsinline class="rounded-lg w-full h-full object-cover border border-gray-300"></video>
+      <canvas id="canvas" class="hidden"></canvas>
+      <!-- Overlay timestamp/location -->
+      <div id="overlay" 
+           class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+        Waiting for location...
+      </div>
+    </div>
+
+    <button id="snap" 
+            class="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled>
+      Take & Upload Selfie
+    </button>
+
+    <p id="status" class="mt-3 text-center text-gray-600 text-sm"></p>
+  </div>
 
   <script>
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
     const snapBtn = document.getElementById("snap");
+    const overlay = document.getElementById("overlay");
+    const statusEl = document.getElementById("status");
     const ctx = canvas.getContext("2d");
 
-    // Start camera
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => video.srcObject = stream)
+    let lat = null, lon = null;
+
+    // Start camera (prefer portrait / user-facing camera)
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+      .then(stream => {
+        video.srcObject = stream;
+        video.addEventListener("loadedmetadata", () => {
+          // Match canvas size with video size
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        });
+      })
       .catch(err => alert("Camera access denied: " + err));
 
+    // Get geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          lat = pos.coords.latitude;
+          lon = pos.coords.longitude;
+          overlay.textContent = "📍 Lat: " + lat.toFixed(5) + ", Lon: " + lon.toFixed(5);
+          snapBtn.disabled = false; // enable button only if GPS is available
+        },
+        err => {
+          overlay.textContent = "❌ Enable location to continue";
+          snapBtn.disabled = true;
+          console.warn("Geolocation error:", err);
+        }
+      );
+    } else {
+      overlay.textContent = "❌ Geolocation not supported";
+      snapBtn.disabled = true;
+    }
+
+    // Update overlay with timestamp every second
+    setInterval(() => {
+      const now = new Date();
+      const timeStr = now.toLocaleString();
+      if (lat && lon) {
+        overlay.textContent = `${timeStr} | 📍 ${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+      } else {
+        overlay.textContent = "❌ Location required";
+      }
+    }, 1000);
+
     snapBtn.addEventListener("click", async () => {
-      // Draw video frame into canvas
+      // Draw video to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Convert to Blob
+      // Draw timestamp + GPS on canvas
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(5, canvas.height - 30, canvas.width - 10, 25);
+      ctx.fillStyle = "white";
+      ctx.font = "14px sans-serif";
+      const now = new Date().toLocaleString();
+      const geoText = lat && lon ? ` | 📍 ${lat.toFixed(5)}, ${lon.toFixed(5)}` : "";
+      ctx.fillText(now + geoText, 10, canvas.height - 12);
+
       canvas.toBlob(async (blob) => {
         const arrayBuffer = await blob.arrayBuffer();
         const base64 = btoa(
           new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
         );
 
-        // Build payload with base64 image
         const payload = {
           userId: "123",
           displayedName: "John Doe",
@@ -49,14 +120,19 @@
               mimetype: blob.type,
               size: blob.size,
               title: "selfie.png",
-              url: `data:${blob.type};base64,${base64}`, // 👈 embed base64 here
+              url: `data:${blob.type};base64,${base64}`,
               icon: "📎"
             }
           ],
-          metadata: new Date().toISOString()
+          metadata: JSON.stringify({
+            timestamp: new Date().toISOString(),
+            latitude: lat,
+            longitude: lon
+          })
         };
 
         try {
+          statusEl.textContent = "⏳ Uploading...";
           const res = await fetch("https://seahorse-app-4a2zl.ondigitalocean.app/api/v2/tables/mni57oyzaeuzycp/records", {
             method: "POST",
             headers: {
@@ -70,10 +146,10 @@
 
           const result = await res.json();
           console.log("✅ Upload result:", result);
-          alert("Selfie uploaded successfully!");
+          statusEl.textContent = "✅ Selfie uploaded successfully!";
         } catch (err) {
           console.error("❌ Upload failed:", err);
-          alert("Upload failed. Check console.");
+          statusEl.textContent = "❌ Upload failed. Check console.";
         }
       }, "image/png");
     });
