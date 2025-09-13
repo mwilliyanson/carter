@@ -1,171 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Self Attendance</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Selfie Upload</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f0f4f8;
-      margin: 0;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      text-align: center;
-      width: 360px;
-    }
-    video, canvas {
-      width: 100%;
-      border-radius: 10px;
-    }
-    button {
-      margin-top: 10px;
-      padding: 12px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-    button:disabled {
-      background: gray;
-      cursor: not-allowed;
-    }
-    #photoPreview {
-      margin-top: 10px;
-      width: 100%;
-      border-radius: 10px;
-    }
-    .message {
-      margin-top: 10px;
-      font-weight: bold;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+    video, canvas { border: 2px solid #333; border-radius: 8px; max-width: 100%; }
+    button { margin-top: 15px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Self Attendance</h2>
-    <video id="video" autoplay muted playsinline></video>
-    <canvas id="canvas" style="display:none;"></canvas>
-    <button id="takeSelfie" disabled>Take Selfie</button>
-    <div class="message" id="message">Waiting for face detection...</div>
-    <img id="photoPreview" alt="Your selfie will appear here">
-  </div>
-
-  <!-- Load face-api.js UMD -->
-  <script src="https://cdn.jsdelivr.net/npm/face-api.js/dist/face-api.min.js"></script>
+  <h2>Selfie Attendance</h2>
+  <video id="video" autoplay playsinline width="320" height="240"></video>
+  <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+  <br/>
+  <button id="snap">📸 Take & Upload</button>
 
   <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const context = canvas.getContext('2d');
-    const photoPreview = document.getElementById('photoPreview');
-    const takeButton = document.getElementById('takeSelfie');
-    const message = document.getElementById('message');
-
-    let currentPosition = null;
-    let faceDetected = false;
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const snapBtn = document.getElementById("snap");
+    const ctx = canvas.getContext("2d");
 
     // Start camera
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-      } catch(err) {
-        alert("Camera access denied or not supported");
-        console.error(err);
-      }
-    }
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream)
+      .catch(err => alert("Camera access denied: " + err));
 
-    // Get geolocation
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-          currentPosition = {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude
-          };
-        }, err => {
-          console.error("Geolocation error:", err);
-        });
-      }
-    }
+    snapBtn.addEventListener("click", async () => {
+      // Draw video frame into canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Load face-api models
-    async function loadModels() {
-      await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-      console.log('Models loaded');
-    }
+      // Convert to Blob
+      canvas.toBlob(async (blob) => {
+        const arrayBuffer = await blob.arrayBuffer();
+        const base64 = btoa(
+          new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
+        );
 
-    // Detect face continuously
-    async function detectFace() {
-      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
-      if (detection) {
-        faceDetected = true;
-        message.innerText = "Face detected! You can take a selfie.";
-        takeButton.disabled = false;
-      } else {
-        faceDetected = false;
-        message.innerText = "Waiting for face detection...";
-        takeButton.disabled = true;
-      }
-    }
+        // Build payload with base64 image
+        const payload = {
+          userId: "123",
+          displayedName: "John Doe",
+          type: "attendance",
+          fileAttachment: [
+            {
+              mimetype: blob.type,
+              size: blob.size,
+              title: "selfie.png",
+              url: `data:${blob.type};base64,${base64}`, // 👈 embed base64 here
+              icon: "📎"
+            }
+          ],
+          metadata: new Date().toISOString()
+        };
 
-    setInterval(detectFace, 500);
+        try {
+          const res = await fetch("https://seahorse-app-4a2zl.ondigitalocean.app/api/v2/tables/mni57oyzaeuzycp/records", {
+            method: "POST",
+            headers: {
+              "accept": "application/json",
+              "xc-auth": "ukRD8FLCnaROjoGuAqgM5ZItgkBPVdxj0wR3lLHN",
+              "xc-token": "ukRD8FLCnaROjoGuAqgM5ZItgkBPVdxj0wR3lLHN",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
 
-    // Take selfie
-    takeButton.addEventListener('click', () => {
-      if (!faceDetected) {
-        alert("No face detected! Please look at the camera.");
-        return;
-      }
-
-      if (!currentPosition) {
-        alert("Waiting for geolocation. Please try again in a moment.");
-        return;
-      }
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Draw timestamp
-      const timestamp = new Date();
-      context.font = "20px Arial";
-      context.fillStyle = "white";
-      context.fillText(timestamp.toLocaleString(), 10, canvas.height - 10);
-
-      const imageData = canvas.toDataURL("image/png");
-      photoPreview.src = imageData;
-
-      // Optional backend upload
-      fetch("/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          image: imageData,
-          timestamp: timestamp.toISOString(),
-          location: currentPosition
-        })
-      })
-      .then(res => res.json())
-      .then(() => alert("Attendance recorded!"))
-      .catch(err => console.error(err));
+          const result = await res.json();
+          console.log("✅ Upload result:", result);
+          alert("Selfie uploaded successfully!");
+        } catch (err) {
+          console.error("❌ Upload failed:", err);
+          alert("Upload failed. Check console.");
+        }
+      }, "image/png");
     });
-
-    // Initialize
-    startCamera();
-    getLocation();
-    loadModels();
   </script>
 </body>
 </html>
