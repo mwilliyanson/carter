@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Self Attendance Check-in</title>
+  <title>Self Timestamp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
   <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-4 flex flex-col items-center space-y-4 relative">
-    <h1 class="text-xl font-bold text-gray-800">📸 Self Attendance</h1>
+    <h1 class="text-xl font-bold text-gray-800">⏱️ Self Timestamp</h1>
 
     <!-- Name Dropdown -->
     <select id="nameSelect" class="w-full border rounded-lg px-3 py-2 text-gray-700">
@@ -48,11 +48,21 @@
       </div>
     </div>
 
-    <!-- Button -->
-    <button id="captureBtn" disabled
-      class="w-full py-2 rounded-lg text-white font-semibold transition disabled:bg-gray-400 bg-blue-600 hover:bg-blue-700">
-      Capture & Upload
-    </button>
+    <!-- Buttons -->
+    <div class="flex w-full space-x-2">
+      <button id="captureBtn" disabled
+        class="flex-1 py-2 rounded-lg text-white font-semibold transition disabled:bg-gray-400 bg-blue-600 hover:bg-blue-700">
+        Capture
+      </button>
+      <button id="retakeBtn" disabled
+        class="flex-1 py-2 rounded-lg text-white font-semibold transition disabled:bg-gray-400 bg-gray-600 hover:bg-gray-700">
+        Retake
+      </button>
+      <button id="uploadBtn" disabled
+        class="flex-1 py-2 rounded-lg text-white font-semibold transition disabled:bg-gray-400 bg-green-600 hover:bg-green-700">
+        Upload
+      </button>
+    </div>
 
     <div id="status" class="text-sm text-gray-600"></div>
   </div>
@@ -61,6 +71,8 @@
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
     const captureBtn = document.getElementById("captureBtn");
+    const retakeBtn = document.getElementById("retakeBtn");
+    const uploadBtn = document.getElementById("uploadBtn");
     const nameSelect = document.getElementById("nameSelect");
     const annotationInput = document.getElementById("annotationInput");
     const timestampEl = document.getElementById("timestamp");
@@ -69,6 +81,8 @@
     const overlay = document.getElementById("overlay");
 
     let latitude = null, longitude = null;
+    let publicIP = null, ipCountry = null, ipCity = null, ipISP = null;
+    let capturedImage = null;
 
     // Update timestamp every second
     setInterval(() => {
@@ -76,7 +90,7 @@
       timestampEl.textContent = now.toLocaleString();
     }, 1000);
 
-    // Enable/disable capture button based on dropdown + location
+    // Enable/disable capture button
     function updateButtonState() {
       captureBtn.disabled = !nameSelect.value || !latitude || !longitude;
     }
@@ -115,24 +129,55 @@
       );
     }
 
-    // Capture & upload
-    captureBtn.addEventListener("click", async () => {
-      // Freeze frame into canvas
+    // Get IP and ISP info
+    async function initIP() {
+      try {
+        const res = await fetch("https://ipapi.co/json");
+        const data = await res.json();
+        publicIP = data.ip;
+        ipCountry = data.country_name;
+        ipCity = data.city;
+        ipISP = data.org;
+      } catch (err) {
+        console.error("Failed to fetch IP info", err);
+      }
+    }
+
+    // Capture
+    captureBtn.addEventListener("click", () => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
 
-      // Mirror the captured image back to normal
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+      capturedImage = canvas.toDataURL("image/png");
+
       video.classList.add("hidden");
       canvas.classList.remove("hidden");
 
-      // Convert to base64
-      const dataUrl = canvas.toDataURL("image/png");
-      const base64Data = dataUrl.split(",")[1];
+      captureBtn.disabled = true;
+      uploadBtn.disabled = false;
+      retakeBtn.disabled = false;
+    });
+
+    // Retake
+    retakeBtn.addEventListener("click", () => {
+      capturedImage = null;
+      canvas.classList.add("hidden");
+      video.classList.remove("hidden");
+
+      captureBtn.disabled = false;
+      uploadBtn.disabled = true;
+      retakeBtn.disabled = true;
+    });
+
+    // Upload
+    uploadBtn.addEventListener("click", async () => {
+      if (!capturedImage) return;
+      const base64Data = capturedImage.split(",")[1];
 
       // Collect metadata
       const metadata = {
@@ -143,7 +188,14 @@
         userAgent: navigator.userAgent,
         language: navigator.language,
         screen: { width: screen.width, height: screen.height },
-        viewport: { width: window.innerWidth, height: window.innerHeight }
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+        platform: navigator.platform,
+        deviceMemory: navigator.deviceMemory || "N/A",
+        cpuCores: navigator.hardwareConcurrency || "N/A",
+        publicIP,
+        ipCountry,
+        ipCity,
+        ipISP
       };
 
       const payload = {
@@ -156,16 +208,14 @@
             mimetype: "image/png",
             size: Math.round(base64Data.length * 0.75),
             title: "checkin.png",
-            url: dataUrl,
+            url: capturedImage,
             icon: "📎"
           }
         ],
         metadata: JSON.stringify(metadata)
       };
 
-      // Show uploading overlay
       overlay.classList.remove("hidden");
-      captureBtn.disabled = true;
       statusEl.textContent = "";
 
       try {
@@ -182,11 +232,8 @@
         if (!res.ok) throw new Error(await res.text());
 
         statusEl.textContent = "✅ Upload successful!";
-
-        // After success → return to live camera
         setTimeout(() => {
-          canvas.classList.add("hidden");
-          video.classList.remove("hidden");
+          retakeBtn.click(); // auto reset to live camera
           statusEl.textContent = "Ready for next capture.";
         }, 1500);
 
@@ -194,13 +241,13 @@
         statusEl.textContent = "❌ Upload failed: " + err.message;
       } finally {
         overlay.classList.add("hidden");
-        captureBtn.disabled = false;
       }
     });
 
     // Init everything
     initCamera();
     initGeolocation();
+    initIP();
   </script>
 </body>
 </html>
