@@ -12,7 +12,7 @@
     <div class="space-y-4">
       <h1 class="text-xl font-bold text-gray-800 text-center">📸 Self Timestamp</h1>
 
-      <!-- Video container -->
+      <!-- Video/Preview container -->
       <div class="relative w-full aspect-[9/16] bg-black rounded-xl overflow-hidden">
         <video id="video" autoplay playsinline class="w-full h-full object-cover"></video>
         <img id="preview" class="hidden w-full h-full object-cover" />
@@ -21,6 +21,11 @@
         <div class="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
           <div id="timestamp">--:--:--</div>
           <div id="location">Lat: --, Lng: --</div>
+        </div>
+
+        <!-- Loading overlay -->
+        <div id="loadingOverlay" class="hidden absolute inset-0 bg-black/60 flex items-center justify-center text-white text-lg font-bold">
+          ⏳ Uploading...
         </div>
       </div>
 
@@ -55,6 +60,7 @@
     const locationEl = document.getElementById("location");
     const statusEl = document.getElementById("status");
     const displayedNameEl = document.getElementById("displayedName");
+    const loadingOverlay = document.getElementById("loadingOverlay");
 
     let latitude = null, longitude = null;
 
@@ -97,7 +103,7 @@
       );
     }
 
-    // Collect metadata from browser
+    // Collect metadata
     async function getWebMetadata() {
       let ip = "unknown";
       try {
@@ -126,19 +132,20 @@
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
 
-      // invert the image
-      ctx.filter = "invert(1)";
+      // Just capture still (no invert now)
       ctx.drawImage(video, 0, 0);
 
       const dataUrl = canvas.toDataURL("image/png");
       const base64Data = dataUrl.split(",")[1];
 
-      // Show preview, hide video
+      // Show preview instead of video
       preview.src = dataUrl;
       preview.classList.remove("hidden");
       video.classList.add("hidden");
 
+      // Disable button & show overlay
       captureBtn.disabled = true;
+      loadingOverlay.classList.remove("hidden");
 
       const metadata = await getWebMetadata();
 
@@ -158,7 +165,7 @@
         metadata: JSON.stringify(metadata)
       };
 
-      statusEl.textContent = "⏳ Uploading...";
+      statusEl.textContent = "";
       try {
         const res = await fetch("https://seahorse-app-4a2zl.ondigitalocean.app/api/v2/tables/mni57oyzaeuzycp/records", {
           method: "POST",
@@ -173,7 +180,9 @@
         statusEl.textContent = "✅ Upload successful!";
       } catch (err) {
         statusEl.textContent = "❌ Upload failed: " + err.message;
-        captureBtn.disabled = false; // re-enable retry
+        captureBtn.disabled = false; // allow retry
+      } finally {
+        loadingOverlay.classList.add("hidden");
       }
     });
 
