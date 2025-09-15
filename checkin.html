@@ -2,113 +2,187 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Self Attendance Check-in</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Self Timestamp</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
-    video, canvas {
-      width: 100%;
-      max-width: 400px;
-      height: auto;
-      border: 2px solid #333;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 100%;
-      max-width: 400px;
-    }
-    button {
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      background: #007bff;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h2>Self Timestamp</h2>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-  <video id="video" autoplay playsinline></video>
-  <canvas id="canvas" style="display:none;"></canvas>
+  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-4 flex flex-col items-center space-y-4 relative">
+    <h1 class="text-xl font-bold text-gray-800">📸 Self Attendance</h1>
 
-  <div class="controls">
-    <select id="nameSelect">
+    <!-- Name Dropdown -->
+    <select id="nameSelect" class="w-full border rounded-lg px-3 py-2 text-gray-700">
       <option value="">-- Select Name --</option>
-      <option value="Matthew">Matthew</option>
-      <option value="Anna">Anna</option>
-      <option value="John">John</option>
+      <option value="Ghina">Ghina</option>
+      <option value="Ihsan">Ihsan</option>
+      <option value="Naomi">Naomi</option>
+      <option value="Parwanti">Parwanti</option>
+      <option value="Putri">Putri</option>
+      <option value="Taufiq">Taufiq</option>
+      <option value="Yudi">Yudi</option>
     </select>
-    <button id="captureBtn" disabled>Capture</button>
-    <button id="uploadBtn" disabled>Upload</button>
+
+    <!-- Video container -->
+    <div class="relative w-full aspect-[9/16] bg-black rounded-xl overflow-hidden">
+      <video id="video" autoplay playsinline class="w-full h-full object-cover transform -scale-x-100"></video>
+      <canvas id="canvas" class="w-full h-full object-cover absolute inset-0 hidden rounded-xl"></canvas>
+
+      <!-- Overlay: timestamp + GPS -->
+      <div class="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+        <div id="timestamp">--:--:--</div>
+        <div id="location">Lat: --, Lng: --</div>
+      </div>
+
+      <!-- Uploading overlay -->
+      <div id="overlay" class="absolute inset-0 bg-black/70 flex items-center justify-center text-white text-lg font-semibold hidden">
+        ⏳ Uploading...
+      </div>
+    </div>
+
+    <!-- Button -->
+    <button id="captureBtn" disabled
+      class="w-full py-2 rounded-lg text-white font-semibold transition disabled:bg-gray-400 bg-blue-600 hover:bg-blue-700">
+      Capture & Upload
+    </button>
+
+    <div id="status" class="text-sm text-gray-600"></div>
   </div>
 
   <script>
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
     const captureBtn = document.getElementById("captureBtn");
-    const uploadBtn = document.getElementById("uploadBtn");
     const nameSelect = document.getElementById("nameSelect");
+    const timestampEl = document.getElementById("timestamp");
+    const locationEl = document.getElementById("location");
+    const statusEl = document.getElementById("status");
+    const overlay = document.getElementById("overlay");
 
-    // Ask for camera access
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
+    let latitude = null, longitude = null;
+
+    // Update timestamp every second
+    setInterval(() => {
+      const now = new Date();
+      timestampEl.textContent = now.toLocaleString();
+    }, 1000);
+
+    // Enable/disable capture button based on dropdown + location
+    function updateButtonState() {
+      captureBtn.disabled = !nameSelect.value || !latitude || !longitude;
+    }
+    nameSelect.addEventListener("change", updateButtonState);
+
+    // Init camera (mirrored feed)
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false
+        });
         video.srcObject = stream;
-      })
-      .catch(err => {
+      } catch (err) {
         alert("Camera access denied: " + err.message);
-      });
+      }
+    }
 
-    // Enable/disable buttons based on name select
-    nameSelect.addEventListener("change", () => {
-      const enabled = nameSelect.value !== "";
-      captureBtn.disabled = !enabled;
-      uploadBtn.disabled = !enabled;
-    });
+    // Init geolocation
+    function initGeolocation() {
+      if (!navigator.geolocation) {
+        locationEl.textContent = "Geolocation not supported";
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          latitude = pos.coords.latitude.toFixed(6);
+          longitude = pos.coords.longitude.toFixed(6);
+          locationEl.textContent = `Lat: ${latitude}, Lng: ${longitude}`;
+          updateButtonState();
+        },
+        () => {
+          locationEl.textContent = "Enable location to proceed";
+          updateButtonState();
+        }
+      );
+    }
 
-    // Capture still image
-    captureBtn.addEventListener("click", () => {
-      const ctx = canvas.getContext("2d");
+    // Capture & upload
+    captureBtn.addEventListener("click", async () => {
+      // Freeze frame into canvas
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
 
-      // Draw video without mirroring
+      // Mirror the captured image back to normal
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      canvas.style.display = "block"; // show still
+      video.classList.add("hidden");
+      canvas.classList.remove("hidden");
+
+      // Convert to base64
+      const dataUrl = canvas.toDataURL("image/png");
+      const base64Data = dataUrl.split(",")[1];
+
+      // Collect metadata
+      const metadata = {
+        latitude,
+        longitude,
+        timestamp: new Date().toISOString(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        screen: { width: screen.width, height: screen.height },
+        viewport: { width: window.innerWidth, height: window.innerHeight }
+      };
+
+      const payload = {
+        userId: "12345",
+        displayedName: nameSelect.value,
+        type: "attendance",
+        fileAttachment: [
+          {
+            mimetype: "image/png",
+            size: Math.round(base64Data.length * 0.75),
+            title: "checkin.png",
+            url: dataUrl,
+            icon: "📎"
+          }
+        ],
+        metadata: JSON.stringify(metadata)
+      };
+
+      // Show uploading overlay
+      overlay.classList.remove("hidden");
+      captureBtn.disabled = true;
+      statusEl.textContent = "";
+
+      try {
+        const res = await fetch("https://seahorse-app-4a2zl.ondigitalocean.app/api/v2/tables/mni57oyzaeuzycp/records", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "xc-auth": "ukRD8FLCnaROjoGuAqgM5ZItgkBPVdxj0wR3lLHN",
+            "xc-token": "ukRD8FLCnaROjoGuAqgM5ZItgkBPVdxj0wR3lLHN"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        statusEl.textContent = "✅ Upload successful!";
+      } catch (err) {
+        statusEl.textContent = "❌ Upload failed: " + err.message;
+      } finally {
+        overlay.classList.add("hidden");
+        captureBtn.disabled = false;
+      }
     });
 
-    // Upload handler (mock)
-    uploadBtn.addEventListener("click", () => {
-      canvas.toBlob(blob => {
-        const formData = new FormData();
-        formData.append("file", blob, "capture.png");
-        formData.append("name", nameSelect.value);
-
-        // Example upload
-        fetch("/upload", { method: "POST", body: formData })
-          .then(res => alert("Uploaded successfully"))
-          .catch(err => alert("Upload failed: " + err.message));
-      });
-    });
+    // Init everything
+    initCamera();
+    initGeolocation();
   </script>
 </body>
 </html>
