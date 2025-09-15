@@ -18,11 +18,11 @@
       <option value="Ghina">Ghina</option>
       <option value="Ihsan">Ihsan</option>
       <option value="Jonathan">Jonathan</option>
-      <option value="Matthew">Naomi</option>
+      <option value="Matthew">Matthew</option>
       <option value="Naomi">Naomi</option>
       <option value="Parwanti">Parwanti</option>
       <option value="Putri">Putri</option>
-      <option value="Putri">Salma</option>
+      <option value="Salma">Salma</option>
       <option value="Taufiq">Taufiq</option>
       <option value="Yudi">Yudi</option>
     </select>
@@ -182,6 +182,14 @@
         if (!res.ok) throw new Error(await res.text());
 
         statusEl.textContent = "✅ Upload successful!";
+
+        // After success → return to live camera
+        setTimeout(() => {
+          canvas.classList.add("hidden");
+          video.classList.remove("hidden");
+          statusEl.textContent = "Ready for next capture.";
+        }, 1500);
+
       } catch (err) {
         statusEl.textContent = "❌ Upload failed: " + err.message;
       } finally {
