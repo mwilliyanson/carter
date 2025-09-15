@@ -14,14 +14,22 @@
     <!-- Name Dropdown -->
     <select id="nameSelect" class="w-full border rounded-lg px-3 py-2 text-gray-700">
       <option value="">-- Select Name --</option>
+      <option value="Andre">Andre</option>
       <option value="Ghina">Ghina</option>
       <option value="Ihsan">Ihsan</option>
+      <option value="Jonathan">Jonathan</option>
+      <option value="Matthew">Naomi</option>
       <option value="Naomi">Naomi</option>
       <option value="Parwanti">Parwanti</option>
       <option value="Putri">Putri</option>
+      <option value="Putri">Salma</option>
       <option value="Taufiq">Taufiq</option>
       <option value="Yudi">Yudi</option>
     </select>
+
+    <!-- Annotation Textbox -->
+    <textarea id="annotationInput" rows="2" placeholder="Add annotation (optional)"
+      class="w-full border rounded-lg px-3 py-2 text-gray-700"></textarea>
 
     <!-- Video container -->
     <div class="relative w-full aspect-[9/16] bg-black rounded-xl overflow-hidden">
@@ -54,6 +62,7 @@
     const canvas = document.getElementById("canvas");
     const captureBtn = document.getElementById("captureBtn");
     const nameSelect = document.getElementById("nameSelect");
+    const annotationInput = document.getElementById("annotationInput");
     const timestampEl = document.getElementById("timestamp");
     const locationEl = document.getElementById("location");
     const statusEl = document.getElementById("status");
@@ -140,6 +149,7 @@
       const payload = {
         userId: "12345",
         displayedName: nameSelect.value,
+        annotation: annotationInput.value,
         type: "attendance",
         fileAttachment: [
           {
