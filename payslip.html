@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payslip Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="max-w-3xl mx-auto mt-10 p-6">
+    <div class="bg-white shadow-xl rounded-2xl p-6">
+      <!-- Header -->
+      <div class="flex justify-between items-center border-b pb-4 mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Payslip</h1>
+        <div>
+          <label for="period" class="mr-2 text-gray-600 font-medium">Select Period:</label>
+          <input type="month" id="period" class="border rounded-lg px-3 py-2" onchange="updatePayslip()">
+        </div>
+      </div>
+      
+      <!-- Employee Info -->
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-2">Employee Details</h2>
+        <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+          <p><span class="font-medium">Name:</span> John Doe</p>
+          <p><span class="font-medium">Employee ID:</span> EMP123</p>
+          <p><span class="font-medium">Department:</span> Engineering</p>
+          <p><span class="font-medium">Position:</span> Software Engineer</p>
+        </div>
+      </div>
+      
+      <!-- Payslip Info -->
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-2">Earnings & Deductions</h2>
+        <div class="overflow-hidden rounded-lg border border-gray-200">
+          <table class="w-full text-sm text-gray-700">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="text-left px-4 py-2">Description</th>
+                <th class="text-right px-4 py-2">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="px-4 py-2">Base Salary</td>
+                <td class="px-4 py-2 text-right">Rp 10,000,000</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Allowance A</td>
+                <td class="px-4 py-2 text-right">Rp 2,000,000</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Allowance B</td>
+                <td class="px-4 py-2 text-right">Rp 1,000,000</td>
+              </tr>
+              <tr class="bg-gray-50">
+                <td class="px-4 py-2 font-medium">Gross Earning</td>
+                <td class="px-4 py-2 text-right font-medium">Rp 13,000,000</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Deduction A</td>
+                <td class="px-4 py-2 text-right">Rp 500,000</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Deduction B</td>
+                <td class="px-4 py-2 text-right">Rp 300,000</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Tax</td>
+                <td class="px-4 py-2 text-right">Rp 700,000</td>
+              </tr>
+              <tr class="bg-gray-50">
+                <td class="px-4 py-2 font-semibold text-green-600">Net Earning</td>
+                <td class="px-4 py-2 text-right font-semibold text-green-600">Rp 11,500,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="text-right text-sm text-gray-500">
+        <p id="payslip-period">Payslip for: <span class="font-medium text-gray-700">--</span></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updatePayslip() {
+      const periodInput = document.getElementById("period").value;
+      const display = document.getElementById("payslip-period").querySelector("span");
+
+      if (periodInput) {
+        const [year, month] = periodInput.split("-");
+        const date = new Date(year, month - 1);
+        const monthName = date.toLocaleString("default", { month: "long" });
+        display.textContent = `${monthName} ${year}`;
+      } else {
+        display.textContent = "--";
+      }
+    }
+  </script>
+</body>
+</html>

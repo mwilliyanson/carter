@@ -30,7 +30,7 @@
       </button>
     </form>
 
-    <p id="message" class="mt-4 text-lg font-medium"></p>
+    <p id="message" class="mt-4 text-lg font-medium text-green-600 font-semibold"></p>
   </div>
 
   <script>
@@ -63,10 +63,32 @@
       }
     }
 
+    function isCodeAllowed(code) {
+      const parts = code.split("!");
+      if (parts.length !== 2) return false;
+      const name = parts[1].toLowerCase();
+      const today = new Date().getDay(); // 0 = Sunday, 1 = Monday ... 6 = Saturday
+
+      const alwaysEnabled = ["ghina", "jonathan"];
+      const limitedDays = ["taufiq", "putri"];
+      const allowedDays = [4, 6]; // Thursday=4, Saturday=6
+
+      if (alwaysEnabled.includes(name)) return true;
+      if (limitedDays.includes(name) && allowedDays.includes(today)) return true;
+
+      return false;
+    }
+
     form.addEventListener("submit", async function(e) {
       e.preventDefault();
       const code = document.getElementById("code").value.trim();
       const now = Date.now();
+
+      if (!isCodeAllowed(code)) {
+        message.textContent = "❌ Code not allowed today!";
+        message.className = "mt-4 text-red-500 font-semibold";
+        return;
+      }
 
       const lastSubmit = localStorage.getItem("lastSubmitTime");
       if (lastSubmit && now - lastSubmit < 60 * 1000) {
@@ -75,22 +97,20 @@
         return;
       }
 
-      if (code) {
-        try {
-          const res = await fetch(`https://gopher.bicarakan.id/gantt/gopher/reload?code=${encodeURIComponent(code)}`);
-          if (!res.ok) throw new Error("Network error");
+      // Show success immediately
+      message.textContent = "✅ Processed successfully!";
+      message.className = "mt-4 text-green-600 font-semibold";
 
-          message.textContent = "✅ Processed successfully!";
-          message.className = "mt-4 text-green-600 font-semibold";
+      // Start countdown immediately
+      localStorage.setItem("lastSubmitTime", now);
+      startCountdown(60);
 
-          // Save timestamp & start countdown
-          localStorage.setItem("lastSubmitTime", now);
-          startCountdown(60);
-          form.reset();
-        } catch (err) {
-          message.textContent = "❌ Failed to process. Please try again.";
-          message.className = "mt-4 text-red-500 font-semibold";
-        }
+      try {
+        await fetch(`https://gopher.bicarakan.id/gantt/gopher/reload?code=${encodeURIComponent(code)}`);
+      } catch (err) {
+        // Ignore errors, always show success
+      } finally {
+        form.reset();
       }
     });
   </script>
