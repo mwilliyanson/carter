@@ -1,54 +1,60 @@
-1. update the html below so once capture, it will stay for the picture, show a preview and disable the submit button util it is succesfull send
-2. invert the image
-3. show dropdown for displayed na,e default to empty. list is sbelow.
-- Ghina
-- Ihsan
-- Naomi
-- Parwanti
-- Putri
-- Taufiq
-- Yudi
-4. get all information that is avaialble in the web, then send it as the metada. still icnlude the lat long
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Self Attendance Check-in</title>
+  <title>Self Timestamp Check-in</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-4 flex flex-col items-center space-y-4">
-    <h1 class="text-xl font-bold text-gray-800">📸 Self Attendance</h1>
+  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-4 flex flex-col justify-between h-[90vh]">
+    <div class="space-y-4">
+      <h1 class="text-xl font-bold text-gray-800 text-center">📸 Self Timestamp</h1>
 
-    <!-- Video container -->
-    <div class="relative w-full aspect-[9/16] bg-black rounded-xl overflow-hidden">
-      <video id="video" autoplay playsinline class="w-full h-full object-cover"></video>
+      <!-- Video container -->
+      <div class="relative w-full aspect-[9/16] bg-black rounded-xl overflow-hidden">
+        <video id="video" autoplay playsinline class="w-full h-full object-cover"></video>
+        <img id="preview" class="hidden w-full h-full object-cover" />
 
-      <!-- Overlay: timestamp + GPS -->
-      <div class="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-        <div id="timestamp">--:--:--</div>
-        <div id="location">Lat: --, Lng: --</div>
+        <!-- Overlay: timestamp + GPS -->
+        <div class="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+          <div id="timestamp">--:--:--</div>
+          <div id="location">Lat: --, Lng: --</div>
+        </div>
       </div>
+
+      <!-- Dropdown for displayed name -->
+      <select id="displayedName" class="w-full border rounded-lg p-2">
+        <option value="">-- Select Name --</option>
+        <option value="Ghina">Ghina</option>
+        <option value="Ihsan">Ihsan</option>
+        <option value="Naomi">Naomi</option>
+        <option value="Parwanti">Parwanti</option>
+        <option value="Putri">Putri</option>
+        <option value="Taufiq">Taufiq</option>
+        <option value="Yudi">Yudi</option>
+      </select>
     </div>
 
-    <!-- Buttons -->
-    <button id="captureBtn" disabled
-      class="w-full py-2 rounded-lg text-white font-semibold transition disabled:bg-gray-400 bg-blue-600 hover:bg-blue-700">
-      Capture & Upload
-    </button>
-
-    <div id="status" class="text-sm text-gray-600"></div>
+    <!-- Buttons + Status -->
+    <div class="mt-4 space-y-2">
+      <button id="captureBtn" disabled
+        class="w-full py-2 rounded-lg text-white font-semibold transition disabled:bg-gray-400 bg-blue-600 hover:bg-blue-700">
+        Capture & Upload
+      </button>
+      <div id="status" class="text-sm text-gray-600 text-center"></div>
+    </div>
   </div>
 
   <script>
     const video = document.getElementById("video");
+    const preview = document.getElementById("preview");
     const captureBtn = document.getElementById("captureBtn");
     const timestampEl = document.getElementById("timestamp");
     const locationEl = document.getElementById("location");
     const statusEl = document.getElementById("status");
+    const displayedNameEl = document.getElementById("displayedName");
 
     let latitude = null, longitude = null;
 
@@ -62,7 +68,7 @@
     async function initCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" }, // front camera
+          video: { facingMode: "user" },
           audio: false
         });
         video.srcObject = stream;
@@ -84,11 +90,33 @@
           locationEl.textContent = `Lat: ${latitude}, Lng: ${longitude}`;
           captureBtn.disabled = false;
         },
-        (err) => {
+        () => {
           locationEl.textContent = "Enable location to proceed";
           captureBtn.disabled = true;
         }
       );
+    }
+
+    // Collect metadata from browser
+    async function getWebMetadata() {
+      let ip = "unknown";
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        ip = data.ip;
+      } catch (e) {}
+
+      return {
+        latitude,
+        longitude,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        screen: `${window.screen.width}x${window.screen.height}`,
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        ip
+      };
     }
 
     // Capture & upload
@@ -97,25 +125,37 @@
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
+
+      // invert the image
+      ctx.filter = "invert(1)";
       ctx.drawImage(video, 0, 0);
 
       const dataUrl = canvas.toDataURL("image/png");
-      const base64Data = dataUrl.split(",")[1]; // strip header
+      const base64Data = dataUrl.split(",")[1];
+
+      // Show preview, hide video
+      preview.src = dataUrl;
+      preview.classList.remove("hidden");
+      video.classList.add("hidden");
+
+      captureBtn.disabled = true;
+
+      const metadata = await getWebMetadata();
 
       const payload = {
         userId: "12345",
-        displayedName: "John Doe",
+        displayedName: displayedNameEl.value || "Unknown",
         type: "attendance",
         fileAttachment: [
           {
             mimetype: "image/png",
             size: Math.round(base64Data.length * 0.75),
             title: "checkin.png",
-            url: dataUrl, // sending base64 as URL
+            url: dataUrl,
             icon: "📎"
           }
         ],
-        metadata: JSON.stringify({ latitude, longitude, timestamp: new Date().toISOString() })
+        metadata: JSON.stringify(metadata)
       };
 
       statusEl.textContent = "⏳ Uploading...";
@@ -133,10 +173,10 @@
         statusEl.textContent = "✅ Upload successful!";
       } catch (err) {
         statusEl.textContent = "❌ Upload failed: " + err.message;
+        captureBtn.disabled = false; // re-enable retry
       }
     });
 
-    // Init everything
     initCamera();
     initGeolocation();
   </script>
