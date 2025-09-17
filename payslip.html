@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Payslip - PT Bicarakan Jiwa Pelita</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .truncate-ellipsis {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 180px; /* adjust for mobile */
+      display: inline-block;
+      vertical-align: bottom;
+    }
+  </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
   <div class="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 bg-white shadow-lg rounded-xl">
@@ -33,14 +43,15 @@
     </div>
 
     <!-- Payslip -->
-    <div id="payslipContainer" class="hidden">
+    <div id="payslipContainer" class="hidden mt-8">
       <h2 class="text-xl font-bold mb-2 text-center">Payslip</h2>
       <p id="payslip-period" class="text-center text-gray-600 mb-6">Period: <span></span></p>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <!-- Employee Info -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
         <div>
           <p><strong>Employee Name:</strong> <span id="empName"></span></p>
-          <p><strong>Employee ID:</strong> <span id="empId"></span></p>
+          <p><strong>Employee ID:</strong> <span id="empId" class="truncate-ellipsis" title=""></span></p>
         </div>
         <div>
           <p><strong>Department:</strong> <span id="empDept"></span></p>
@@ -48,11 +59,12 @@
         </div>
       </div>
 
+      <!-- Table -->
       <div class="overflow-x-auto">
         <table class="w-full border-collapse border border-gray-300 text-sm sm:text-base">
           <thead class="bg-gray-100">
             <tr>
-              <th class="border border-gray-300 px-4 py-2 text-left">Earnings & Deductions</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
               <th class="border border-gray-300 px-4 py-2 text-right">Amount (IDR)</th>
             </tr>
           </thead>
@@ -60,6 +72,7 @@
         </table>
       </div>
 
+      <!-- Footer -->
       <p class="text-xs text-gray-500 mt-6 text-center">
         This payslip is system generated. For any questions or references, feel free to email 
         <a href="mailto:finance@bicarakan.id" class="text-blue-600 underline">finance@bicarakan.id</a>.
@@ -109,42 +122,60 @@
           return;
         }
 
+        // Show container
         document.getElementById("payslipContainer").classList.remove("hidden");
+
+        // Employee info
         document.getElementById("empName").textContent = payroll.employee_name;
         document.getElementById("empId").textContent = payroll.employee_id;
+        document.getElementById("empId").title = payroll.employee_id; // show full ID on hover
         document.getElementById("empDept").textContent = payroll.department;
         document.getElementById("empPos").textContent = payroll.position;
 
-        const tbody = document.getElementById("payslipBody");
-        tbody.innerHTML = "";
-
-        addRowIfNotZero("Base Salary", payroll.base_salary, tbody);
-
-        for (const [name, value] of Object.entries(payroll.allowances || {})) {
-          addRowIfNotZero(name, value, tbody);
-        }
-
-        addRowIfNotZero("Gross Earning", payroll.gross_earning, tbody, true);
-
-        for (const [name, value] of Object.entries(payroll.deductions || {})) {
-          addRowIfNotZero(name, value, tbody);
-        }
-
-        addRowIfNotZero("Tax", payroll.tax, tbody);
-        addRowIfNotZero("Net Earning", payroll.net_earning, tbody, false, true);
-
+        // Period
         const start = new Date(payroll.period_start);
         const end = new Date(payroll.period_end);
         document.getElementById("payslip-period").querySelector("span").textContent =
           `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
+
+        // Table
+        const tbody = document.getElementById("payslipBody");
+        tbody.innerHTML = "";
+
+        // Earnings
+        addSectionHeader("Earnings", tbody);
+        addRowIfNotZero("Base Salary", payroll.base_salary, tbody);
+        for (const [name, value] of Object.entries(payroll.allowances || {})) {
+          addRowIfNotZero(name, value, tbody);
+        }
+        addRowIfNotZero("Gross Earning", payroll.gross_earning, tbody, true);
+
+        // Deductions
+        addSectionHeader("Deductions", tbody);
+        for (const [name, value] of Object.entries(payroll.deductions || {})) {
+          addRowIfNotZero(name, value, tbody);
+        }
+        addRowIfNotZero("Tax", payroll.tax, tbody);
+
+        // Net
+        addSectionHeader("Net", tbody);
+        addRowIfNotZero("Net Earning", payroll.net_earning, tbody, false, true);
       } catch (err) {
         console.error(err);
         alert("Failed to fetch payslip.");
       }
     }
 
+    function addSectionHeader(title, tbody) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td colspan="2" class="bg-gray-50 text-gray-700 font-semibold px-4 py-2">${title}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
     function addRowIfNotZero(name, amount, tbody, bold = false, highlight = false) {
-      if (!amount || amount === 0) return; // skip if 0 or null
+      if (!amount || amount === 0) return; // skip 0
       const tr = document.createElement("tr");
       tr.className = highlight ? "bg-green-100 font-bold" : "";
       tr.innerHTML = `
