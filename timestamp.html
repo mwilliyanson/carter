@@ -27,10 +27,6 @@
       <option value="Yudi">Yudi</option>
     </select>
 
-    <!-- Annotation Textbox -->
-    <textarea id="annotationInput" rows="2" placeholder="Add annotation (optional)"
-      class="w-full border rounded-lg px-3 py-2 text-gray-700"></textarea>
-
     <!-- Video container -->
     <div class="relative w-full aspect-[9/16] bg-black rounded-xl overflow-hidden">
       <video id="video" autoplay playsinline class="w-full h-full object-cover transform -scale-x-100"></video>
@@ -48,6 +44,15 @@
       </div>
     </div>
 
+     <!-- Annotation Textbox -->
+    <details class="w-full border rounded-lg">
+      <summary class="px-3 py-2 text-gray-700 cursor-pointer select-none">
+        Add annotation (optional)
+      </summary>
+      <textarea id="annotationInput" rows="2" placeholder="Type your annotation..."
+        class="w-full border-t px-3 py-2 text-gray-700"></textarea>
+    </details>
+    
     <!-- Buttons -->
     <div class="flex w-full space-x-2">
       <button id="captureBtn" disabled
