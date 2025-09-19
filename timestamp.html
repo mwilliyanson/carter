@@ -44,7 +44,7 @@
       </div>
     </div>
 
-     <!-- Annotation Textbox -->
+    <!-- Annotation Textbox -->
     <details class="w-full border rounded-lg">
       <summary class="px-3 py-2 text-gray-700 cursor-pointer select-none">
         Add annotation (optional)
@@ -95,13 +95,11 @@
       timestampEl.textContent = now.toLocaleString();
     }, 1000);
 
-    // Enable/disable capture button
     function updateButtonState() {
       captureBtn.disabled = !nameSelect.value || !latitude || !longitude;
     }
     nameSelect.addEventListener("change", updateButtonState);
 
-    // Init camera (mirrored feed)
     async function initCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -114,7 +112,6 @@
       }
     }
 
-    // Init geolocation
     function initGeolocation() {
       if (!navigator.geolocation) {
         locationEl.textContent = "Geolocation not supported";
@@ -134,7 +131,6 @@
       );
     }
 
-    // Get IP and ISP info
     async function initIP() {
       try {
         const res = await fetch("https://ipapi.co/json");
@@ -148,7 +144,6 @@
       }
     }
 
-    // Convert base64 to Blob
     function base64ToBlob(base64, type = "image/png") {
       const byteCharacters = atob(base64);
       const byteNumbers = new Array(byteCharacters.length);
@@ -159,7 +154,6 @@
       return new Blob([byteArray], { type });
     }
 
-    // Upload to gopher.bicarakan.id
     async function uploadToGopher(base64Data) {
       const blob = base64ToBlob(base64Data, "image/png");
       const formData = new FormData();
@@ -171,10 +165,9 @@
       });
 
       if (!res.ok) throw new Error(await res.text());
-      return await res.json(); // expect { url: "https://..." }
+      return await res.json(); // { data: { asset_url_path: "https://..." } }
     }
 
-    // Capture
     captureBtn.addEventListener("click", () => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
@@ -194,7 +187,6 @@
       retakeBtn.disabled = false;
     });
 
-    // Retake
     retakeBtn.addEventListener("click", () => {
       capturedImage = null;
       canvas.classList.add("hidden");
@@ -205,7 +197,6 @@
       retakeBtn.disabled = true;
     });
 
-    // Upload
     uploadBtn.addEventListener("click", async () => {
       if (!capturedImage) return;
       const base64Data = capturedImage.split(",")[1];
@@ -216,7 +207,9 @@
       try {
         // 1. Upload file to gopher API
         const uploadResp = await uploadToGopher(base64Data);
-        const fileUrl = uploadResp.url || uploadResp.fileUrl; // adapt to API response
+        const fileUrl = uploadResp?.data?.asset_url_path; // ✅ FIX
+
+        if (!fileUrl) throw new Error("No asset_url_path in response");
 
         // 2. Collect metadata
         const metadata = {
@@ -279,7 +272,6 @@
       }
     });
 
-    // Init everything
     initCamera();
     initGeolocation();
     initIP();
