@@ -148,6 +148,32 @@
       }
     }
 
+    // Convert base64 to Blob
+    function base64ToBlob(base64, type = "image/png") {
+      const byteCharacters = atob(base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      return new Blob([byteArray], { type });
+    }
+
+    // Upload to gopher.bicarakan.id
+    async function uploadToGopher(base64Data) {
+      const blob = base64ToBlob(base64Data, "image/png");
+      const formData = new FormData();
+      formData.append("file", blob, "checkin.png");
+
+      const res = await fetch("https://www.gopher.bicarakan.id/wundt/temporary-timestamp/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      return await res.json(); // expect { url: "https://..." }
+    }
+
     // Capture
     captureBtn.addEventListener("click", () => {
       canvas.width = video.videoWidth;
@@ -184,46 +210,50 @@
       if (!capturedImage) return;
       const base64Data = capturedImage.split(",")[1];
 
-      // Collect metadata
-      const metadata = {
-        latitude,
-        longitude,
-        timestamp: new Date().toISOString(),
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        userAgent: navigator.userAgent,
-        language: navigator.language,
-        screen: { width: screen.width, height: screen.height },
-        viewport: { width: window.innerWidth, height: window.innerHeight },
-        platform: navigator.platform,
-        deviceMemory: navigator.deviceMemory || "N/A",
-        cpuCores: navigator.hardwareConcurrency || "N/A",
-        publicIP,
-        ipCountry,
-        ipCity,
-        ipISP
-      };
-
-      const payload = {
-        userId: "12345",
-        displayedName: nameSelect.value,
-        annotation: annotationInput.value,
-        type: "attendance",
-        fileAttachment: [
-          {
-            mimetype: "image/png",
-            size: Math.round(base64Data.length * 0.75),
-            title: "checkin.png",
-            url: capturedImage,
-            icon: "📎"
-          }
-        ],
-        metadata: JSON.stringify(metadata)
-      };
-
       overlay.classList.remove("hidden");
-      statusEl.textContent = "";
+      statusEl.textContent = "Uploading...";
 
       try {
+        // 1. Upload file to gopher API
+        const uploadResp = await uploadToGopher(base64Data);
+        const fileUrl = uploadResp.url || uploadResp.fileUrl; // adapt to API response
+
+        // 2. Collect metadata
+        const metadata = {
+          latitude,
+          longitude,
+          timestamp: new Date().toISOString(),
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          userAgent: navigator.userAgent,
+          language: navigator.language,
+          screen: { width: screen.width, height: screen.height },
+          viewport: { width: window.innerWidth, height: window.innerHeight },
+          platform: navigator.platform,
+          deviceMemory: navigator.deviceMemory || "N/A",
+          cpuCores: navigator.hardwareConcurrency || "N/A",
+          publicIP,
+          ipCountry,
+          ipCity,
+          ipISP
+        };
+
+        // 3. Send record to NocoDB
+        const payload = {
+          userId: "12345",
+          displayedName: nameSelect.value,
+          annotation: annotationInput.value,
+          type: "attendance",
+          fileAttachment: [
+            {
+              mimetype: "image/png",
+              title: "checkin.png",
+              url: fileUrl,
+              icon: "📎"
+            }
+          ],
+          metadata: JSON.stringify(metadata)
+        };
+
         const res = await fetch("https://seahorse-app-4a2zl.ondigitalocean.app/api/v2/tables/m1kydl23bixj8y4/records", {
           method: "POST",
           headers: {
@@ -238,7 +268,7 @@
 
         statusEl.textContent = "✅ Upload successful!";
         setTimeout(() => {
-          retakeBtn.click(); // auto reset to live camera
+          retakeBtn.click();
           statusEl.textContent = "Ready for next capture.";
         }, 1500);
 
