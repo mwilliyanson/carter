@@ -88,12 +88,21 @@
     let latitude = null, longitude = null;
     let publicIP = null, ipCountry = null, ipCity = null, ipISP = null;
     let capturedImage = null;
+    let capturedAt = null; // store capture time
+    let liveClockInterval = null;
 
-    // Update timestamp every second
-    setInterval(() => {
-      const now = new Date();
-      timestampEl.textContent = now.toLocaleString();
-    }, 1000);
+    // Start live clock
+    function startClock() {
+      liveClockInterval = setInterval(() => {
+        const now = new Date();
+        timestampEl.textContent = now.toLocaleString();
+      }, 1000);
+    }
+    startClock();
+
+    function stopClock() {
+      if (liveClockInterval) clearInterval(liveClockInterval);
+    }
 
     function updateButtonState() {
       captureBtn.disabled = !nameSelect.value || !latitude || !longitude;
@@ -165,7 +174,7 @@
       });
 
       if (!res.ok) throw new Error(await res.text());
-      return await res.json(); // { data: { asset_url_path: "https://..." } }
+      return await res.json();
     }
 
     captureBtn.addEventListener("click", () => {
@@ -178,6 +187,11 @@
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       capturedImage = canvas.toDataURL("image/png");
+      capturedAt = new Date(); // save exact capture time
+
+      // Freeze timestamp overlay
+      timestampEl.textContent = capturedAt.toLocaleString();
+      stopClock();
 
       video.classList.add("hidden");
       canvas.classList.remove("hidden");
@@ -189,12 +203,16 @@
 
     retakeBtn.addEventListener("click", () => {
       capturedImage = null;
+      capturedAt = null;
+
       canvas.classList.add("hidden");
       video.classList.remove("hidden");
 
       captureBtn.disabled = false;
       uploadBtn.disabled = true;
       retakeBtn.disabled = true;
+
+      startClock(); // resume live clock
     });
 
     uploadBtn.addEventListener("click", async () => {
@@ -205,17 +223,16 @@
       statusEl.textContent = "Uploading...";
 
       try {
-        // 1. Upload file to gopher API
+        // 1. Upload file
         const uploadResp = await uploadToGopher(base64Data);
-        const fileUrl = uploadResp?.data?.asset_url_path; // ✅ FIX
-
+        const fileUrl = uploadResp?.data?.asset_url_path;
         if (!fileUrl) throw new Error("No asset_url_path in response");
 
         // 2. Collect metadata
         const metadata = {
           latitude,
           longitude,
-          timestamp: new Date().toISOString(),
+          timestamp: capturedAt ? capturedAt.toISOString() : new Date().toISOString(),
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           userAgent: navigator.userAgent,
           language: navigator.language,
@@ -230,7 +247,7 @@
           ipISP
         };
 
-        // 3. Send record to NocoDB
+        // 3. Save record
         const payload = {
           userId: "12345",
           displayedName: nameSelect.value,
