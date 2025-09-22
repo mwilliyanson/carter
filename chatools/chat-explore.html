@@ -164,7 +164,7 @@
   }
 
   function displayMessage(packet) {
-    const msg = packet.data;
+    const msg = packet.data; // MessageChat object
     const messagesContainer = document.getElementById("messages");
     const messageElement = document.createElement("div");
     messageElement.classList.add("message");
@@ -220,7 +220,7 @@
       .then(data => {
         const messagesContainer = document.getElementById("messages");
         messagesContainer.innerHTML = '';
-        data.forEach(displayMessage);
+        data.forEach(packet => displayMessage(packet));
       });
   }
 
@@ -235,7 +235,10 @@
     };
 
     socket.onmessage = event => {
-      displayMessage(JSON.parse(event.data));
+      const packet = JSON.parse(event.data); // WebhookPacket
+      if (packet.type === "message") {
+        displayMessage(packet);
+      }
     };
 
     socket.onerror = error => {
@@ -257,7 +260,7 @@
     keepAliveInterval = setInterval(() => {
       if (socket && socket.readyState === WebSocket.OPEN) {
         const keepAliveMessage = {
-          message_id: "",
+          message_id: crypto.randomUUID(),
           message_type: "keepalive",
           message_sender: {
             sender_id: user,
@@ -269,35 +272,39 @@
           message_attachment_list: [],
           message_reply_to: null
         };
-        socket.send(JSON.stringify(keepAliveMessage));
+
+        const packet = {
+          id: crypto.randomUUID(),
+          type: "keepalive",
+          data: keepAliveMessage
+        };
+
+        socket.send(JSON.stringify(packet));
         console.log("Sent keepalive ping");
       }
-    }, 50000); // every 60 seconds
+    }, 50000);
   }
 
   async function uploadFile(file) {
-  const formData = new FormData();
-  formData.append('file', file);
+    const formData = new FormData();
+    formData.append('file', file);
 
-  const res = await fetch('https://www.gopher.bicarakan.id/wundt/attachment/upload', {
-    method: 'POST',
-    headers: {
-      'Accept': '*/*'
-    },
-    body: formData
-  });
+    const res = await fetch('https://www.gopher.bicarakan.id/wundt/attachment/upload', {
+      method: 'POST',
+      headers: { 'Accept': '*/*' },
+      body: formData
+    });
 
-  if (!res.ok) throw new Error('File upload failed');
-  const result = await res.json();
+    if (!res.ok) throw new Error('File upload failed');
+    const result = await res.json();
 
-  return {
-    attachment_type: 'file',
-    attachment_asset_url: result.data.asset_url_path,
-    attachment_thumb_url: result.data.asset_thumbnail_url_path,
-    attachment_metadata: result.data.asset_id
-  };
-}
-
+    return {
+      attachment_type: 'file',
+      attachment_asset_url: result.data.asset_url_path,
+      attachment_thumb_url: result.data.asset_thumbnail_url_path,
+      attachment_metadata: result.data.asset_id
+    };
+  }
 
   async function sendMessage() {
     const messageInput = document.getElementById("message-input");
@@ -306,25 +313,6 @@
     let messageText = messageInput.value.trim();
     const file = fileInput.files[0];
 
-    if (file) {
-      let attachmentLabel = "";
-
-      if (file.type.startsWith("image/")) {
-        attachmentLabel = "📷 Image attachment";
-      } else if (file.type.startsWith("video/")) {
-        attachmentLabel = "🎥 Video attachment";
-      } else if (file.type.startsWith("audio/")) {
-        attachmentLabel = "🎵 Audio attachment";
-      } else {
-        attachmentLabel = "📄 Document attachment";
-      }
-
-      // Add a line break if user wrote a message
-      messageText = messageText
-        ? `${messageText}\n${attachmentLabel}`
-        : attachmentLabel;
-    }
-    
     if (!messageText && !file) return;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
@@ -342,7 +330,7 @@
     }
 
     const messageChat = {
-      message_id: "",
+      message_id: crypto.randomUUID(),
       message_type: "user",
       message_sender: {
         sender_id: user,
@@ -364,7 +352,14 @@
       } : null
     };
 
-    socket.send(JSON.stringify(messageChat));
+    const packet = {
+      id: crypto.randomUUID(),
+      type: "message",
+      data: messageChat
+    };
+
+    socket.send(JSON.stringify(packet));
+
     messageInput.value = '';
     fileInput.value = '';
     document.getElementById("file-preview").innerHTML = '';
