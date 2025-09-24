@@ -81,6 +81,52 @@
   </div>
 
   <script>
+    function getQueryParams() {
+      const params = {};
+      const queryString = window.location.search.substring(1);
+      const pairs = queryString.split("&");
+      for (const pair of pairs) {
+        if (!pair) continue;
+        const [key, value] = pair.split("=");
+        params[decodeURIComponent(key)] = decodeURIComponent(value || "");
+      }
+      return params;
+    }
+
+    function calculateEndPeriod(startPeriodStr) {
+      const start = new Date(startPeriodStr);
+      if (isNaN(start)) return "";
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
+      end.setDate(20);
+      return end.toISOString().split("T")[0]; // yyyy-mm-dd
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const params = getQueryParams();
+
+      if (params.id) {
+        document.getElementById("employeeId").value = params.id;
+      }
+
+      if (params.code) {
+        document.getElementById("payrollCode").value = params.code;
+      }
+
+      if (params.period) {
+        document.getElementById("startDate").value = params.period;
+        const endPeriod = calculateEndPeriod(params.period);
+        if (endPeriod) {
+          document.getElementById("endDate").value = endPeriod;
+        }
+      }
+
+      // auto-fetch if all required params exist
+      if (params.id && params.period && params.code) {
+        fetchPayslip();
+      }
+    });
+
     async function fetchPayslip() {
       const employeeId = document.getElementById("employeeId").value.trim();
       const payrollCode = document.getElementById("payrollCode").value.trim();
