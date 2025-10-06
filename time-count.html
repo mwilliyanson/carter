@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance Summary</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #fafafa;
+      color: #333;
+    }
+    h1 { text-align: center; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    tr:hover { background: #f9f9f9; cursor: pointer; }
+    .total {
+      margin-top: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: right;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .close-btn {
+      float: right;
+      cursor: pointer;
+      color: #666;
+      font-weight: bold;
+    }
+    .hours-low {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Attendance Summary</h1>
+  <table id="attendanceTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Days Attended</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div class="total" id="total"></div>
+
+  <!-- Modal -->
+  <div class="modal" id="detailModal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <table id="detailTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Total Hours</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function loadAttendance() {
+      const res = await fetch("https://seahorse-app-4a2zl.ondigitalocean.app/api/v2/tables/m1kydl23bixj8y4/records?viewId=vwr6qfjvqsdlpc7t&limit=400&shuffle=0&offset=0", {
+        headers: {
+          "accept": "application/json",
+          "xc-auth": "0PUFCoQXi632mkc9ZWSpv5ea9evnYKYE-TaOFE_F",
+          "xc-token": "0PUFCoQXi632mkc9ZWSpv5ea9evnYKYE-TaOFE_F"
+        }
+      });
+      const data = await res.json();
+      const records = data.list;
+
+      // Build structure: name -> date -> timestamps[]
+      const attendanceMap = {};
+      records.forEach(r => {
+        const name = r.displayedName || "Unknown";
+        try {
+          const meta = JSON.parse(r.metadata);
+          const date = new Date(meta.timestamp).toISOString().split("T")[0];
+          if (!attendanceMap[name]) attendanceMap[name] = {};
+          if (!attendanceMap[name][date]) attendanceMap[name][date] = [];
+          attendanceMap[name][date].push(new Date(meta.timestamp));
+        } catch (e) {
+          console.error("Metadata parse error:", e);
+        }
+      });
+
+      // Render summary table
+      const tbody = document.querySelector("#attendanceTable tbody");
+      tbody.innerHTML = "";
+      Object.entries(attendanceMap).forEach(([name, days]) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${name}</td><td>${Object.keys(days).length}</td>`;
+        tr.addEventListener("click", () => showDetails(name, days));
+        tbody.appendChild(tr);
+      });
+
+      document.querySelector("#total").textContent = 
+        `Total Attendance Entries: ${records.length}`;
+    }
+
+    function showDetails(name, days) {
+      const modal = document.getElementById("detailModal");
+      const tbody = document.querySelector("#detailTable tbody");
+      const title = document.getElementById("modalTitle");
+      tbody.innerHTML = "";
+      title.textContent = `Attendance Details for ${name}`;
+
+      Object.entries(days).forEach(([date, timestamps]) => {
+        timestamps.sort((a, b) => a - b);
+        const first = timestamps[0];
+        const last = timestamps[timestamps.length - 1];
+        const diffHrs = (last - first) / (1000 * 60 * 60);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${date}</td>
+          <td class="${diffHrs < 8 ? 'hours-low' : ''}">
+            ${diffHrs.toFixed(2)} hrs
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      modal.style.display = "flex";
+    }
+
+    document.getElementById("closeModal").onclick = () => {
+      document.getElementById("detailModal").style.display = "none";
+    };
+    window.onclick = e => {
+      if (e.target === document.getElementById("detailModal")) {
+        document.getElementById("detailModal").style.display = "none";
+      }
+    };
+
+    loadAttendance();
+  </script>
+</body>
+</html>
