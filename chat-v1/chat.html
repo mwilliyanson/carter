@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Room</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: #2563eb;
+      color: white;
+      padding: 1rem;
+    }
+    #room-info {
+      margin-top: 0.25rem;
+      font-size: 0.9rem;
+      color: #e0e7ff;
+    }
+    #chat-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      background: #f1f5f9;
+    }
+    .message {
+      background: white;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      max-width: 75%;
+    }
+    .sender {
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+    .timestamp {
+      color: gray;
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+    }
+    footer {
+      display: flex;
+      padding: 0.75rem;
+      border-top: 1px solid #e5e7eb;
+      background: white;
+    }
+    input {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+    }
+    button {
+      margin-left: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      background: #2563eb;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2 id="room-name">Loading room...</h2>
+    <div id="room-info"></div>
+  </header>
+
+  <div id="chat-list"></div>
+
+  <footer>
+    <input type="text" id="messageInput" placeholder="Type a message..." disabled />
+    <button id="sendBtn" disabled>Send</button>
+  </footer>
+
+  <script>
+    const chatChannelId = "244"; // fixed room
+    const apiKey = "B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT";
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzM5Nzk2NDIsImlhdCI6MTc1ODIxMTY0MiwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6IjI5NDJhMWIzLTk3ZGQtMzhiMC03NjQzLWRmMGZhZjFhMTQwMSJ9.cqH16LrnzP1WsXXAa3VRR2VOnwXNW4ewJG7k1kCPfGo";
+
+    const roomNameEl = document.getElementById("room-name");
+    const roomInfoEl = document.getElementById("room-info");
+    const chatListEl = document.getElementById("chat-list");
+    const inputEl = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    async function loadChat() {
+      try {
+        const response = await fetch("https://gopher.bicarakan.id/brown/conversation/channel/detail", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "App-Version-Code": "353",
+            "App-Version-Name": "0.35.3",
+            "locale": "id",
+            "platform": "Android",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ chat_channel_id: chatChannelId }),
+        });
+
+        const data = await response.json();
+        const detail = data.data.chat_channel_detail;
+        const messages = data.data.chat_channel_message_list;
+
+        roomNameEl.textContent = detail.room_name || "Unnamed Room";
+        roomInfoEl.innerHTML = `
+          Room Type: <strong>${detail.room_type}</strong> • 
+          Status: <strong>${detail.status}</strong> • 
+          Access: <strong>${detail.access_status}</strong>
+        `;
+
+        chatListEl.innerHTML = "";
+        messages.forEach(msg => addMessageToList(msg.data));
+        chatListEl.scrollTop = chatListEl.scrollHeight;
+
+        inputEl.disabled = false;
+        sendBtn.disabled = false;
+
+        // after loaded, connect websocket
+        connectWebSocket();
+
+      } catch (err) {
+        console.error("Failed to load chat:", err);
+        roomNameEl.textContent = "❌ Failed to load chat data.";
+      }
+    }
+
+    function addMessageToList(m) {
+      const div = document.createElement("div");
+      div.className = "message";
+      div.innerHTML = `
+        <div class="sender">${m.message_sender?.sender_displayed_name || "Unknown"}</div>
+        <div class="content">${m.message_content}</div>
+        <div class="timestamp">${new Date(m.message_timestamp).toLocaleString()}</div>
+      `;
+      chatListEl.appendChild(div);
+      chatListEl.scrollTop = chatListEl.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const content = inputEl.value.trim();
+      if (!content) return;
+      inputEl.value = "";
+
+      const payload = {
+        room_id: chatChannelId,
+        message_chat: {
+          message_id: "",
+          message_client_key_id: "",
+          message_type: "text",
+          message_sender: {},
+          message_timestamp: new Date().toISOString(),
+          message_content: content,
+          message_status: "",
+          message_attachment_list: [{}],
+        },
+      };
+
+      try {
+        await fetch("https://gopher.bicarakan.id/brown/conversation/message/send", {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+            "x-api-key": apiKey,
+            "App-Version-Code": "125",
+            "App-Version-Name": "0.12.5",
+            "locale": "en_US",
+            "platform": "Android",
+            "Accept-Language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Content-Language": "id-ID",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X)",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+      } catch (err) {
+        console.error("Send message failed:", err);
+      }
+    }
+
+    function connectWebSocket() {
+      const ws = new WebSocket(`wss://gopher.bicarakan.id/ws/brown/conversation/message/subscribe/${chatChannelId}?token=${token}`);
+      ws.onopen = () => console.log("✅ WebSocket connected");
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg?.data?.message_content) {
+            addMessageToList(msg.data);
+          }
+        } catch (err) {
+          console.error("Invalid WS message:", err);
+        }
+      };
+      ws.onclose = () => console.warn("❌ WebSocket closed, retrying in 5s...");
+      ws.onerror = (err) => console.error("WebSocket error:", err);
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    inputEl.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    loadChat();
+  </script>
+</body>
+</html>
