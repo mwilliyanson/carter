@@ -84,7 +84,15 @@
   </footer>
 
   <script>
-    const chatChannelId = "244"; // fixed room
+    // ✅ Get chatChannelId from query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatChannelId = urlParams.get("chatChannelId");
+
+    if (!chatChannelId) {
+      alert("Missing chatChannelId in query parameter!");
+      throw new Error("Missing chatChannelId in URL");
+    }
+
     const apiKey = "B3mJnGSf.zYPOv6oxB4tUlFvwqK3o1DeCeNDivkTT";
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzM5Nzk2NDIsImlhdCI6MTc1ODIxMTY0MiwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6IjI5NDJhMWIzLTk3ZGQtMzhiMC03NjQzLWRmMGZhZjFhMTQwMSJ9.cqH16LrnzP1WsXXAa3VRR2VOnwXNW4ewJG7k1kCPfGo";
 
@@ -128,7 +136,7 @@
         inputEl.disabled = false;
         sendBtn.disabled = false;
 
-        // after loaded, connect websocket
+        // Connect WebSocket after loading data
         connectWebSocket();
 
       } catch (err) {

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>WebSocket Debugger</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 12px; background:#f7fafc; color:#111827; }
+    header { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+    input[type=text], textarea { width:100%; box-sizing:border-box; padding:8px; font-family:monospace; font-size:13px; border:1px solid #cbd5e1; border-radius:6px; background:white; }
+    button { padding:8px 12px; border-radius:6px; border:1px solid #94a3b8; background:#e2e8f0; cursor:pointer; }
+    button.primary { background:#2563eb; color:white; border-color:#1e40af; }
+    .row { display:flex; gap:8px; margin-bottom:8px; }
+    .col-2 { display:flex; gap:8px; }
+    .left { flex:1; min-width:320px; }
+    .right { width:420px; }
+    #log { height:480px; overflow:auto; white-space:pre-wrap; background:#0f172a; color:#e6edf3; padding:10px; border-radius:8px; border:1px solid #0b1220; font-size:12px; }
+    .meta { font-size:12px; color:#475569; }
+    .status-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+    .status-disconnected { background:#ef4444; }
+    .status-connected { background:#10b981; }
+    .controls { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+    .small { font-size:12px; padding:6px 8px; }
+    label { font-size:13px; color:#0f172a; }
+    .footer { margin-top:10px; color:#475569; font-size:12px; }
+    .msg-input { height:80px; }
+    .toggle { display:inline-flex; gap:8px; align-items:center; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 style="font-size:18px;margin:0">WebSocket Debugger</h1>
+    <div class="meta">Quick dev tool to inspect frames and send messages</div>
+  </header>
+
+  <div class="row">
+    <div class="left">
+      <label>WebSocket URL</label>
+      <input id="wsUrl" type="text"
+        value="wss://gopher.bicarakan.id/ws/brown/conversation/channel/subscribe?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzM5Nzk2NDIsImlhdCI6MTc1ODIxMTY0MiwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6IjI5NDJhMWIzLTk3ZGQtMzhiMC03NjQzLWRmMGZhZjFhMTQwMSJ9.cqH16LrnzP1WsXXAa3VRR2VOnwXNW4ewJG7k1kCPfGo" />
+      <div class="controls" style="margin-top:8px">
+        <button id="connectBtn" class="primary">Connect</button>
+        <button id="disconnectBtn" class="small">Disconnect</button>
+        <button id="clearLog" class="small">Clear Log</button>
+        <button id="downloadLog" class="small">Download Log</button>
+        <label style="margin-left:8px;" class="toggle">
+          <input id="autoReconnect" type="checkbox" checked /> Auto-reconnect
+        </label>
+        <label style="margin-left:6px;" class="toggle">
+          <input id="logRaw" type="checkbox" /> Show RAW frames
+        </label>
+      </div>
+
+      <div style="margin-top:8px;">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div id="statusDot" class="status-dot status-disconnected"></div>
+          <div id="statusText">Disconnected</div>
+          <div style="margin-left:8px;" class="meta">Attempts: <span id="attempts">0</span></div>
+        </div>
+      </div>
+
+      <hr style="margin:12px 0" />
+
+      <label>Send message (plain text / JSON)</label>
+      <textarea id="messageInput" class="msg-input" placeholder='{"type":"ping"}'></textarea>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button id="sendBtn" class="primary">Send</button>
+        <button id="sendJsonBtn" class="small">Send JSON (format check)</button>
+        <button id="pingBtn" class="small">Send Ping</button>
+        <button id="clearInput" class="small">Clear</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <label>Log</label>
+      <div id="log" aria-live="polite"></div>
+      <div class="footer">
+        <div>Tip: You can toggle "Show RAW frames" to see binary/ArrayBuffer debug output. Use "Download Log" to save.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const wsUrlInput = document.getElementById('wsUrl');
+      const connectBtn = document.getElementById('connectBtn');
+      const disconnectBtn = document.getElementById('disconnectBtn');
+      const clearLogBtn = document.getElementById('clearLog');
+      const downloadLogBtn = document.getElementById('downloadLog');
+      const autoReconnectCheckbox = document.getElementById('autoReconnect');
+      const logRawCheckbox = document.getElementById('logRaw');
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const attemptsSpan = document.getElementById('attempts');
+      const messageInput = document.getElementById('messageInput');
+      const sendBtn = document.getElementById('sendBtn');
+      const sendJsonBtn = document.getElementById('sendJsonBtn');
+      const pingBtn = document.getElementById('pingBtn');
+      const clearInputBtn = document.getElementById('clearInput');
+      const logEl = document.getElementById('log');
+
+      let ws = null;
+      let attempts = 0;
+      let reconnectTimeout = null;
+      const logs = [];
+
+      function now() {
+        return new Date().toISOString();
+      }
+
+      function appendLog(type, text, data) {
+        const time = now();
+        const entry = { ts: time, type, text, data };
+        logs.push(entry);
+
+        // Visual log
+        let line = `[${time}] [${type.toUpperCase()}] ${text}`;
+        if (data !== undefined && logRawCheckbox.checked === true) {
+          // show raw data snippet
+          try {
+            if (data instanceof ArrayBuffer) {
+              const view = new Uint8Array(data);
+              line += `\n  ArrayBuffer(${view.length}) → ${Array.from(view.slice(0,60)).map(b => b.toString(16).padStart(2,'0')).join(' ')}${view.length > 60 ? ' ...' : ''}`;
+            } else {
+              line += `\n  ${typeof data === 'string' ? data : JSON.stringify(data)}`;
+            }
+          } catch(e) {
+            line += `\n  <could not stringify data>`;
+          }
+        } else if (data !== undefined) {
+          // pretty print if JSON-like
+          if (typeof data === 'string') {
+            try {
+              const j = JSON.parse(data);
+              line += `\n  ${JSON.stringify(j,null,2)}`;
+            } catch(e) {
+              line += `\n  ${data}`;
+            }
+          } else {
+            line += `\n  ${JSON.stringify(data)}`;
+          }
+        }
+
+        logEl.textContent += line + "\n\n";
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function setStatus(connected) {
+        if (connected) {
+          statusDot.classList.remove('status-disconnected');
+          statusDot.classList.add('status-connected');
+          statusText.textContent = 'Connected';
+        } else {
+          statusDot.classList.remove('status-connected');
+          statusDot.classList.add('status-disconnected');
+          statusText.textContent = 'Disconnected';
+        }
+      }
+
+      function connect() {
+        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+          appendLog('info', 'Already connected or connecting');
+          return;
+        }
+
+        const url = wsUrlInput.value.trim();
+        if (!url) { appendLog('error', 'No WebSocket URL'); return; }
+
+        attempts++;
+        attemptsSpan.textContent = attempts;
+        appendLog('info', 'Connecting to ' + url);
+        try {
+          ws = new WebSocket(url);
+        } catch (err) {
+          appendLog('error', 'Failed to create WebSocket: ' + err.message);
+          scheduleReconnect();
+          return;
+        }
+
+        // binary type — keep as arraybuffer for easy introspection
+        ws.binaryType = 'arraybuffer';
+
+        ws.addEventListener('open', () => {
+          appendLog('open', 'WebSocket open');
+          setStatus(true);
+        });
+
+        ws.addEventListener('message', (ev) => {
+          if (typeof ev.data === 'string') {
+            appendLog('recv', ev.data, ev.data);
+          } else if (ev.data instanceof ArrayBuffer) {
+            appendLog('recv', `ArrayBuffer (${ev.data.byteLength})`, ev.data);
+          } else {
+            appendLog('recv', 'Unknown data type', ev.data);
+          }
+        });
+
+        ws.addEventListener('error', (ev) => {
+          appendLog('error', 'WebSocket error', String(ev && ev.message || ev));
+        });
+
+        ws.addEventListener('close', (ev) => {
+          appendLog('close', `Closed (code=${ev.code} reason=${ev.reason || ''})`);
+          setStatus(false);
+          if (autoReconnectCheckbox.checked) {
+            scheduleReconnect();
+          }
+        });
+      }
+
+      function scheduleReconnect() {
+        if (!autoReconnectCheckbox.checked) return;
+        if (reconnectTimeout) return;
+        appendLog('info', 'Scheduling reconnect in 1500ms...');
+        reconnectTimeout = setTimeout(() => {
+          reconnectTimeout = null;
+          appendLog('info', 'Reconnecting now...');
+          connect();
+        }, 1500 + Math.min(attempts * 500, 3000));
+      }
+
+      function disconnect() {
+        if (!ws) { appendLog('info','No active WebSocket'); return; }
+        appendLog('info','Manual disconnect requested');
+        try { ws.close(1000, 'manual disconnect'); } catch(e) { /* ignore */ }
+        ws = null;
+        setStatus(false);
+        if (reconnectTimeout) { clearTimeout(reconnectTimeout); reconnectTimeout = null; }
+      }
+
+      function sendMessage(raw) {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+          appendLog('error', 'Cannot send, socket not open');
+          return;
+        }
+        try {
+          ws.send(raw);
+          appendLog('send', raw);
+        } catch (err) {
+          appendLog('error', 'Send failed: ' + err.message);
+        }
+      }
+
+      connectBtn.addEventListener('click', () => { connect(); });
+      disconnectBtn.addEventListener('click', () => { disconnect(); });
+      clearLogBtn.addEventListener('click', () => { logEl.textContent = ''; logs.length = 0; appendLog('info','Log cleared'); });
+      downloadLogBtn.addEventListener('click', () => {
+        const text = logs.map(l => `[${l.ts}] [${l.type}] ${l.text}\n${l.data ? (typeof l.data === 'string' ? l.data : JSON.stringify(l.data,null,2)) : ''}\n`).join('\n');
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ws-log-' + (new Date().toISOString().replace(/[:.]/g,'-')) + '.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      sendBtn.addEventListener('click', () => {
+        const text = messageInput.value;
+        if (!text) { appendLog('error','Message empty'); return; }
+        sendMessage(text);
+      });
+
+      sendJsonBtn.addEventListener('click', () => {
+        const text = messageInput.value;
+        if (!text) { appendLog('error','Message empty'); return; }
+        try {
+          const j = JSON.parse(text);
+          sendMessage(JSON.stringify(j));
+        } catch (e) {
+          appendLog('error','Invalid JSON: ' + e.message);
+        }
+      });
+
+      pingBtn.addEventListener('click', () => {
+        // send a JSON ping commonly used; adjust as needed
+        const p = JSON.stringify({ type: 'ping', ts: new Date().toISOString() });
+        sendMessage(p);
+      });
+
+      clearInputBtn.addEventListener('click', () => { messageInput.value = ''; });
+
+      // Keyboard shortcuts
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          sendBtn.click();
+        }
+      });
+
+      // nice initial log
+      appendLog('info','Debugger ready. Edit URL above and press Connect.');
+    })();
+  </script>
+</body>
+</html>
