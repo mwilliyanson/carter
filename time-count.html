@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Attendance Summary</title>
+  <title>Attendance Summary (Jakarta Time)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -66,7 +66,7 @@
   </style>
 </head>
 <body>
-  <h1>Attendance Summary</h1>
+  <h1>Attendance Summary (Jakarta Time)</h1>
 
   <table id="attendanceTable">
     <thead>
@@ -94,7 +94,6 @@
       <span class="close-btn" id="closeRecordModal">&times;</span>
       <h2 id="recordTitle"></h2>
       <table id="recordTable">
-        <!-- ✅ Added Annotation column -->
         <thead>
           <tr><th>Time</th><th>Action</th><th>Photo</th><th>Annotation</th></tr>
         </thead>
@@ -117,14 +116,17 @@
       const data = await res.json();
       const records = data.list;
 
-      // Build structure: name -> date -> [records]
       attendanceMap = {};
       records.forEach(r => {
         const name = r.displayedName || "Unknown";
         try {
           const meta = JSON.parse(r.metadata);
           const timestamp = new Date(meta.timestamp);
-          const date = timestamp.toISOString().split("T")[0];
+
+          // ✅ Convert to Asia/Jakarta date before grouping
+          const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' })
+            .format(timestamp);
+
           if (!attendanceMap[name]) attendanceMap[name] = {};
           if (!attendanceMap[name][date]) attendanceMap[name][date] = [];
           attendanceMap[name][date].push({
@@ -185,10 +187,13 @@
 
       records.sort((a,b) => a.time - b.time).forEach(r => {
         const meta = r.meta || {};
-        const timeStr = r.time.toLocaleTimeString();
+        const timeStr = new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Asia/Jakarta',
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        }).format(r.time);
         const action = meta.action || "Recorded";
 
-        // Handle fileAttachment column (array of objects)
+        // Handle fileAttachment column
         let photoHtml = "—";
         if (Array.isArray(r.raw.fileAttachment) && r.raw.fileAttachment.length > 0) {
           const firstFile = r.raw.fileAttachment[0];
@@ -197,7 +202,6 @@
           }
         }
 
-        // ✅ Added annotation
         const annotation = r.raw.annotation || "—";
 
         const tr = document.createElement("tr");
