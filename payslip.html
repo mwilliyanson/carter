@@ -10,7 +10,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: 180px; /* adjust for mobile */
+      max-width: 180px;
       display: inline-block;
       vertical-align: bottom;
     }
@@ -31,15 +31,13 @@
       </div>
     </div>
 
-    <!-- Form -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-      <input type="text" id="employeeId" placeholder="Employee ID" class="border rounded-lg px-3 py-2 w-full">
-      <input type="text" id="payrollCode" placeholder="Payroll Code" class="border rounded-lg px-3 py-2 w-full">
-      <input type="date" id="startDate" class="border rounded-lg px-3 py-2 w-full">
-      <input type="date" id="endDate" class="border rounded-lg px-3 py-2 w-full">
-    </div>
-    <div class="flex">
-      <button onclick="fetchPayslip()" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Get Payslip</button>
+    <!-- Hidden Form -->
+    <div class="hidden">
+      <input type="text" id="employeeId">
+      <input type="text" id="payrollCode">
+      <input type="date" id="startDate">
+      <input type="date" id="endDate">
+      <button onclick="fetchPayslip()">Get Payslip</button>
     </div>
 
     <!-- Payslip -->
@@ -99,7 +97,7 @@
       const end = new Date(start);
       end.setMonth(end.getMonth() + 1);
       end.setDate(20);
-      return end.toISOString().split("T")[0]; // yyyy-mm-dd
+      return end.toISOString().split("T")[0];
     }
 
     window.addEventListener("DOMContentLoaded", () => {
@@ -108,11 +106,9 @@
       if (params.id) {
         document.getElementById("employeeId").value = params.id;
       }
-
       if (params.code) {
         document.getElementById("payrollCode").value = params.code;
       }
-
       if (params.period) {
         document.getElementById("startDate").value = params.period;
         const endPeriod = calculateEndPeriod(params.period);
@@ -168,27 +164,22 @@
           return;
         }
 
-        // Show container
         document.getElementById("payslipContainer").classList.remove("hidden");
 
-        // Employee info
         document.getElementById("empName").textContent = payroll.employee_name;
         document.getElementById("empId").textContent = payroll.employee_id;
-        document.getElementById("empId").title = payroll.employee_id; // show full ID on hover
+        document.getElementById("empId").title = payroll.employee_id;
         document.getElementById("empDept").textContent = payroll.department;
         document.getElementById("empPos").textContent = payroll.position;
 
-        // Period
         const start = new Date(payroll.period_start);
         const end = new Date(payroll.period_end);
         document.getElementById("payslip-period").querySelector("span").textContent =
           `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
 
-        // Table
         const tbody = document.getElementById("payslipBody");
         tbody.innerHTML = "";
 
-        // Earnings
         addSectionHeader("Earnings", tbody);
         addRowIfNotZero("Base Salary", payroll.base_salary, tbody);
         for (const [name, value] of Object.entries(payroll.allowances || {})) {
@@ -196,14 +187,12 @@
         }
         addRowIfNotZero("Gross Earning", payroll.gross_earning, tbody, true);
 
-        // Deductions
         addSectionHeader("Deductions", tbody);
         for (const [name, value] of Object.entries(payroll.deductions || {})) {
           addRowIfNotZero(name, value, tbody);
         }
         addRowIfNotZero("Tax", payroll.tax, tbody);
 
-        // Net
         addSectionHeader("Net", tbody);
         addRowIfNotZero("Net Earning", payroll.net_earning, tbody, false, true);
       } catch (err) {
@@ -221,7 +210,7 @@
     }
 
     function addRowIfNotZero(name, amount, tbody, bold = false, highlight = false) {
-      if (!amount || amount === 0) return; // skip 0
+      if (!amount || amount === 0) return;
       const tr = document.createElement("tr");
       tr.className = highlight ? "bg-green-100 font-bold" : "";
       tr.innerHTML = `
