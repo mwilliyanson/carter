@@ -31,13 +31,15 @@
       </div>
     </div>
 
-    <!-- Hidden Form -->
+    <!-- Hidden Form Class (grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6)-->
     <div class="hidden">
-      <input type="text" id="employeeId">
-      <input type="text" id="payrollCode">
-      <input type="date" id="startDate">
-      <input type="date" id="endDate">
-      <button onclick="fetchPayslip()">Get Payslip</button>
+      <input type="text" id="employeeId" placeholder="Employee ID" class="border rounded-lg px-3 py-2 w-full">
+      <input type="text" id="payrollCode" placeholder="Payroll Code" class="border rounded-lg px-3 py-2 w-full">
+      <input type="date" id="startDate" class="border rounded-lg px-3 py-2 w-full">
+      <input type="date" id="endDate" class="border rounded-lg px-3 py-2 w-full">
+    </div>
+    <div class="hidden">
+      <button onclick="fetchPayslip()" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Get Payslip</button>
     </div>
 
     <!-- Payslip -->
@@ -168,7 +170,7 @@
 
         document.getElementById("empName").textContent = payroll.employee_name;
         document.getElementById("empId").textContent = payroll.employee_id;
-        document.getElementById("empId").title = payroll.employee_id;
+        document.getElementById("empId").title = payroll.employee_id; // show full ID on hover
         document.getElementById("empDept").textContent = payroll.department;
         document.getElementById("empPos").textContent = payroll.position;
 
