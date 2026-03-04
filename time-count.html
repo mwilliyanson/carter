@@ -49,6 +49,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       max-height: 80vh;
       overflow-y: auto;
+      position: relative;
     }
     .close-btn {
       float: right;
@@ -57,11 +58,26 @@
       font-weight: bold;
     }
     .hours-low { color: red; font-weight: bold; }
+    .hours-overtime { background: #fff8dc; } /* yellow highlight */
     .record-photo {
       width: 80px;
       height: 80px;
       border-radius: 8px;
       object-fit: cover;
+    }
+    .download-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      float: right;
+      margin-bottom: 10px;
+    }
+    .download-btn:hover {
+      background: #0056b3;
     }
   </style>
 </head>
@@ -81,8 +97,15 @@
     <div class="modal-content">
       <span class="close-btn" id="closeModal">&times;</span>
       <h2 id="modalTitle"></h2>
+      <button class="download-btn" id="downloadCsvBtn">Download CSV</button>
       <table id="detailTable">
-        <thead><tr><th>Date</th><th>Total Hours</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Total Hours</th>
+            <th>Overtime Hours</th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
@@ -104,13 +127,15 @@
 
   <script>
     let attendanceMap = {};
+    let currentDetailData = []; // store current modal data for CSV
+    let currentPersonName = "";
 
     async function loadAttendance() {
-      const res = await fetch("https://seahorse-app-4a2zl.ondigitalocean.app/api/v2/tables/m1kydl23bixj8y4/records?viewId=vwr6qfjvqsdlpc7t&limit=400&shuffle=0&offset=0", {
+      const res = await fetch("https://seahorse-app-4a2zl.ondigitalocean.app/api/v2/tables/vwubg3b7thoicmhw/records?viewId=vw5ggkjxxajy537ut&limit=400&shuffle=0&offset=0", {
         headers: {
           "accept": "application/json",
-          "xc-auth": "0PUFCoQXi632mkc9ZWSpv5ea9evnYKYE-TaOFE_F",
-          "xc-token": "0PUFCoQXi632mkc9ZWSpv5ea9evnYKYE-TaOFE_F"
+          "xc-auth": "3S0wD29F3beC-mC6MhlpV_QRfKZEin7yF2VP7ZLM",
+          "xc-token": "3S0wD29F3beC-mC6MhlpV_QRfKZEin7yF2VP7ZLM"
         }
       });
       const data = await res.json();
@@ -159,14 +184,29 @@
       const title = document.getElementById("modalTitle");
       tbody.innerHTML = "";
       title.textContent = `Attendance Details for ${name}`;
+      currentDetailData = [];
+      currentPersonName = name;
+
+      let totalOvertime = 0;
 
       Object.entries(days).forEach(([date, recs]) => {
-        const timestamps = recs.map(r => r.time).sort((a,b) => a - b);
+        const timestamps = recs.map(r => r.time).sort((a, b) => a - b);
         const diffHrs = (timestamps[timestamps.length - 1] - timestamps[0]) / (1000 * 60 * 60);
+        const overtime = diffHrs > 12 ? diffHrs - 12 : 0;
+        totalOvertime += overtime;
+
+        currentDetailData.push({
+          date: date,
+          totalHours: diffHrs.toFixed(2),
+          overtimeHours: overtime > 0 ? overtime.toFixed(2) : "0"
+        });
+
         const tr = document.createElement("tr");
+        if (overtime > 0) tr.classList.add("hours-overtime");
         tr.innerHTML = `
           <td style="cursor:pointer; text-decoration:underline;">${date}</td>
           <td class="${diffHrs < 8 ? 'hours-low' : ''}">${diffHrs.toFixed(2)} hrs</td>
+          <td>${overtime > 0 ? overtime.toFixed(2) + ' hrs' : '-'}</td>
         `;
         tr.querySelector("td").addEventListener("click", (e) => {
           e.stopPropagation();
@@ -175,8 +215,35 @@
         tbody.appendChild(tr);
       });
 
+      // ✅ Add total overtime row at bottom
+      const totalRow = document.createElement("tr");
+      totalRow.innerHTML = `
+        <td colspan="2" style="text-align:right; font-weight:bold;">Total Overtime:</td>
+        <td style="font-weight:bold;">${totalOvertime.toFixed(2)} hrs</td>
+      `;
+      tbody.appendChild(totalRow);
+
       modal.style.display = "flex";
     }
+
+    function downloadCSV() {
+      if (!currentDetailData.length) return;
+
+      let csv = "Date,Total Hours,Overtime Hours\n";
+      currentDetailData.forEach(row => {
+        csv += `${row.date},${row.totalHours},${row.overtimeHours}\n`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${currentPersonName}_attendance.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("downloadCsvBtn").addEventListener("click", downloadCSV);
 
     function showRecords(name, date, records) {
       const modal = document.getElementById("recordModal");
@@ -185,7 +252,7 @@
       tbody.innerHTML = "";
       title.textContent = `Records for ${name} on ${date}`;
 
-      records.sort((a,b) => a.time - b.time).forEach(r => {
+      records.sort((a, b) => a.time - b.time).forEach(r => {
         const meta = r.meta || {};
         const timeStr = new Intl.DateTimeFormat('en-GB', {
           timeZone: 'Asia/Jakarta',
@@ -193,7 +260,6 @@
         }).format(r.time);
         const action = meta.action || "Recorded";
 
-        // Handle fileAttachment column
         let photoHtml = "—";
         if (Array.isArray(r.raw.fileAttachment) && r.raw.fileAttachment.length > 0) {
           const firstFile = r.raw.fileAttachment[0];
@@ -203,7 +269,6 @@
         }
 
         const annotation = r.raw.annotation || "—";
-
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${timeStr}</td>
