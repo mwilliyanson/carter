@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mindlabs – Systems Research for Indonesia</title>
+  <meta name="description" content="Engineering psychological resilience as national economic infrastructure. Research-driven mental health systems for sustainable development.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --background: #f8f7fc;
+      --foreground: #1a1625;
+      --card: #ffffff;
+      --card-foreground: #1a1625;
+      --primary: #5850b1;
+      --primary-foreground: #f8f7fc;
+      --secondary: #eeecf7;
+      --secondary-foreground: #1a1625;
+      --muted: #e0dce9;
+      --muted-foreground: #7b7380;
+      --accent: #6b5bc0;
+      --accent-foreground: #f8f7fc;
+      --border: #eeecf7;
+    }
+
+    * {
+      color: var(--foreground);
+    }
+
+    body {
+      background-color: var(--background);
+    }
+
+    .bg-background { background-color: var(--background); }
+    .bg-card { background-color: var(--card); }
+    .bg-secondary { background-color: var(--secondary); }
+    .bg-primary { background-color: var(--primary); }
+    .bg-primary\/5 { background-color: rgba(88, 80, 177, 0.05); }
+    .bg-primary\/10 { background-color: rgba(88, 80, 177, 0.1); }
+    .bg-accent { background-color: var(--accent); }
+    .bg-accent\/10 { background-color: rgba(107, 91, 192, 0.1); }
+
+    .text-foreground { color: var(--foreground); }
+    .text-card-foreground { color: var(--card-foreground); }
+    .text-muted-foreground { color: var(--muted-foreground); }
+    .text-primary-foreground { color: var(--primary-foreground); }
+    .text-accent { color: var(--accent); }
+
+    .border-border { border-color: var(--border); }
+    .border-primary\/20 { border-color: rgba(88, 80, 177, 0.2); }
+    .border-accent\/30 { border-color: rgba(107, 91, 192, 0.3); }
+    .border-accent\/50 { border-color: rgba(107, 91, 192, 0.5); }
+
+    .bg-gradient-to-b { background-image: linear-gradient(to bottom, var(--background), var(--secondary)); }
+    .bg-gradient-to-b.from-background.to-secondary { background-image: linear-gradient(to bottom, var(--background), var(--secondary)); }
+
+    .text-balance { text-wrap: balance; }
+
+    header { 
+      background-color: rgba(248, 247, 252, 0.8); 
+      backdrop-filter: blur(12px);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-outline:hover {
+      background-color: var(--secondary);
+      border-color: var(--border);
+    }
+
+    .btn-lg {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    a:hover {
+      opacity: 0.8;
+    }
+
+    .nav-link {
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--foreground);
+    }
+
+    .card-hover {
+      transition: border-color 0.2s;
+    }
+
+    .card-hover:hover {
+      border-color: rgba(107, 91, 192, 0.5);
+    }
+
+    icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="sticky top-0 z-50 border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+          <svg class="w-5 h-5 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <span class="font-semibold text-lg">Mindlabs</span>
+      </div>
+      <nav class="hidden md:flex items-center gap-8">
+        <a href="#research" class="nav-link">Research</a>
+        <a href="#pillars" class="nav-link">Approach</a>
+        <a href="#impact" class="nav-link">Impact</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+      <button class="btn-primary btn-sm">
+        Learn More
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+    <div class="max-w-3xl">
+      <div class="inline-block mb-6 px-4 py-2 bg-accent/10 border border-accent/30 rounded-full">
+        <span class="text-sm font-medium text-accent">Bicarakan.id - Systems Research Initiative</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
+        Engineering Psychological Resilience for Indonesia&apos;s Future
+      </h1>
+      <p class="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl text-balance">
+        Mental health is national economic infrastructure. We measure, iterate, and scale psychological systems to strengthen productivity and long-term economic capacity.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button class="btn-primary btn-lg">
+          Explore Research
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+        <button class="btn-outline btn-lg">
+          Download Paper
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Research Thesis -->
+  <section id="research" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-border">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <h2 class="text-3xl font-bold mb-6">The Research Foundation</h2>
+        <p class="text-muted-foreground mb-4">
+          Mental health conditions drive significant productivity loss across economies. In Indonesia, anxiety and depression account for 13% of disability burden, with productivity losses representing the majority of economic cost.
+        </p>
+        <p class="text-muted-foreground mb-6">
+          Variations in population-level mental health and psychological resilience have first-order effects on labor productivity, GDP, and national economic capacity.
+        </p>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <span class="text-accent font-bold mt-1">→</span>
+            <span class="text-sm">1–4% of GDP impacted by mental health burden globally</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent font-bold mt-1">→</span>
+            <span class="text-sm">60% of Indonesian cases remain undiagnosed</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent font-bold mt-1">→</span>
+            <span class="text-sm">System friction, not treatment quality alone, drives outcomes</span>
+          </li>
+        </ul>
+      </div>
+      <div class="bg-card rounded-lg p-8 border border-border">
+        <div class="space-y-6">
+          <div>
+            <svg class="w-12 h-12 text-accent mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            <h3 class="font-semibold mb-2">Measurable Economic Loss</h3>
+            <p class="text-sm text-muted-foreground">Productivity loss drives 50–80% of total mental health burden across economies.</p>
+          </div>
+          <div>
+            <svg class="w-12 h-12 text-accent mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+            </svg>
+            <h3 class="font-semibold mb-2">System-Level Solutions</h3>
+            <p class="text-sm text-muted-foreground">System design effectiveness directly maps to labor participation and output.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Pillars -->
+  <section id="pillars" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-border">
+    <div class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Our Research Approach</h2>
+      <p class="text-muted-foreground max-w-2xl">
+        We treat mental health systems as engineered infrastructure, measuring and optimizing every friction point in the care journey.
+      </p>
+    </div>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="p-6 rounded-lg border border-border bg-card card-hover">
+        <svg class="w-8 h-8 text-accent mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+        </svg>
+        <h3 class="font-semibold mb-2">System Mapping</h3>
+        <p class="text-sm text-muted-foreground">
+          Model the full counseling lifecycle as measurable behavioral systems from booking through post-session reflection.
+        </p>
+      </div>
+      
+      <div class="p-6 rounded-lg border border-border bg-card card-hover">
+        <svg class="w-8 h-8 text-accent mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <h3 class="font-semibold mb-2">Friction Elimination</h3>
+        <p class="text-sm text-muted-foreground">
+          Every drop-off point is treated as observable system design failure, not user failure.
+        </p>
+      </div>
+      
+      <div class="p-6 rounded-lg border border-border bg-card card-hover">
+        <svg class="w-8 h-8 text-accent mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17s4.5 10.747 10 10.747c5.5 0 10-4.998 10-10.747S17.5 6.253 12 6.253z"></path>
+        </svg>
+        <h3 class="font-semibold mb-2">Empirical Journal</h3>
+        <p class="text-sm text-muted-foreground">
+          Continuously observe engagement decay, response patterns, and outcome correlations across populations.
+        </p>
+      </div>
+      
+      <div class="p-6 rounded-lg border border-border bg-card card-hover">
+        <svg class="w-8 h-8 text-accent mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 12H9m6 0a6 6 0 11-12 0 6 6 0 0112 0z"></path>
+        </svg>
+        <h3 class="font-semibold mb-2">Hypothesis-Driven</h3>
+        <p class="text-sm text-muted-foreground">
+          Form, implement, measure, and iterate on system-level interventions based on empirical deviation.
+        </p>
+      </div>
+      
+      <div class="p-6 rounded-lg border border-border bg-card card-hover">
+        <svg class="w-8 h-8 text-accent mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+        </svg>
+        <h3 class="font-semibold mb-2">Continuity Optimization</h3>
+        <p class="text-sm text-muted-foreground">
+          Structured continuity across sessions drives measurable outcome improvements and engagement retention.
+        </p>
+      </div>
+      
+      <div class="p-6 rounded-lg border border-border bg-card card-hover">
+        <svg class="w-8 h-8 text-accent mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <h3 class="font-semibold mb-2">Indonesia-Focused</h3>
+        <p class="text-sm text-muted-foreground">
+          Designed for local context: high youth population, evolving labor structure, and stigma patterns.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Impact -->
+  <section id="impact" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-border">
+    <div class="max-w-3xl">
+      <h2 class="text-3xl font-bold mb-6">National Resilience</h2>
+      <p class="text-lg text-muted-foreground mb-8">
+        We define resilience at scale as the ability of a population to maintain or recover functional capacity under stress. By building measurable psychological infrastructure, we strengthen Indonesia&apos;s long-term economic stability and workforce capacity.
+      </p>
+      
+      <div class="bg-primary/5 border border-primary/20 rounded-lg p-8">
+        <h3 class="font-semibold mb-4">The Goal</h3>
+        <p class="text-muted-foreground">
+          Not isolated interventions, but a system that observes human behavior at scale, quantifies care delivery friction, iterates on infrastructure end-to-end, and links psychological systems directly to economic outcomes. The result: a structurally more resilient Indonesian economy grounded in sustained psychological and cognitive performance.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Leadership -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-border">
+    <h2 class="text-2xl font-bold mb-6">Leadership & Collaboration</h2>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="p-6 bg-card rounded-lg border border-border">
+        <h3 class="font-semibold mb-2">Initiative</h3>
+        <p class="text-sm text-muted-foreground mb-4">
+          Led by Bicarakan.id as a systems research and infrastructure layer for national development.
+        </p>
+      </div>
+      <div class="p-6 bg-card rounded-lg border border-border">
+        <h3 class="font-semibold mb-2">Development</h3>
+        <p class="text-sm text-muted-foreground mb-4">
+          Developed within Mindlabs in collaboration with leading researchers, focusing on scalable, measurable mental health systems.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact" class="border-t border-border mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid md:grid-cols-4 gap-8 mb-12">
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-6 h-6 rounded-lg bg-primary flex items-center justify-center">
+              <svg class="w-4 h-4 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <span class="font-semibold">Mindlabs</span>
+          </div>
+          <p class="text-sm text-muted-foreground">
+            Systems research for psychological resilience and economic development.
+          </p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-sm">Research</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-sm text-muted-foreground nav-link">Publications</a></li>
+            <li><a href="#" class="text-sm text-muted-foreground nav-link">Methodology</a></li>
+            <li><a href="#" class="text-sm text-muted-foreground nav-link">Data</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-sm">Organization</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-sm text-muted-foreground nav-link">About</a></li>
+            <li><a href="#" class="text-sm text-muted-foreground nav-link">Team</a></li>
+            <li><a href="#" class="text-sm text-muted-foreground nav-link">Collaborate</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-sm">Connect</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-sm text-muted-foreground nav-link">Twitter</a></li>
+            <li><a href="#" class="text-sm text-muted-foreground nav-link">LinkedIn</a></li>
+            <li><a href="#" class="text-sm text-muted-foreground nav-link">Email</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-border pt-8 flex flex-col md:flex-row items-center justify-between">
+        <p class="text-sm text-muted-foreground">
+          © 2024 Mindlabs. A Bicarakan.id initiative.
+        </p>
+        <div class="flex gap-6 mt-6 md:mt-0">
+          <a href="#" class="text-sm text-muted-foreground nav-link">Privacy</a>
+          <a href="#" class="text-sm text-muted-foreground nav-link">Terms</a>
+          <a href="#" class="text-sm text-muted-foreground nav-link">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
