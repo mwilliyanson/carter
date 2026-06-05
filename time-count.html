@@ -79,6 +79,34 @@
     .download-btn:hover {
       background: #0056b3;
     }
+
+    .region-ok {
+      color: green;
+      font-weight: bold;
+    }
+
+    .region-outside {
+      color: white;
+      background: #dc3545;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .region-missing {
+      color: #666;
+    }
+
+    .warning-flag {
+      color: #dc3545;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .safe-flag {
+      color: #28a745;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
@@ -102,6 +130,7 @@
         <thead>
           <tr>
             <th>Date</th>
+            <th>Flag</th>
             <th>Total Hours</th>
             <th>Overtime Hours</th>
           </tr>
@@ -118,7 +147,13 @@
       <h2 id="recordTitle"></h2>
       <table id="recordTable">
         <thead>
-          <tr><th>Time</th><th>Action</th><th>Photo</th><th>Annotation</th></tr>
+          <tr>
+            <th>Time</th>
+            <th>Action</th>
+            <th>Location Status</th>
+            <th>Photo</th>
+            <th>Annotation</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -129,6 +164,78 @@
     let attendanceMap = {};
     let currentDetailData = []; // store current modal data for CSV
     let currentPersonName = "";
+
+    const ALLOWED_LOCATIONS = [
+      {
+        lat: -6.273961603415285,
+        lng: 106.75430402968983,
+        name: "Region 1"
+      },
+      {
+        lat: -6.193096846223085,
+        lng: 106.72438379121887,
+        name: "Region 2"
+      }
+    ];
+
+    const ALLOWED_RADIUS_METERS = 1000; // 1 km
+
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function checkRegion(lat, lng) {
+      let nearestDistance = Number.MAX_SAFE_INTEGER;
+      let nearestRegion = null;
+
+      for (const region of ALLOWED_LOCATIONS) {
+        const distance = haversineDistance(
+          lat,
+          lng,
+          region.lat,
+          region.lng
+        );
+
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestRegion = region;
+        }
+      }
+
+      return {
+        inside: nearestDistance <= ALLOWED_RADIUS_METERS,
+        distance: nearestDistance,
+        region: nearestRegion?.name || "-"
+      };
+    }
+
+    function hasOutsideRegion(records) {
+      return records.some(r => {
+        const meta = r.meta || {};
+
+        const lat = parseFloat(meta.latitude);
+        const lng = parseFloat(meta.longitude);
+
+        if (isNaN(lat) || isNaN(lng)) {
+          return false;
+        }
+
+        const result = checkRegion(lat, lng);
+        return !result.inside;
+      });
+    }
 
     async function loadAttendance() {
       const res = await fetch("https://plankton-app-t48ly.ondigitalocean.app/api/v2/tables/mvlziysd577y2yt/records?viewId=vw68b0kiwphim8xc&limit=400&shuffle=0&offset=0", {
@@ -211,12 +318,29 @@
           overtimeHours: overtime > 0 ? overtime.toFixed(2) : "0"
         });
 
+        const hasOutside = hasOutsideRegion(recs);
+
+        const flagHtml = hasOutside
+          ? '<span class="warning-flag">⚠️</span>'
+          : '<span class="safe-flag">✅</span>';
+
         const tr = document.createElement("tr");
-        if (overtime > 0) tr.classList.add("hours-overtime");
+
+        if (overtime > 0) {
+          tr.classList.add("hours-overtime");
+        }
+
         tr.innerHTML = `
-          <td style="cursor:pointer; text-decoration:underline;">${date}</td>
-          <td class="${diffHrs < 8 ? 'hours-low' : ''}">${diffHrs.toFixed(2)} hrs</td>
-          <td>${overtime > 0 ? overtime.toFixed(2) + ' hrs' : '-'}</td>
+          <td style="cursor:pointer; text-decoration:underline;">
+            ${date}
+          </td>
+          <td>${flagHtml}</td>
+          <td class="${diffHrs < 8 ? 'hours-low' : ''}">
+            ${diffHrs.toFixed(2)} hrs
+          </td>
+          <td>
+            ${overtime > 0 ? overtime.toFixed(2) + ' hrs' : '-'}
+          </td>
         `;
         tr.querySelector("td").addEventListener("click", (e) => {
           e.stopPropagation();
@@ -264,28 +388,66 @@
 
       records.sort((a, b) => a.time - b.time).forEach(r => {
         const meta = r.meta || {};
+
         const timeStr = new Intl.DateTimeFormat('en-GB', {
           timeZone: 'Asia/Jakarta',
-          hour: '2-digit', minute: '2-digit', second: '2-digit'
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
         }).format(r.time);
+
         const action = meta.action || "Recorded";
 
         let photoHtml = "—";
-        if (Array.isArray(r.raw.fileAttachment) && r.raw.fileAttachment.length > 0) {
+
+        if (
+          Array.isArray(r.raw.fileAttachment) &&
+          r.raw.fileAttachment.length > 0
+        ) {
           const firstFile = r.raw.fileAttachment[0];
+
           if (firstFile.url) {
-            photoHtml = `<img src="${firstFile.url}" class="record-photo" alt="photo" />`;
+            photoHtml =
+              `<img src="${firstFile.url}" class="record-photo" alt="photo" />`;
+          }
+        }
+
+        let locationStatus =
+          '<span class="region-missing">No GPS</span>';
+
+        const lat = parseFloat(meta.latitude);
+        const lng = parseFloat(meta.longitude);
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+          const region = checkRegion(lat, lng);
+
+          if (region.inside) {
+            locationStatus =
+              `<span class="region-ok">
+                Inside ${region.region}
+                (${Math.round(region.distance)}m)
+              </span>`;
+          } else {
+            locationStatus =
+              `<span class="region-outside">
+                Outside Region
+                (${(region.distance / 1000).toFixed(2)} km)
+              </span>`;
           }
         }
 
         const annotation = r.raw.annotation || "—";
+
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
           <td>${timeStr}</td>
           <td>${action}</td>
+          <td>${locationStatus}</td>
           <td>${photoHtml}</td>
           <td>${annotation}</td>
         `;
+
         tbody.appendChild(tr);
       });
 
