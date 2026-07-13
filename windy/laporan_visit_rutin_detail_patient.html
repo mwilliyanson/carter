@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Patient Medical Record</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    body{
+        background:#f5f7fb;
+    }
+
+    .card{
+        border:none;
+        border-radius:12px;
+        box-shadow:0 2px 10px rgba(0,0,0,.08);
+    }
+
+    .section-title{
+        font-size:1.05rem;
+        font-weight:600;
+        color:#0d6efd;
+        margin-bottom:20px;
+    }
+
+    textarea{
+        min-height:110px;
+    }
+
+    .patient-photo{
+        width:220px;
+        height:220px;
+        object-fit:cover;
+        border-radius:10px;
+        border:1px solid #dee2e6;
+    }
+
+    .readonly{
+        background:#f8f9fa;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Riwayat Pemeriksaan</h2>
+            <small class="text-muted">
+                View / Edit Medical Record
+            </small>
+        </div>
+
+    </div>
+
+    <form>
+
+        <!-- Medical Record -->
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <div class="section-title">
+                    Data Pemeriksaan
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Tanggal Riwayat</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            value="2026-07-10">
+                    </div>
+
+                     <div class="col-md-4 mb-3">
+                        <label class="form-label">Jadwal Kontrol Berikutnya</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            value="2026-07-24">
+                    </div>
+
+                </div>
+
+               
+
+            </div>
+        </div>
+
+
+        <!-- Doctor -->
+        <div class="card">
+
+            <div class="card-body">
+
+                <div class="section-title">
+                    Dokter yang Menangani
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nama Dokter</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="dr. Jonathan Wijaya, Sp.PD">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Spesialis</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="Spesialis Penyakit Dalam">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

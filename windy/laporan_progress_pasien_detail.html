@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Laporan Progress Pasien</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+
+body{
+    background:#f5f7fb;
+    font-family:Inter,system-ui,sans-serif;
+}
+
+.card-custom{
+    border:none;
+    border-radius:18px;
+    box-shadow:0 5px 18px rgba(0,0,0,.06);
+}
+
+.photo{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    border-radius:14px;
+}
+
+.guide{
+    width:180px;
+    border-radius:16px;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container py-4">
+
+<div class="d-flex justify-content-between mb-4">
+
+<a href="laporan_progress_pasien_list.html" class="btn btn-outline-secondary">
+<i class="bi bi-arrow-left"></i>
+Back
+</a>
+
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#readyModal">
+<i class="bi bi-camera"></i>
+Add Photo
+</button>
+
+</div>
+
+<div class="card card-custom mb-4">
+<div class="card-body">
+
+<h3 class="fw-bold">
+<i class="bi bi-images text-info"></i>
+Progress - 12 July 2026
+</h3>
+
+<div class="text-secondary">
+Created : 12 Jul 2026 09:45
+</div>
+
+<hr>
+
+</div>
+</div>
+
+<div class="card card-custom mb-4">
+<div class="card-body">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+<h5 class="mb-0">
+Photos (4)
+</h5>
+
+<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#readyModal">
+<i class="bi bi-plus"></i>
+Add
+</button>
+
+</div>
+
+<div class="row g-3">
+
+<div class="col-md-4">
+<img src="https://picsum.photos/500/500?1" class="photo">
+</div>
+
+<div class="col-md-4">
+<img src="https://picsum.photos/500/500?2" class="photo">
+</div>
+
+<div class="col-md-4">
+<img src="https://picsum.photos/500/500?3" class="photo">
+</div>
+
+<div class="col-md-4">
+<img src="https://picsum.photos/500/500?4" class="photo">
+</div>
+
+</div>
+
+</div>
+</div>
+
+<div class="card card-custom">
+<div class="card-body text-center">
+
+<img
+src="https://picsum.photos/250/320"
+class="guide mb-3">
+
+<h4>Bersiap untuk melakukan pengambilan foto!</h4>
+
+<p class="text-secondary">
+Pastikan wajah menghadap ke depan dan mengisi kerangka foto seperti contoh di atas.
+</p>
+
+<button class="btn btn-primary btn-lg"
+data-bs-toggle="modal"
+data-bs-target="#readyModal">
+Ambil Foto
+</button>
+
+</div>
+</div>
+
+</div>
+
+<!-- READY -->
+
+<div class="modal fade" id="readyModal">
+
+<div class="modal-dialog modal-dialog-centered">
+
+<div class="modal-content">
+
+<div class="modal-body text-center p-4">
+
+<h3>Bersiap untuk melakukan pengambilan foto!</h3>
+
+<p class="text-secondary">
+Pastikan wajah menghadap ke depan dan memenuhi kerangka foto.
+</p>
+
+<button class="btn btn-primary w-100"
+data-bs-toggle="modal"
+data-bs-target="#captureModal"
+data-bs-dismiss="modal">
+
+Ya, Saya Siap
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- CAPTURE -->
+
+<div class="modal fade" id="captureModal">
+
+<div class="modal-dialog modal-dialog-centered">
+
+<div class="modal-content">
+
+<div class="modal-body text-center p-4">
+
+<div class="spinner-border text-primary mb-3"></div>
+
+<h3>Saat Ini Sedang Dilakukan Pengambilan Foto</h3>
+
+<p class="text-secondary">
+
+Pastikan wajah menghadap ke depan dan memenuhi kerangka.
+
+</p>
+
+<button class="btn btn-primary w-100"
+data-bs-toggle="modal"
+data-bs-target="#successModal"
+data-bs-dismiss="modal">
+
+Ambil Foto
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- SUCCESS -->
+
+<div class="modal fade" id="successModal">
+
+<div class="modal-dialog modal-dialog-centered">
+
+<div class="modal-content">
+
+<div class="modal-body text-center p-4">
+
+<i class="bi bi-check-circle-fill text-success display-1"></i>
+
+<h3 class="mt-3">
+
+Pengambilan Foto Telah Berhasil Dilakukan!
+
+</h3>
+
+<button class="btn btn-success w-100 mt-3"
+data-bs-dismiss="modal">
+
+OK
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- FAILED -->
+
+<div class="modal fade" id="failedModal">
+
+<div class="modal-dialog modal-dialog-centered">
+
+<div class="modal-content">
+
+<div class="modal-body text-center p-4">
+
+<i class="bi bi-x-circle-fill text-danger display-1"></i>
+
+<h3 class="mt-3">
+
+Gagal!
+
+</h3>
+
+<p>
+
+Pastikan wajah menghadap depan dan memenuhi kerangka.
+
+</p>
+
+<button class="btn btn-danger w-100"
+data-bs-dismiss="modal">
+
+Ulangi
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

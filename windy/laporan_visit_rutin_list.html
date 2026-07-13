@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Daftar Laporan Visit</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+:root{
+    --primary:#2563eb;
+    --bg:#f4f7fb;
+    --border:#e5e7eb;
+}
+
+body{
+    background:var(--bg);
+    font-family:Inter,system-ui,sans-serif;
+    color:#1f2937;
+}
+
+.page-header{
+    margin:24px 0;
+}
+
+.page-title{
+    font-weight:700;
+}
+
+.page-subtitle{
+    color:#6b7280;
+}
+
+.search-box{
+    position:relative;
+}
+
+.search-box i{
+    position:absolute;
+    left:15px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#9ca3af;
+}
+
+.search-box input{
+    padding-left:42px;
+    border-radius:12px;
+    border:none;
+    height:48px;
+}
+
+.visit-card{
+    border:none;
+    border-radius:16px;
+    transition:.2s;
+    margin-bottom:16px;
+    box-shadow:0 3px 12px rgba(0,0,0,.05);
+}
+
+.visit-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 22px rgba(0,0,0,.08);
+}
+
+.badge-specialist{
+    border-radius:50px;
+    padding:8px 14px;
+    font-weight:600;
+    font-size:.8rem;
+}
+
+.visit-title{
+    font-size:1.05rem;
+    font-weight:600;
+}
+
+.visit-meta{
+    color:#6b7280;
+    font-size:.9rem;
+}
+
+.date-box{
+    min-width:80px;
+    text-align:center;
+    border-right:1px solid #eee;
+    margin-right:18px;
+}
+
+.date-day{
+    font-size:1.7rem;
+    font-weight:700;
+    color:var(--primary);
+    line-height:1;
+}
+
+.date-month{
+    color:#6b7280;
+    text-transform:uppercase;
+    font-size:.8rem;
+}
+
+.btn-add{
+    border-radius:12px;
+    padding:12px 18px;
+}
+
+.action-btn{
+    width:42px;
+    height:42px;
+    border-radius:10px;
+}
+
+@media(max-width:768px){
+
+.page-header{
+    margin:18px 0;
+}
+
+.date-box{
+    border:none;
+    margin-bottom:14px;
+    margin-right:0;
+    text-align:left;
+}
+
+.visit-content{
+    width:100%;
+}
+
+.visit-row{
+    flex-direction:column;
+}
+
+.action-buttons{
+    width:100%;
+    display:flex;
+    margin-top:18px;
+    gap:10px;
+}
+
+.action-buttons button{
+    flex:1;
+}
+
+.fab{
+    position:fixed;
+    right:18px;
+    bottom:22px;
+    width:62px;
+    height:62px;
+    border-radius:50%;
+    font-size:28px;
+    box-shadow:0 10px 25px rgba(37,99,235,.35);
+}
+}
+
+@media(min-width:769px){
+.fab{
+    display:none;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container py-3">
+
+    <!-- Header -->
+    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+        <div>
+            <h2 class="page-title mb-1">
+                <i class="bi bi-journal-medical text-primary"></i>
+                Laporan Visit
+            </h2>
+
+            <div class="page-subtitle">
+                Riwayat kunjungan pasien
+            </div>
+        </div>
+
+        <a href="laporan_visit_rutin_detail.html" class="btn btn-primary btn-add">
+            <i class="bi bi-plus-lg"></i>
+            Tambah Laporan
+        </a>
+
+    </div>
+
+
+    <!-- VISIT -->
+
+    <div class="card visit-card">
+        <div class="card-body">
+
+            <div class="d-flex visit-row">
+
+                <div class="date-box">
+                    <div class="date-day">13</div>
+                    <div class="date-month">Jul 2026</div>
+                </div>
+
+                <div class="visit-content flex-grow-1">
+
+                    <span class="badge bg-primary badge-specialist">
+                        Spesialis Anak
+                    </span>
+
+                    <div class="visit-title mt-3">
+                        Konsultasi Anak
+                    </div>
+
+                    <div class="visit-meta mt-2">
+                        <i class="bi bi-person-badge"></i>
+                        dr. Maria Christina, Sp.A
+                    </div>
+
+                </div>
+
+                <div class="action-buttons d-flex align-items-center">
+
+                    <a href="laporan_visit_rutin_detail.html" class="btn btn-outline-primary action-btn d-flex align-items-center justify-content-center">
+                        <i class="bi bi-eye"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- -->
+
+    <div class="card visit-card">
+        <div class="card-body">
+
+            <div class="d-flex visit-row">
+
+                <div class="date-box">
+                    <div class="date-day">08</div>
+                    <div class="date-month">Jul 2026</div>
+                </div>
+
+                <div class="visit-content flex-grow-1">
+
+                    <span class="badge bg-success badge-specialist">
+                        Dokter THT
+                    </span>
+
+                    <div class="visit-title mt-3">
+                        Konsultasi Dokter THT
+                    </div>
+
+                    <div class="visit-meta mt-2">
+                        <i class="bi bi-person-badge"></i>
+                        dr. Kevin Wijaya, Sp.THT-KL
+                    </div>
+
+                </div>
+
+                <div class="action-buttons d-flex align-items-center">
+
+                    <button class="btn btn-outline-primary action-btn">
+                        <i class="bi bi-eye"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- -->
+
+    <div class="card visit-card">
+        <div class="card-body">
+
+            <div class="d-flex visit-row">
+
+                <div class="date-box">
+                    <div class="date-day">28</div>
+                    <div class="date-month">Jun 2026</div>
+                </div>
+
+                <div class="visit-content flex-grow-1">
+
+                    <span class="badge bg-warning text-dark badge-specialist">
+                        Bedah Umum
+                    </span>
+
+                    <div class="visit-title mt-3">
+                        Checkup Rutin
+                    </div>
+
+                    <div class="visit-meta mt-2">
+                        <i class="bi bi-person-badge"></i>
+                        dr. Budi Santoso, Sp.B
+                    </div>
+
+                </div>
+
+                <div class="action-buttons d-flex align-items-center">
+
+                    <button class="btn btn-outline-primary action-btn">
+                        <i class="bi bi-eye"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- -->
+
+    <div class="card visit-card">
+        <div class="card-body">
+
+            <div class="d-flex visit-row">
+
+                <div class="date-box">
+                    <div class="date-day">15</div>
+                    <div class="date-month">Jun 2026</div>
+                </div>
+
+                <div class="visit-content flex-grow-1">
+
+                    <span class="badge bg-danger badge-specialist">
+                        Penyakit Dalam
+                    </span>
+
+                    <div class="visit-title mt-3">
+                        Kontrol Diabetes
+                    </div>
+
+                    <div class="visit-meta mt-2">
+                        <i class="bi bi-person-badge"></i>
+                        dr. Jonathan Wijaya, Sp.PD
+                    </div>
+
+                </div>
+
+                <div class="action-buttons d-flex align-items-center">
+
+                    <button class="btn btn-outline-primary action-btn">
+                        <i class="bi bi-eye"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Floating Add Button (Mobile) -->
+<button class="btn btn-primary fab">
+    <i class="bi bi-plus-lg"></i>
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

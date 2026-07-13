@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cleft Care App</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f4f6fb;
+  display: flex;
+  justify-content: center;
+}
+
+.mobile {
+  width: 375px;
+  min-height: 100vh;
+  background: white;
+  padding: 20px;
+  position: relative;
+}
+
+h1 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+p {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 15px;
+}
+
+.btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #2c4da7;
+  color: white;
+  font-weight: bold;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #2c4da7;
+  color: #2c4da7;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+textarea {
+  resize: none;
+  height: 80px;
+}
+
+.card {
+  background: #f4f6fb;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.link {
+  color: #2c4da7;
+  font-size: 14px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="mobile">
+
+<!-- Splash -->
+<div id="splash" class="screen">
+  <h1>Better Cleft Care</h1>
+  <p>Support for cleft patients & families</p>
+  <button class="btn" onclick="goTo('role')">Start</button>
+</div>
+
+<!-- Role -->
+<div id="role" class="screen hidden">
+  <h1>Select Role</h1>
+  <button class="btn" onclick="goTo('signin')">Patient</button>
+  <button class="btn" onclick="goTo('signin')">Doctor</button>
+</div>
+
+<!-- Sign In -->
+<div id="signin" class="screen hidden">
+  <h1>Sign In</h1>
+  <input type="tel" placeholder="Phone Number">
+  <input type="password" placeholder="Password">
+  <button class="btn" onclick="goTo('appointments')">Login</button>
+  <button class="btn btn-outline" onclick="goTo('signup')">Create Account</button>
+</div>
+
+<!-- Sign Up -->
+<div id="signup" class="screen hidden">
+  <h1>Sign Up</h1>
+  <input type="tel" placeholder="Phone Number">
+  <input type="password" placeholder="Password">
+  <input type="password" placeholder="Confirm Password">
+  <button class="btn" onclick="goTo('appointments')">Register</button>
+</div>
+
+<!-- Appointment List -->
+<div id="appointments" class="screen hidden">
+  <div class="topbar">
+    <h1>Appointments</h1>
+    <span class="link" onclick="goTo('visitList')">Visit Report</span>
+  </div>
+
+  <div class="card" onclick="goTo('initialExam')">
+    <strong>Initial Examination</strong>
+    <p>Tap to view details</p>
+  </div>
+
+  <div class="card">
+    <strong>Dr. Ahmad</strong>
+    <p>Feb 20, 2026 - 10:00 AM</p>
+  </div>
+
+  <button class="btn btn-outline" onclick="goTo('signin')">Logout</button>
+</div>
+
+<!-- Detail Pemeriksaan Awal -->
+<div id="initialExam" class="screen hidden">
+  <div class="topbar">
+    <span class="link" onclick="goTo('appointments')">Back</span>
+    <span class="link">Save</span>
+  </div>
+
+  <h1>Detail Pemeriksaan Awal</h1>
+
+  <label>Preoperative Treatment</label>
+  <select>
+    <option>Select Treatment</option>
+  </select>
+
+  <label>Diagnosis</label>
+  <select>
+    <option>Cleft Soft Palate</option>
+    <option>Cleft Lip Bilateral</option>
+  </select>
+
+  <label>Pierre Robin Sequence</label>
+  <select>
+    <option>No</option>
+    <option>Yes</option>
+  </select>
+
+  <label>Date Diagnosed</label>
+  <input type="date">
+
+  <button class="btn">Save</button>
+</div>
+
+<!-- List Laporan Visit -->
+<div id="visitList" class="screen hidden">
+  <div class="topbar">
+    <span class="link" onclick="goTo('appointments')">Back</span>
+    <span class="link" onclick="goTo('visitDetail')">Add</span>
+  </div>
+
+  <h1>List Laporan Visit</h1>
+
+  <div class="card" onclick="goTo('visitDetail')">
+    <strong>Spesialis Anak</strong>
+    <p>24 Januari 2023 - Konsultasi Anak</p>
+  </div>
+
+  <div class="card" onclick="goTo('visitDetail')">
+    <strong>Spesialis THT</strong>
+    <p>04 Maret 2023 - Konsultasi Dokter THT</p>
+  </div>
+
+  <div class="card" onclick="goTo('visitDetail')">
+    <strong>Spesialis Bedah</strong>
+    <p>04 April 2023 - Checkup Rutin</p>
+  </div>
+</div>
+
+<!-- Detail Laporan Visit -->
+<div id="visitDetail" class="screen hidden">
+  <div class="topbar">
+    <span class="link" onclick="goTo('visitList')">Back</span>
+    <span class="link">Save</span>
+  </div>
+
+  <h1>Laporan Visit Rutin</h1>
+
+  <label>Tanggal Riwayat</label>
+  <input type="date">
+
+  <label>Keluhan</label>
+  <textarea placeholder="Keluhan pasien..."></textarea>
+
+  <label>Subyektif</label>
+  <textarea></textarea>
+
+  <label>Obyektif</label>
+  <textarea></textarea>
+
+  <label>Assessment</label>
+  <textarea></textarea>
+
+  <label>Plan</label>
+  <textarea></textarea>
+
+  <label>Nama Dokter</label>
+  <input type="text" placeholder="Nama Dokter">
+
+  <label>Spesialis</label>
+  <input type="text" placeholder="Spesialis">
+
+  <button class="btn">Save Report</button>
+</div>
+
+</div>
+
+<script>
+function goTo(screenId) {
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.add("hidden");
+  });
+  document.getElementById(screenId).classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Pasien</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#edf2f7;
+    color:#1f2937;
+    display:flex;
+    justify-content:center;
+    padding:30px 0;
+}
+
+.phone{
+    width:390px;
+    min-height:844px;
+    background:#F7F9FC;
+    border-radius:38px;
+    overflow:hidden;
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.18);
+    position:relative;
+}
+
+.header{
+    background:linear-gradient(135deg,#2563EB,#3B82F6);
+    padding:55px 24px 26px;
+    color:white;
+}
+
+.header h2{
+    font-size:24px;
+    font-weight:700;
+}
+
+.header p{
+    margin-top:6px;
+    opacity:.85;
+    font-size:14px;
+}
+
+.content{
+    padding:20px;
+    padding-bottom:120px;
+}
+
+.section{
+    margin-bottom:24px;
+}
+
+.section-title{
+    font-size:13px;
+    color:#6b7280;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:14px;
+    font-weight:700;
+}
+
+.card{
+    background:white;
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,.05);
+}
+
+.field{
+    margin-bottom:18px;
+}
+
+.field:last-child{
+    margin-bottom:0;
+}
+
+label{
+    display:block;
+    font-size:13px;
+    color:#6b7280;
+    margin-bottom:8px;
+    font-weight:600;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    border:none;
+    background:#F3F6FA;
+    padding:14px;
+    border-radius:14px;
+    font-size:15px;
+    transition:.2s;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+    outline:none;
+    background:white;
+    border:2px solid #3B82F6;
+}
+
+textarea{
+    resize:none;
+    min-height:75px;
+}
+
+.row{
+    display:flex;
+    gap:14px;
+}
+
+.row .field{
+    flex:1;
+}
+
+.photo{
+    border:2px dashed #cbd5e1;
+    border-radius:16px;
+    background:#fafafa;
+    padding:16px;
+    text-align:center;
+}
+
+.photo img{
+    width:100%;
+    border-radius:14px;
+    margin-bottom:14px;
+}
+
+.upload{
+    background:#2563EB;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:600;
+}
+
+.switch{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.switch input{
+    width:55px;
+    height:28px;
+}
+
+.footer{
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+    background:white;
+    border-top:1px solid #E5E7EB;
+    padding:18px;
+    display:flex;
+    gap:12px;
+}
+
+.btn{
+    flex:1;
+    border:none;
+    padding:15px;
+    border-radius:16px;
+    font-size:15px;
+    font-weight:700;
+}
+
+.cancel{
+    background:#EEF2F7;
+}
+
+.save{
+    background:#2563EB;
+    color:white;
+}
+
+.badge{
+    display:inline-block;
+    background:#DBEAFE;
+    color:#2563EB;
+    padding:6px 12px;
+    border-radius:50px;
+    font-size:12px;
+    font-weight:600;
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="phone">
+
+<div class="header">
+    <h2>Detail Pasien</h2>
+    <p>Informasi Pasien Perdana</p>
+    <div class="badge">ID #P000238</div>
+</div>
+
+<div class="content">
+
+<div class="section">
+
+<div class="section-title">Informasi Pasien</div>
+
+<div class="card">
+
+<div class="field">
+<label>Nama Lengkap</label>
+<input value="Alicia Putri Santoso">
+</div>
+
+<div class="field">
+<label>NIK Anak</label>
+<input value="3276011209230004">
+</div>
+
+<div class="row">
+
+<div class="field">
+<label>Jenis Kelamin</label>
+<select>
+<option>Perempuan</option>
+<option>Laki-laki</option>
+</select>
+</div>
+
+<div class="field">
+<label>Adopsi</label>
+<select>
+<option>Tidak</option>
+<option>Ya</option>
+</select>
+</div>
+
+</div>
+
+<div class="field">
+<label>Tanggal Registrasi</label>
+<input type="date" value="2026-07-03">
+</div>
+
+<div class="field">
+<label>Tempat & Tanggal Lahir</label>
+<input value="Bandung, 12 September 2023">
+</div>
+
+<div class="field">
+<label>Berat Saat Lahir (Kg)</label>
+<input value="3.1">
+</div>
+
+<div class="field">
+<label>Alamat Pasien</label>
+<textarea>Jl. Melati No.21, Bandung</textarea>
+</div>
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="section-title">Informasi Wali / Orang Tua</div>
+
+<div class="card">
+
+<div class="field">
+<label>Nama Wali</label>
+<input value="Budi Santoso">
+</div>
+
+<div class="field">
+<label>Nomor HP</label>
+<input value="081234567890">
+</div>
+
+<div class="field">
+<label>Alamat</label>
+<textarea>Jl. Melati No.21, Bandung</textarea>
+</div>
+
+<div class="field">
+<label>Tanggal Lahir</label>
+<input type="date" value="1992-01-10">
+</div>
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="section-title">Riwayat Pasien Perdana</div>
+
+<div class="card">
+
+<div class="field">
+<label>Asuransi</label>
+<select>
+<option>BPJS</option>
+<option>GCF</option>
+<option>Tempo</option>
+<option>Lainnya</option>
+</select>
+</div>
+
+<div class="field">
+<label>Klasifikasi Sumbing</label>
+<select>
+<option>CLP Bilateral</option>
+<option>CL Unilateral</option>
+<option>CP</option>
+<option>Lainnya</option>
+</select>
+</div>
+
+<div class="field">
+
+<label>Foto Pasien Perdana</label>
+
+<div class="photo">
+
+<img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=800" alt="">
+
+<button class="upload">
+Ubah Foto
+</button>
+
+</div>
+
+</div>
+
+<div class="field switch">
+<label>Meninggal Dunia</label>
+<input type="checkbox">
+</div>
+
+<div class="field">
+<label>Tanggal Meninggal</label>
+<input type="date" disabled>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="footer">
+<button class="btn cancel">Batal</button>
+<button class="btn save">💾 Simpan Perubahan</button>
+</div>
+
+</div>
+
+</body>
+</html>

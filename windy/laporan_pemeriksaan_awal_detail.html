@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Initial Assessment</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+<style>
+
+body{
+    background:#f5f7fb;
+    font-family:Inter,system-ui,-apple-system,sans-serif;
+    padding-bottom:100px;
+}
+
+.header{
+    background:linear-gradient(135deg,#2563eb,#4f8dfd);
+    color:#fff;
+    padding:30px 20px;
+    border-bottom-left-radius:30px;
+    border-bottom-right-radius:30px;
+    box-shadow:0 8px 30px rgba(37,99,235,.25);
+}
+
+.header h2{
+    font-weight:700;
+}
+
+.card-section{
+    border:none;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
+    margin-top:18px;
+}
+
+.card-section .card-body{
+    padding:20px;
+}
+
+.section-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:700;
+    margin-bottom:18px;
+    color:#1f2937;
+}
+
+.section-title i{
+    color:#2563eb;
+    font-size:20px;
+}
+
+.form-label{
+    font-size:.85rem;
+    font-weight:600;
+    color:#6b7280;
+}
+
+.form-control,
+.form-select{
+    border-radius:14px;
+    height:50px;
+    border:1px solid #dfe3eb;
+}
+
+.form-control:focus,
+.form-select:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 .2rem rgba(37,99,235,.15);
+}
+
+.btn-check:checked+.btn{
+    background:#2563eb;
+    color:#fff;
+    border-color:#2563eb;
+}
+
+.btn-outline-primary{
+    border-radius:12px;
+}
+
+.conditional{
+    display:none;
+    margin-top:15px;
+}
+
+.save-bar{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background:white;
+    padding:15px;
+    box-shadow:0 -5px 20px rgba(0,0,0,.08);
+}
+
+.save-btn{
+    height:56px;
+    border-radius:16px;
+    font-weight:600;
+    font-size:18px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+    <div class="container">
+
+        <small>Patient Assessment</small>
+
+        <h2>Initial Assessment</h2>
+
+    </div>
+
+</div>
+
+<div class="container">
+
+<!-- Pre-op -->
+
+<div class="card card-section">
+
+<div class="card-body">
+
+<div class="section-title">
+<i class="bi bi-hospital"></i>
+Pre-operative Treatment
+</div>
+
+<label class="form-label">Treatment</label>
+
+<textarea
+class="form-control"
+rows="4"
+style="height:auto;"
+placeholder="Enter pre-operative treatment (e.g. NAM therapy, lip taping, feeding intervention, speech therapy, orthodontic treatment, etc.)"></textarea>
+
+</div>
+
+</div>
+
+<!-- Diagnosis -->
+
+<div class="card card-section">
+
+<div class="card-body">
+
+<div class="section-title">
+
+<i class="bi bi-clipboard2-pulse"></i>
+
+Primary Diagnosis
+
+</div>
+
+<label class="form-label">Diagnosis</label>
+
+<select class="form-select">
+
+<option>Select Diagnosis</option>
+
+<option>Cleft Soft Palate</option>
+
+<option>Cleft Hard Palate with Cleft Soft Palate</option>
+
+<option>Unilateral Cleft Lip</option>
+
+<option>Bilateral Cleft Lip</option>
+
+<option>Median Cleft Lip</option>
+
+<option>Unilateral Cleft Lip with Cleft Soft Palate</option>
+
+<option>Bilateral Cleft Lip with Cleft Soft Palate</option>
+
+<option>Unilateral Cleft Lip with Cleft Hard and Soft Palate</option>
+
+<option>Bilateral Cleft Lip with Cleft Hard and Soft Palate</option>
+
+<option>Congenital Malformation of the Palate</option>
+
+<option>Other</option>
+
+</select>
+
+<label class="form-label">Secondary Diagnosis</label>
+
+<input
+type="text"
+class="form-control"
+placeholder="Enter secondary diagnosis (optional)">
+
+</div>
+
+</div>
+
+<!-- Pierre Robin -->
+
+<div class="card card-section">
+
+<div class="card-body">
+
+<div class="section-title">
+
+<i class="bi bi-git"></i>
+
+Pierre Robin Sequence
+
+</div>
+
+<div class="btn-group w-100 mb-3">
+
+<input type="radio" class="btn-check toggle" name="prs" id="prsNo" checked>
+
+<label class="btn btn-outline-primary" for="prsNo">No</label>
+
+<input type="radio" class="btn-check toggle" name="prs" id="prsYes">
+
+<label class="btn btn-outline-primary" for="prsYes">Yes</label>
+
+</div>
+
+<div class="conditional">
+
+<label class="form-label">Date Diagnosed</label>
+
+<input type="date" class="form-control">
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Syndrome -->
+
+<div class="card card-section">
+
+<div class="card-body">
+
+<div class="section-title">
+
+<i class="bi bi-virus"></i>
+
+Syndrome
+
+</div>
+
+<div class="btn-group w-100 mb-3">
+
+<input type="radio" class="btn-check toggle" name="syn" id="synNo" checked>
+
+<label class="btn btn-outline-primary" for="synNo">No</label>
+
+<input type="radio" class="btn-check toggle" name="syn" id="synYes">
+
+<label class="btn btn-outline-primary" for="synYes">Yes</label>
+
+</div>
+
+<div class="conditional">
+
+<label class="form-label">Specify Syndrome</label>
+
+<input class="form-control mb-3">
+
+<label class="form-label">Date Diagnosed</label>
+
+<input type="date" class="form-control">
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Other -->
+
+<div class="card card-section">
+
+<div class="card-body">
+
+<div class="section-title">
+
+<i class="bi bi-plus-circle"></i>
+
+Other Congenital Deformity
+
+</div>
+
+<div class="btn-group w-100 mb-3">
+
+<input type="radio" class="btn-check toggle" name="other" id="otherNo" checked>
+
+<label class="btn btn-outline-primary" for="otherNo">No</label>
+
+<input type="radio" class="btn-check toggle" name="other" id="otherYes">
+
+<label class="btn btn-outline-primary" for="otherYes">Yes</label>
+
+</div>
+
+<div class="conditional">
+
+<label class="form-label">Specify</label>
+
+<input class="form-control mb-3">
+
+<label class="form-label">Date Diagnosed</label>
+
+<input type="date" class="form-control">
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="save-bar">
+
+<div class="container">
+
+<button class="btn btn-primary w-100 save-btn">
+
+<i class="bi bi-check-circle me-2"></i>
+
+Save Assessment
+
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+document.querySelectorAll(".card-section").forEach(card=>{
+
+const yes=card.querySelector("input[id$='Yes']");
+
+const conditional=card.querySelector(".conditional");
+
+if(!yes || !conditional) return;
+
+function toggle(){
+
+conditional.style.display=yes.checked?"block":"none";
+
+}
+
+card.querySelectorAll(".toggle").forEach(r=>{
+
+r.addEventListener("change",toggle);
+
+});
+
+toggle();
+
+});
+
+</script>
+
+</body>
+</html>
