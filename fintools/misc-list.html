@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misc Product Viewer</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                Helvetica, Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .header {
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            margin-bottom: 20px;
+        }
+
+        .form-card {
+            padding: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        input {
+            width: 100%;
+            height: 42px;
+            padding: 0 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 14px;
+            background: white;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        button {
+            height: 42px;
+            border: none;
+            border-radius: 7px;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        .btn-primary:disabled {
+            background: #a5b4fc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #111827;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1f2937;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .error {
+            display: none;
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 7px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 16px;
+            color: #4f46e5;
+            font-size: 14px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e0e7ff;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .stat-value {
+            margin-top: 5px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .table-card {
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .table-search {
+            width: 280px;
+            height: 36px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1400px;
+        }
+
+        th {
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #f0f1f3;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .badge-warning {
+            background: #fffbeb;
+            color: #b45309;
+        }
+
+        .badge-gray {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .money {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                monospace;
+            font-size: 11px;
+        }
+
+        .metadata-btn {
+            height: 30px;
+            padding: 0 10px;
+            background: #eef2ff;
+            color: #4338ca;
+            font-size: 12px;
+        }
+
+        .metadata-btn:hover {
+            background: #e0e7ff;
+        }
+
+        .empty {
+            padding: 60px 20px;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        .empty strong {
+            display: block;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, 0.55);
+            z-index: 1000;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 1000px;
+            margin: 40px auto;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .close {
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            height: auto;
+            padding: 0 5px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        pre {
+            margin: 0;
+            background: #111827;
+            color: #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            overflow: auto;
+            max-height: 650px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1000px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 12px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .table-search {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Misc Product Viewer</h1>
+        <p>Retrieve and export miscellaneous product records.</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="card form-card">
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label for="accessCode">Access Code</label>
+                <input
+                    type="password"
+                    id="accessCode"
+                    placeholder="Enter access code"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="startTime">Start Time</label>
+                <input
+                    type="date"
+                    id="startTime"
+                    value="2026-01-01"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="endTime">End Time</label>
+                <input
+                    type="date"
+                    id="endTime"
+                    value="2026-12-12"
+                >
+            </div>
+
+            <div class="actions">
+                <button
+                    class="btn-primary"
+                    id="searchButton"
+                    onclick="fetchData()"
+                >
+                    Search
+                </button>
+
+                <button
+                    class="btn-secondary"
+                    id="downloadButton"
+                    onclick="downloadCSV()"
+                    style="display:none;"
+                >
+                    Download CSV
+                </button>
+            </div>
+
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <span>Loading data...</span>
+        </div>
+
+        <div class="error" id="error"></div>
+
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats" id="stats" style="display:none;">
+
+        <div class="stat-card">
+            <div class="stat-label">Total Records</div>
+            <div class="stat-value" id="totalRecords">0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Price</div>
+            <div class="stat-value" id="totalPrice">Rp 0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Paid</div>
+            <div class="stat-value" id="totalPaid">Rp 0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Extensions</div>
+            <div class="stat-value" id="totalExtensions">0</div>
+        </div>
+
+    </div>
+
+    <!-- Results -->
+    <div class="card table-card">
+
+        <div class="table-header">
+
+            <div class="table-title">
+                Misc Products
+                <span id="resultCount" style="color:#9ca3af;font-weight:400;"></span>
+            </div>
+
+            <input
+                type="text"
+                id="tableSearch"
+                class="table-search"
+                placeholder="Search results..."
+                oninput="filterTable()"
+            >
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table id="resultTable">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Paid</th>
+                        <th>Date</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Status</th>
+                        <th>Extension</th>
+                        <th>Reference ID</th>
+                        <th>Reference Module</th>
+                        <th>Purchaser ID</th>
+                        <th>Provider ID</th>
+                        <th>Metadata</th>
+                    </tr>
+                </thead>
+
+                <tbody id="resultBody">
+
+                    <tr>
+                        <td colspan="17">
+                            <div class="empty">
+                                <strong>No data loaded</strong>
+                                Enter your access code and date range, then click Search.
+                            </div>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Metadata Modal -->
+<div class="modal" id="metadataModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>Product Metadata</h2>
+            <button class="close" onclick="closeMetadata()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <pre id="metadataContent"></pre>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    let allData = [];
+
+    const API_URL = "https://gopher.bicarakan.id/limbo/intools/get-misc-prod";
+
+
+    function formatMoney(value) {
+
+        if (value === null || value === undefined || value === "") {
+            return "Rp 0";
+        }
+
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            maximumFractionDigits: 0
+        }).format(Number(value));
+
+    }
+
+
+    function formatDate(value) {
+
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+
+        if (isNaN(date.getTime())) {
+            return value;
+        }
+
+        return date.toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        });
+
+    }
+
+
+    function formatDateTime(value) {
+
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+
+        if (isNaN(date.getTime())) {
+            return value;
+        }
+
+        return date.toLocaleString("id-ID", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+    }
+
+
+    function escapeHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    function statusBadge(status) {
+
+        if (status === "PAYMENT_VERIFIED") {
+
+            return `
+                <span class="badge badge-success">
+                    ${escapeHtml(status)}
+                </span>
+            `;
+
+        }
+
+        if (status === "PENDING") {
+
+            return `
+                <span class="badge badge-warning">
+                    ${escapeHtml(status)}
+                </span>
+            `;
+
+        }
+
+        return `
+            <span class="badge badge-gray">
+                ${escapeHtml(status || "-")}
+            </span>
+        `;
+
+    }
+
+
+    async function fetchData() {
+
+        const accessCode =
+            document.getElementById("accessCode").value.trim();
+
+        const startTime =
+            document.getElementById("startTime").value;
+
+        const endTime =
+            document.getElementById("endTime").value;
+
+        const errorElement =
+            document.getElementById("error");
+
+        const loadingElement =
+            document.getElementById("loading");
+
+        const searchButton =
+            document.getElementById("searchButton");
+
+        errorElement.style.display = "none";
+
+        if (!accessCode) {
+            showError("Please enter the access code.");
+            return;
+        }
+
+        if (!startTime || !endTime) {
+            showError("Please select both start and end dates.");
+            return;
+        }
+
+        if (startTime > endTime) {
+            showError("Start date cannot be after end date.");
+            return;
+        }
+
+        loadingElement.style.display = "flex";
+        searchButton.disabled = true;
+
+        try {
+
+            const response = await fetch(API_URL, {
+
+                method: "POST",
+
+                headers: {
+                    "Accept": "*/*",
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    access_code: accessCode,
+                    start_time: startTime,
+                    end_time: endTime
+                })
+
+            });
+
+
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP ${response.status}: ${response.statusText}`
+                );
+            }
+
+
+            const result = await response.json();
+
+            console.log("API response:", result);
+
+
+            if (
+                !result ||
+                !result.data ||
+                !Array.isArray(result.data.ItemResult)
+            ) {
+
+                throw new Error(
+                    "Invalid API response. Expected data.ItemResult."
+                );
+
+            }
+
+
+            allData = result.data.ItemResult;
+
+            renderTable(allData);
+            updateStats(allData);
+
+            document.getElementById("downloadButton").style.display =
+                allData.length > 0 ? "inline-block" : "none";
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showError(
+                "Failed to load data: " + error.message
+            );
+
+            allData = [];
+            renderTable([]);
+
+        } finally {
+
+            loadingElement.style.display = "none";
+            searchButton.disabled = false;
+
+        }
+
+    }
+
+
+    function renderTable(data) {
+
+        const tbody =
+            document.getElementById("resultBody");
+
+        document.getElementById("resultCount").textContent =
+            data.length ? `(${data.length})` : "";
+
+
+        if (!data.length) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="17">
+                        <div class="empty">
+                            <strong>No results found</strong>
+                            No miscellaneous products were returned for this date range.
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        tbody.innerHTML = data.map((item, index) => {
+
+            return `
+                <tr>
+
+                    <td>
+                        <strong>${escapeHtml(item.miscproduct_id)}</strong>
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${escapeHtml(item.miscproduct_title)}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.miscproduct_description)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.miscproduct_type)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.miscproduct_category)}
+                    </td>
+
+                    <td class="money">
+                        ${formatMoney(item.miscproduct_price_value)}
+                    </td>
+
+                    <td class="money">
+                        ${formatMoney(item.miscproduct_paid_value)}
+                    </td>
+
+                    <td>
+                        ${formatDate(item.miscproduct_date)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(formatTime(item.miscproduct_start_time))}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(formatTime(item.miscproduct_end_time))}
+                    </td>
+
+                    <td>
+                        ${statusBadge(item.miscproduct_status)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.extension_in_minute)} min
+                    </td>
+
+                    <td class="mono">
+                        ${escapeHtml(item.reference_id)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.reference_module)}
+                    </td>
+
+                    <td class="mono">
+                        ${escapeHtml(item.purchaser_id)}
+                    </td>
+
+                    <td class="mono">
+                        ${escapeHtml(item.miscproduct_provider_id)}
+                    </td>
+
+                    <td>
+                        <button
+                            class="metadata-btn"
+                            onclick="showMetadata(${index})"
+                        >
+                            View JSON
+                        </button>
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+
+    }
+
+
+    function formatTime(value) {
+
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+
+        if (isNaN(date.getTime())) {
+            return value;
+        }
+
+        return date.toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+    }
+
+
+    function updateStats(data) {
+
+        const stats =
+            document.getElementById("stats");
+
+        stats.style.display =
+            data.length > 0 ? "grid" : "none";
+
+
+        const totalPrice = data.reduce(
+            (sum, item) =>
+                sum + Number(item.miscproduct_price_value || 0),
+            0
+        );
+
+
+        const totalPaid = data.reduce(
+            (sum, item) =>
+                sum + Number(item.miscproduct_paid_value || 0),
+            0
+        );
+
+
+        const totalExtensions = data.reduce(
+            (sum, item) =>
+                sum + Number(item.extension_in_minute || 0),
+            0
+        );
+
+
+        document.getElementById("totalRecords").textContent =
+            data.length.toLocaleString("id-ID");
+
+
+        document.getElementById("totalPrice").textContent =
+            formatMoney(totalPrice);
+
+
+        document.getElementById("totalPaid").textContent =
+            formatMoney(totalPaid);
+
+
+        document.getElementById("totalExtensions").textContent =
+            totalExtensions.toLocaleString("id-ID") + " min";
+
+    }
+
+
+    function filterTable() {
+
+        const search =
+            document.getElementById("tableSearch")
+                .value
+                .toLowerCase()
+                .trim();
+
+
+        if (!search) {
+
+            renderTable(allData);
+
+            return;
+
+        }
+
+
+        const filtered = allData.filter(item => {
+
+            return Object.values(item).some(value => {
+
+                return String(value ?? "")
+                    .toLowerCase()
+                    .includes(search);
+
+            });
+
+        });
+
+
+        renderTable(filtered);
+
+    }
+
+
+    function showMetadata(index) {
+
+        const item = allData[index];
+
+        if (!item) {
+            return;
+        }
+
+
+        let metadata = item.miscproduct_metadata;
+
+
+        try {
+
+            if (typeof metadata === "string") {
+                metadata = JSON.parse(metadata);
+            }
+
+        } catch (error) {
+
+            // Keep original value if it isn't valid JSON.
+
+        }
+
+
+        const displayData = {
+            miscproduct_id: item.miscproduct_id,
+            miscproduct_title: item.miscproduct_title,
+            metadata: metadata
+        };
+
+
+        document.getElementById("metadataContent").textContent =
+            JSON.stringify(displayData, null, 4);
+
+
+        document.getElementById("metadataModal").style.display =
+            "block";
+
+    }
+
+
+    function closeMetadata() {
+
+        document.getElementById("metadataModal").style.display =
+            "none";
+
+    }
+
+
+    window.addEventListener("click", function(event) {
+
+        const modal =
+            document.getElementById("metadataModal");
+
+        if (event.target === modal) {
+            closeMetadata();
+        }
+
+    });
+
+
+    function csvEscape(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        let stringValue = String(value);
+
+        // Make metadata easier to read inside Excel.
+        stringValue = stringValue.replace(/\r?\n/g, " ");
+
+        if (
+            stringValue.includes(",") ||
+            stringValue.includes('"') ||
+            stringValue.includes("\n")
+        ) {
+            stringValue = '"' +
+                stringValue.replace(/"/g, '""') +
+                '"';
+        }
+
+        return stringValue;
+
+    }
+
+
+    function downloadCSV() {
+
+        if (!allData.length) {
+            showError("There is no data to download.");
+            return;
+        }
+
+
+        const headers = [
+            "miscproduct_id",
+            "miscproduct_title",
+            "miscproduct_description",
+            "miscproduct_type",
+            "miscproduct_annotation",
+            "miscproduct_category",
+            "miscproduct_price_value",
+            "miscproduct_paid_value",
+            "miscproduct_date",
+            "miscproduct_start_time",
+            "miscproduct_end_time",
+            "miscproduct_status",
+            "miscproduct_metadata",
+            "purchaser_id",
+            "is_reschedule",
+            "extension_in_minute",
+            "miscproduct_author_id",
+            "miscproduct_provider_id",
+            "created_timestamp",
+            "last_updated",
+            "platform",
+            "reference_id",
+            "reference_module"
+        ];
+
+
+        const rows = allData.map(item => {
+
+            return headers.map(header => {
+
+                return csvEscape(item[header]);
+
+            }).join(",");
+
+        });
+
+
+        const csv = [
+            headers.join(","),
+            ...rows
+        ].join("\r\n");
+
+
+        // UTF-8 BOM makes Excel recognize the file correctly.
+        const blob = new Blob(
+            ["\ufeff" + csv],
+            {
+                type: "text/csv;charset=utf-8;"
+            }
+        );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+
+        const start =
+            document.getElementById("startTime").value;
+
+        const end =
+            document.getElementById("endTime").value;
+
+        link.download =
+            `misc-products-${start}-to-${end}.csv`;
+
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+
+    }
+
+
+    function showError(message) {
+
+        const errorElement =
+            document.getElementById("error");
+
+        errorElement.textContent = message;
+        errorElement.style.display = "block";
+
+    }
+
+
+    // Allow Enter to submit.
+    document
+        .getElementById("accessCode")
+        .addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter") {
+                fetchData();
+            }
+
+        });
+
+</script>
+
+</body>
+</html>
