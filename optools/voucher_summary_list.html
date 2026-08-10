@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Voucher Lookup</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Inter",
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(99, 102, 241, 0.10),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 90%,
+                    rgba(139, 92, 246, 0.08),
+                    transparent 30%
+                ),
+                #f7f8fc;
+
+            color: #111827;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 28px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+            font-size: 20px;
+            font-weight: 800;
+
+            background: linear-gradient(
+                135deg,
+                #6366f1,
+                #7c3aed
+            );
+
+            box-shadow:
+                0 8px 20px rgba(99, 102, 241, 0.22);
+        }
+
+        .brand-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 32px;
+            letter-spacing: -0.8px;
+            line-height: 1.2;
+        }
+
+        .description {
+            margin: 8px 0 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .search-card {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 22px;
+
+            box-shadow:
+                0 12px 35px rgba(15, 23, 42, 0.06);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 17px;
+            pointer-events: none;
+        }
+
+        input {
+            width: 100%;
+            height: 52px;
+
+            border: 1px solid #d9dee7;
+            border-radius: 12px;
+
+            padding: 0 16px 0 43px;
+
+            font-size: 15px;
+            color: #111827;
+
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        input:focus {
+            border-color: #6366f1;
+
+            box-shadow:
+                0 0 0 4px rgba(99, 102, 241, 0.10);
+        }
+
+        button {
+            height: 52px;
+            padding: 0 27px;
+
+            border: none;
+            border-radius: 12px;
+
+            background: linear-gradient(
+                135deg,
+                #6366f1,
+                #7c3aed
+            );
+
+            color: white;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 18px rgba(99, 102, 241, 0.20);
+
+            transition: all 0.2s ease;
+
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 11px 24px rgba(99, 102, 241, 0.26);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+
+            display: inline-block;
+
+            border: 2px solid rgba(255,255,255,0.35);
+            border-top-color: white;
+
+            border-radius: 50%;
+
+            vertical-align: -3px;
+
+            margin-right: 7px;
+
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .results-section {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 12px;
+        }
+
+        .results-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-width: 28px;
+            height: 24px;
+
+            padding: 0 8px;
+
+            border-radius: 999px;
+
+            background: #eef2ff;
+            color: #4f46e5;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            margin-left: 7px;
+        }
+
+        .table-card {
+            background: white;
+
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 10px 30px rgba(15, 23, 42, 0.05);
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+
+            min-width: 1050px;
+        }
+
+        th {
+            background: #f9fafb;
+
+            padding: 14px 18px;
+
+            text-align: left;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            color: #6b7280;
+
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+
+            border-bottom: 1px solid #e5e7eb;
+
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 17px 18px;
+
+            border-bottom: 1px solid #f0f1f3;
+
+            font-size: 13px;
+            color: #374151;
+
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #fafaff;
+        }
+
+        .voucher-code {
+            display: inline-flex;
+
+            padding: 7px 10px;
+
+            border-radius: 8px;
+
+            background: #f3f4f6;
+
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                "Liberation Mono",
+                monospace;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            color: #374151;
+        }
+
+        .voucher-id {
+            max-width: 190px;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                monospace;
+
+            font-size: 11px;
+
+            color: #9ca3af;
+        }
+
+        .external-reference {
+            max-width: 220px;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                monospace;
+
+            font-size: 11px;
+
+            color: #4b5563;
+        }
+
+        .empty-reference {
+            color: #c4c7ce;
+            font-family: inherit;
+        }
+
+        .date {
+            color: #4b5563;
+            white-space: nowrap;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            padding: 6px 10px;
+
+            border-radius: 999px;
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status.available {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .status.used {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 55px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-icon {
+            width: 52px;
+            height: 52px;
+
+            margin: 0 auto 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 16px;
+
+            background: #f3f4f6;
+
+            font-size: 22px;
+        }
+
+        .empty-title {
+            color: #374151;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .empty-description {
+            font-size: 13px;
+        }
+
+        .error-box {
+            display: none;
+
+            margin-top: 18px;
+
+            padding: 14px 16px;
+
+            border-radius: 12px;
+
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+
+            color: #991b1b;
+
+            font-size: 13px;
+            line-height: 1.5;
+
+            white-space: pre-wrap;
+        }
+
+        .footer {
+            text-align: center;
+
+            margin-top: 25px;
+
+            font-size: 11px;
+            color: #a1a1aa;
+        }
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 25px 14px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+
+            .search-card {
+                padding: 16px;
+            }
+
+            .search-row {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .results-header {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+
+    <div class="header">
+
+        <div class="brand">
+
+            <div class="logo">
+                B
+            </div>
+
+            <div>
+                <div class="brand-name">
+                    Bicarakan
+                </div>
+
+                <div class="brand-subtitle">
+                </div>
+            </div>
+
+        </div>
+
+        <h1>Voucher Lookup</h1>
+
+        <p class="description">
+            Search and view vouchers associated with an access code.
+        </p>
+
+    </div>
+
+
+    <!-- Search -->
+
+    <div class="search-card">
+
+        <form id="voucherForm">
+
+            <div class="search-row">
+
+                <div class="input-wrapper">
+
+                    <div class="input-icon">
+                        🔑
+                    </div>
+
+                    <input
+                        type="text"
+                        id="accessCode"
+                        placeholder="Enter access code..."
+                        autocomplete="off"
+                        required
+                    />
+
+                </div>
+
+                <button
+                    type="submit"
+                    id="searchButton"
+                >
+                    Search Vouchers
+                </button>
+
+            </div>
+
+        </form>
+
+        <div
+            id="errorBox"
+            class="error-box"
+        ></div>
+
+    </div>
+
+
+    <!-- Results -->
+
+    <div
+        class="results-section"
+        id="resultsSection"
+    >
+
+        <div class="results-header">
+
+            <div class="results-title">
+                Vouchers
+
+                <span
+                    class="count-badge"
+                    id="countBadge"
+                >
+                    0
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="table-card">
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Voucher Code</th>
+                            <th>Status</th>
+                            <th>Issued</th>
+                            <th>Expires</th>
+                            <th>Used Date</th>
+                            <th>External Reference</th>
+                            <th>Voucher ID</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="voucherTableBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div
+                id="emptyState"
+                class="empty-state"
+                style="display:none;"
+            >
+
+                <div class="empty-icon">
+                    🎟️
+                </div>
+
+                <div class="empty-title">
+                    No vouchers found
+                </div>
+
+                <div class="empty-description">
+                    No vouchers are associated with this access code.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+        Bicarakan 
+    </div>
+
+</div>
+
+
+<script>
+
+    const form =
+        document.getElementById("voucherForm");
+
+    const accessCodeInput =
+        document.getElementById("accessCode");
+
+    const searchButton =
+        document.getElementById("searchButton");
+
+    const resultsSection =
+        document.getElementById("resultsSection");
+
+    const voucherTableBody =
+        document.getElementById("voucherTableBody");
+
+    const countBadge =
+        document.getElementById("countBadge");
+
+    const emptyState =
+        document.getElementById("emptyState");
+
+    const errorBox =
+        document.getElementById("errorBox");
+
+
+    form.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            const accessCode =
+                accessCodeInput.value.trim();
+
+            if (!accessCode) {
+
+                showError(
+                    "Please enter an access code."
+                );
+
+                return;
+            }
+
+            setLoading(true);
+
+            hideError();
+
+            resultsSection.style.display =
+                "none";
+
+            try {
+
+                const response = await fetch(
+                    "https://www.gopher.bicarakan.id/liong/promo/list",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Accept": "*/*",
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            access_code: accessCode
+                        })
+                    }
+                );
+
+
+                const contentType =
+                    response.headers.get(
+                        "content-type"
+                    ) || "";
+
+
+                let result;
+
+                if (
+                    contentType.includes(
+                        "application/json"
+                    )
+                ) {
+
+                    result =
+                        await response.json();
+
+                } else {
+
+                    result =
+                        await response.text();
+
+                }
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        typeof result === "string"
+                            ? result
+                            : JSON.stringify(
+                                result,
+                                null,
+                                2
+                            )
+                    );
+
+                }
+
+
+                const voucherList =
+                    result?.data
+                        ?.voucher_summary_list || [];
+
+
+                renderVouchers(
+                    voucherList
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                showError(
+                    "Failed to retrieve vouchers.\n\n" +
+                    (
+                        error.message ||
+                        "Unknown error"
+                    )
+                );
+
+            } finally {
+
+                setLoading(false);
+
+            }
+
+        }
+    );
+
+
+    function renderVouchers(vouchers) {
+
+        resultsSection.style.display =
+            "block";
+
+        countBadge.textContent =
+            vouchers.length;
+
+        voucherTableBody.innerHTML =
+            "";
+
+
+        if (!vouchers.length) {
+
+            emptyState.style.display =
+                "block";
+
+            return;
+
+        }
+
+
+        emptyState.style.display =
+            "none";
+
+
+        vouchers.forEach(function(voucher) {
+
+            const row =
+                document.createElement("tr");
+
+
+            const isUsed =
+                voucher.voucher_is_used === true;
+
+
+            const statusClass =
+                isUsed
+                    ? "used"
+                    : "available";
+
+
+            const statusText =
+                isUsed
+                    ? "Used"
+                    : "Available";
+
+
+            const usedDate =
+                voucher.voucher_used_date
+                    ? formatDate(
+                        voucher.voucher_used_date
+                    )
+                    : "—";
+
+
+            const externalReference =
+                voucher.voucher_external_reference_id;
+
+
+            const externalReferenceHtml =
+                externalReference
+                    ? `
+                        <div
+                            class="external-reference"
+                            title="${escapeHtml(
+                                externalReference
+                            )}"
+                        >
+                            ${escapeHtml(
+                                externalReference
+                            )}
+                        </div>
+                    `
+                    : `
+                        <span class="empty-reference">
+                            —
+                        </span>
+                    `;
+
+
+            row.innerHTML = `
+
+                <td>
+                    <span class="voucher-code">
+                        ${escapeHtml(
+                            voucher.voucher_code || "—"
+                        )}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="status ${statusClass}">
+                        <span class="status-dot"></span>
+                        ${statusText}
+                    </span>
+                </td>
+
+                <td class="date">
+                    ${formatDate(
+                        voucher.voucher_issued_date
+                    )}
+                </td>
+
+                <td class="date">
+                    ${formatDate(
+                        voucher.voucher_expired_date
+                    )}
+                </td>
+
+                <td class="date">
+                    ${usedDate}
+                </td>
+
+                <td>
+                    ${externalReferenceHtml}
+                </td>
+
+                <td>
+                    <div
+                        class="voucher-id"
+                        title="${escapeHtml(
+                            voucher.voucher_id || ""
+                        )}"
+                    >
+                        ${escapeHtml(
+                            voucher.voucher_id || "—"
+                        )}
+                    </div>
+                </td>
+
+            `;
+
+
+            voucherTableBody.appendChild(
+                row
+            );
+
+        });
+
+    }
+
+
+    function formatDate(dateString) {
+
+        if (!dateString) {
+            return "—";
+        }
+
+        const date =
+            new Date(
+                dateString + "T00:00:00"
+            );
+
+        if (isNaN(date.getTime())) {
+            return dateString;
+        }
+
+        return date.toLocaleDateString(
+            "en-GB",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            }
+        );
+
+    }
+
+
+    function escapeHtml(value) {
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    function setLoading(isLoading) {
+
+        searchButton.disabled =
+            isLoading;
+
+        if (isLoading) {
+
+            searchButton.innerHTML =
+                `<span class="spinner"></span>
+                 Searching...`;
+
+        } else {
+
+            searchButton.innerHTML =
+                "Search Vouchers";
+
+        }
+
+    }
+
+
+    function showError(message) {
+
+        errorBox.textContent =
+            message;
+
+        errorBox.style.display =
+            "block";
+
+    }
+
+
+    function hideError() {
+
+        errorBox.style.display =
+            "none";
+
+    }
+
+</script>
+
+</body>
+</html>
