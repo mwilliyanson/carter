@@ -1,0 +1,436 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promo Release</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
+                Roboto, Helvetica, Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(99, 102, 241, 0.12), transparent 35%),
+                radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.10), transparent 35%),
+                #f7f8fc;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 24px;
+            padding: 36px;
+            box-shadow:
+                0 20px 50px rgba(15, 23, 42, 0.08),
+                0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 23px;
+            font-weight: 800;
+            margin-bottom: 22px;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.2;
+            letter-spacing: -0.6px;
+            color: #111827;
+        }
+
+        .subtitle {
+            margin: 9px 0 30px;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 650;
+            color: #374151;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        input,
+        select {
+            width: 100%;
+            height: 50px;
+            border: 1px solid #dbe0e8;
+            border-radius: 12px;
+            padding: 0 15px;
+            font-size: 15px;
+            color: #111827;
+            background: #fff;
+            outline: none;
+            transition: all 0.2s ease;
+            appearance: none;
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        input:hover,
+        select:hover {
+            border-color: #b9c0cc;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.10);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: "⌄";
+            position: absolute;
+            right: 16px;
+            top: 13px;
+            pointer-events: none;
+            font-size: 18px;
+            color: #6b7280;
+        }
+
+        .input-hint {
+            margin-top: 7px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        button {
+            width: 100%;
+            height: 52px;
+            border: none;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 22px rgba(99, 102, 241, 0.22);
+            margin-top: 4px;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 13px 27px rgba(99, 102, 241, 0.28);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .response {
+            display: none;
+            margin-top: 22px;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .response.success {
+            display: block;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .response.error {
+            display: block;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .response-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 22px;
+            color: #9ca3af;
+            font-size: 11px;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 16px;
+            }
+
+            .card {
+                padding: 26px 22px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card">
+
+        <div class="logo">B</div>
+
+        <h1>Release Promo</h1>
+
+        <p class="subtitle">
+            Enter the session details below to release a promotional voucher.
+        </p>
+
+        <form id="promoForm">
+
+            <!-- Session ID -->
+            <div class="form-group">
+                <label for="sessionId">
+                    Session ID <span class="required">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="sessionId"
+                    placeholder="e.g. 5aaab43c"
+                    autocomplete="off"
+                    required
+                />
+
+                <div class="input-hint">
+                    Enter the session ID associated with this promotion.
+                </div>
+            </div>
+
+            <!-- Discount Amount -->
+            <div class="form-group">
+                <label for="discountAmount">
+                    Discount Amount <span class="required">*</span>
+                </label>
+
+                <div class="select-wrapper">
+                    <select id="discountAmount" required>
+                        <option value="249000">Rp249.000</option>
+                        <option value="399000">Rp399.000</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Access Code -->
+            <div class="form-group">
+                <label for="accessCode">
+                    Access Code
+                </label>
+
+                <input
+                    type="text"
+                    id="accessCode"
+                    placeholder="Enter access code"
+                    autocomplete="off"
+                />
+
+                <div class="input-hint">
+                    Leave blank if no access code is required.
+                </div>
+            </div>
+
+            <button type="submit" id="submitButton">
+                Release Promo
+            </button>
+
+        </form>
+
+        <div id="response" class="response"></div>
+
+        <div class="footer">
+            Bicarakan Internal Tools
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("promoForm");
+    const submitButton = document.getElementById("submitButton");
+    const responseBox = document.getElementById("response");
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const sessionId = document
+            .getElementById("sessionId")
+            .value
+            .trim();
+
+        const discountAmount = Number(
+            document.getElementById("discountAmount").value
+        );
+
+        const accessCode = document
+            .getElementById("accessCode")
+            .value
+            .trim();
+
+        if (!sessionId) {
+            showResponse("Please enter a session ID.", "error");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(
+                "https://www.gopher.bicarakan.id/liong/promo/list",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Accept": "*/*",
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        discount_amount: discountAmount,
+                        access_code: accessCode
+                    })
+                }
+            );
+
+            const contentType = response.headers.get("content-type") || "";
+
+            let result;
+
+            if (contentType.includes("application/json")) {
+                result = await response.json();
+            } else {
+                result = await response.text();
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    typeof result === "string"
+                        ? result
+                        : JSON.stringify(result, null, 2)
+                );
+            }
+
+            showResponse(
+                "Promo released successfully.\n\n" +
+                formatResponse(result),
+                "success"
+            );
+
+        } catch (error) {
+            console.error(error);
+
+            showResponse(
+                "Failed to release promo.\n\n" +
+                (error.message || "Unknown error"),
+                "error"
+            );
+        } finally {
+            setLoading(false);
+        }
+    });
+
+    function setLoading(isLoading) {
+        submitButton.disabled = isLoading;
+
+        if (isLoading) {
+            submitButton.innerHTML =
+                '<span class="spinner"></span> Releasing...';
+        } else {
+            submitButton.innerHTML = "Release Promo";
+        }
+    }
+
+    function showResponse(message, type) {
+        responseBox.className = "response " + type;
+        responseBox.textContent = message;
+    }
+
+    function formatResponse(result) {
+        if (typeof result === "string") {
+            return result;
+        }
+
+        return JSON.stringify(result, null, 2);
+    }
+</script>
+
+</body>
+</html>
