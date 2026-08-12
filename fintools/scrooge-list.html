@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Payment MOD Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #f5f6f8;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .header {
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0 0 6px;
+            font-size: 28px;
+            color: #111827;
+        }
+
+        .header p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        input {
+            width: 100%;
+            height: 42px;
+            padding: 0 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            height: 42px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-primary:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+        }
+
+        .btn-success:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 7px;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1800px;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+            font-weight: 600;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            background: #f9fafb;
+            z-index: 1;
+        }
+
+        td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+            vertical-align: top;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-pv {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-cd {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-default {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .link {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            margin-left: 10px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .search-box {
+            max-width: 350px;
+            margin-bottom: 15px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .table-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                padding: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                width: 100%;
+            }
+
+            .actions button {
+                flex: 1;
+            }
+
+            .table-header {
+                align-items: stretch;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Payment MOD Dashboard</h1>
+        <p>Retrieve payment records by date range and export them to CSV.</p>
+    </div>
+
+    <div class="card">
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label for="accessCode">Access Code</label>
+                <input
+                    type="password"
+                    id="accessCode"
+                    placeholder="Enter access code"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="startTime">Start Time</label>
+                <input
+                    type="datetime-local"
+                    id="startTime"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="endTime">End Time</label>
+                <input
+                    type="datetime-local"
+                    id="endTime"
+                >
+            </div>
+
+            <div class="actions">
+                <button
+                    class="btn-primary"
+                    id="searchButton"
+                    onclick="getPayments()"
+                >
+                    Search
+                </button>
+
+                <button
+                    class="btn-success"
+                    id="downloadButton"
+                    onclick="downloadCSV()"
+                    disabled
+                >
+                    Download CSV
+                </button>
+            </div>
+
+        </div>
+
+        <span class="loading" id="loading">
+            Loading payments...
+        </span>
+
+    </div>
+
+    <div class="error" id="errorMessage"></div>
+
+    <div class="summary">
+
+        <div class="summary-card">
+            <div class="summary-label">Total Records</div>
+            <div class="summary-value" id="totalRecords">0</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Total Paid Amount</div>
+            <div class="summary-value" id="totalPaidAmount">
+                Rp 0
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Payment Status</div>
+            <div class="summary-value" id="paymentStatus">
+                -
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="table-header">
+            <h2>Payment Results</h2>
+
+            <input
+                class="search-box"
+                type="text"
+                id="tableSearch"
+                placeholder="Search results..."
+                oninput="filterTable()"
+            >
+        </div>
+
+        <div class="table-wrapper">
+
+            <table id="paymentTable">
+
+                <thead>
+                <tr>
+                    <th>Payment ID</th>
+                    <th>Status</th>
+                    <th>Provider</th>
+                    <th>Provider External ID</th>
+                    <th>Reference ID</th>
+                    <th>Product Type</th>
+                    <th>Product ID</th>
+                    <th>Paid Timestamp</th>
+                    <th>Payment Proof</th>
+                    <th>Annotation</th>
+                    <th>Listing Price</th>
+                    <th>Sale Price</th>
+                    <th>Paid Amount</th>
+                    <th>Promo ID</th>
+                    <th>Author ID</th>
+                    <th>Payer ID</th>
+                    <th>Payment Metadata</th>
+                    <th>Payment Method</th>
+                    <th>Created Timestamp</th>
+                    <th>Payment Product ID</th>
+                    <th>Payment Product Type</th>
+                </tr>
+                </thead>
+
+                <tbody id="paymentTableBody">
+                <tr>
+                    <td colspan="21">
+                        <div class="empty-state">
+                            Enter an access code and date range, then click Search.
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    const API_URL =
+        "https://www.gopher.bicarakan.id/limbo/intools/get-payment-mod";
+
+    let paymentResults = [];
+
+    /*
+     * Set default dates.
+     *
+     * Start:
+     *   First day of current year
+     *
+     * End:
+     *   Today
+     */
+    function setDefaultDates() {
+
+        const now = new Date();
+
+        const year = now.getFullYear();
+
+        const start = new Date(year, 0, 1);
+
+        document.getElementById("startTime").value =
+            formatDateTimeLocal(start);
+
+        document.getElementById("endTime").value =
+            formatDateTimeLocal(now);
+    }
+
+    function formatDateTimeLocal(date) {
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function showError(message) {
+
+        const error = document.getElementById("errorMessage");
+
+        error.textContent = message;
+        error.style.display = "block";
+    }
+
+    function hideError() {
+
+        const error = document.getElementById("errorMessage");
+
+        error.style.display = "none";
+        error.textContent = "";
+    }
+
+    function setLoading(isLoading) {
+
+        const button = document.getElementById("searchButton");
+        const loading = document.getElementById("loading");
+
+        button.disabled = isLoading;
+
+        loading.style.display =
+            isLoading ? "inline" : "none";
+    }
+
+    function formatCurrency(value) {
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return "-";
+        }
+
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            maximumFractionDigits: 0
+        }).format(Number(value));
+    }
+
+    function getNestedString(object) {
+
+        if (!object) {
+            return "";
+        }
+
+        if (object.Valid === false) {
+            return "";
+        }
+
+        return object.String || object.Time || "";
+    }
+
+    function getPaidTimestamp(payment) {
+
+        if (!payment.PaidTimestamp) {
+            return "";
+        }
+
+        if (payment.PaidTimestamp.Valid === false) {
+            return "";
+        }
+
+        return payment.PaidTimestamp.Time || "";
+    }
+
+    function escapeHTML(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function getStatusClass(status) {
+
+        if (status === "PV") {
+            return "status-pv";
+        }
+
+        if (status === "CD") {
+            return "status-cd";
+        }
+
+        return "status-default";
+    }
+
+    async function getPayments() {
+
+        hideError();
+
+        const accessCode =
+            document.getElementById("accessCode").value.trim();
+
+        const startTime =
+            document.getElementById("startTime").value;
+
+        const endTime =
+            document.getElementById("endTime").value;
+
+        if (!accessCode) {
+            showError("Please enter the access code.");
+            return;
+        }
+
+        if (!startTime) {
+            showError("Please select a start time.");
+            return;
+        }
+
+        if (!endTime) {
+            showError("Please select an end time.");
+            return;
+        }
+
+        if (new Date(startTime) > new Date(endTime)) {
+            showError("Start time cannot be later than end time.");
+            return;
+        }
+
+        setLoading(true);
+
+        paymentResults = [];
+
+        document.getElementById("downloadButton").disabled = true;
+
+        try {
+
+            const payload = {
+                access_code: accessCode,
+
+                /*
+                 * API expects:
+                 *
+                 * "2026-01-01"
+                 *
+                 * or datetime if your backend supports it.
+                 *
+                 * Here we send the selected datetime as-is.
+                 */
+                start_time: startTime.split("T")[0],
+                end_time: endTime.split("T")[0]
+            };
+
+            const response = await fetch(API_URL, {
+
+                method: "POST",
+
+                headers: {
+                    "Accept": "*/*",
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(payload)
+
+            });
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `API returned HTTP ${response.status}`
+                );
+            }
+
+            const result = await response.json();
+
+            if (
+                !result ||
+                !result.data ||
+                !Array.isArray(result.data.ItemResult)
+            ) {
+
+                throw new Error(
+                    "Unexpected API response format."
+                );
+            }
+
+            paymentResults =
+                result.data.ItemResult;
+
+            renderTable(paymentResults);
+
+            updateSummary(paymentResults);
+
+            document.getElementById("downloadButton").disabled =
+                paymentResults.length === 0;
+
+        } catch (error) {
+
+            console.error(error);
+
+            showError(
+                "Failed to retrieve payments: " +
+                error.message
+            );
+
+            renderTable([]);
+
+            updateSummary([]);
+
+        } finally {
+
+            setLoading(false);
+        }
+    }
+
+    function renderTable(results) {
+
+        const tbody =
+            document.getElementById("paymentTableBody");
+
+        if (!results.length) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="21">
+                        <div class="empty-state">
+                            No payment records found.
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tbody.innerHTML = results.map(payment => {
+
+            const proofUrl =
+                getNestedString(payment.PaymentProofUrl);
+
+            const annotation =
+                getNestedString(payment.PaymentAnnotation);
+
+            const promoId =
+                getNestedString(payment.PaymentPromoId);
+
+            const metadata =
+                getNestedString(payment.PaymentMetadata);
+
+            const paymentMethod =
+                getNestedString(payment.PaymentMethod);
+
+            const paidTimestamp =
+                getPaidTimestamp(payment);
+
+            return `
+                <tr>
+
+                    <td>${escapeHTML(payment.PaymentId)}</td>
+
+                    <td>
+                        <span class="status ${getStatusClass(payment.PaymentStatus)}">
+                            ${escapeHTML(payment.PaymentStatus)}
+                        </span>
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.PaymentProviderId)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.PaymentProviderExternalId)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.PaymentReferenceId)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.ProductType)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.ProductId)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(paidTimestamp)}
+                    </td>
+
+                    <td>
+                        ${
+                            proofUrl
+                            ? `
+                                <a
+                                    class="link"
+                                    href="${escapeHTML(proofUrl)}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Open
+                                </a>
+                              `
+                            : "-"
+                        }
+                    </td>
+
+                    <td>
+                        ${escapeHTML(annotation) || "-"}
+                    </td>
+
+                    <td>
+                        ${formatCurrency(payment.ListingPrice)}
+                    </td>
+
+                    <td>
+                        ${formatCurrency(payment.SalePrice)}
+                    </td>
+
+                    <td>
+                        ${formatCurrency(payment.PaidAmount)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(promoId) || "-"}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.AuthorId)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.PayerId)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(metadata) || "-"}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(paymentMethod) || "-"}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.CreatedTimestamp)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.PaymentProductId)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment.PaymentProductType)}
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+    }
+
+    function updateSummary(results) {
+
+        document.getElementById("totalRecords").textContent =
+            results.length.toLocaleString("id-ID");
+
+        const totalPaid =
+            results.reduce(
+                (total, payment) =>
+                    total + Number(payment.PaidAmount || 0),
+                0
+            );
+
+        document.getElementById("totalPaidAmount").textContent =
+            formatCurrency(totalPaid);
+
+        const statusCounts = {};
+
+        results.forEach(payment => {
+
+            const status =
+                payment.PaymentStatus || "UNKNOWN";
+
+            statusCounts[status] =
+                (statusCounts[status] || 0) + 1;
+        });
+
+        const statusText =
+            Object.entries(statusCounts)
+                .map(
+                    ([status, count]) =>
+                        `${status}: ${count}`
+                )
+                .join(" | ");
+
+        document.getElementById("paymentStatus").textContent =
+            statusText || "-";
+    }
+
+    function filterTable() {
+
+        const search =
+            document.getElementById("tableSearch")
+                .value
+                .toLowerCase()
+                .trim();
+
+        const rows =
+            document.querySelectorAll(
+                "#paymentTableBody tr"
+            );
+
+        rows.forEach(row => {
+
+            const text =
+                row.textContent.toLowerCase();
+
+            row.style.display =
+                text.includes(search)
+                ? ""
+                : "none";
+        });
+    }
+
+    function csvEscape(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        const stringValue =
+            String(value);
+
+        if (
+            stringValue.includes(",") ||
+            stringValue.includes('"') ||
+            stringValue.includes("\n")
+        ) {
+
+            return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+
+        return stringValue;
+    }
+
+    function downloadCSV() {
+
+        if (!paymentResults.length) {
+            showError("There are no results to download.");
+            return;
+        }
+
+        const headers = [
+            "PaymentId",
+            "PaymentStatus",
+            "PaymentProviderId",
+            "PaymentProviderExternalId",
+            "PaymentReferenceId",
+            "ProductType",
+            "ProductId",
+            "PaidTimestamp",
+            "PaymentProofUrl",
+            "PaymentAnnotation",
+            "ListingPrice",
+            "SalePrice",
+            "PaidAmount",
+            "PaymentPromoId",
+            "AuthorId",
+            "PayerId",
+            "PaymentMetadata",
+            "PaymentMethod",
+            "CreatedTimestamp",
+            "PaymentProductId",
+            "PaymentProductType"
+        ];
+
+        const rows =
+            paymentResults.map(payment => {
+
+                return [
+
+                    payment.PaymentId,
+
+                    payment.PaymentStatus,
+
+                    payment.PaymentProviderId,
+
+                    payment.PaymentProviderExternalId,
+
+                    payment.PaymentReferenceId,
+
+                    payment.ProductType,
+
+                    payment.ProductId,
+
+                    getPaidTimestamp(payment),
+
+                    getNestedString(
+                        payment.PaymentProofUrl
+                    ),
+
+                    getNestedString(
+                        payment.PaymentAnnotation
+                    ),
+
+                    payment.ListingPrice,
+
+                    payment.SalePrice,
+
+                    payment.PaidAmount,
+
+                    getNestedString(
+                        payment.PaymentPromoId
+                    ),
+
+                    payment.AuthorId,
+
+                    payment.PayerId,
+
+                    getNestedString(
+                        payment.PaymentMetadata
+                    ),
+
+                    getNestedString(
+                        payment.PaymentMethod
+                    ),
+
+                    payment.CreatedTimestamp,
+
+                    payment.PaymentProductId,
+
+                    payment.PaymentProductType
+
+                ];
+            });
+
+        /*
+         * UTF-8 BOM ensures Excel opens
+         * Indonesian/Unicode text correctly.
+         */
+        let csv = "\uFEFF";
+
+        csv +=
+            headers.map(csvEscape).join(",") +
+            "\n";
+
+        rows.forEach(row => {
+
+            csv +=
+                row.map(csvEscape).join(",") +
+                "\n";
+
+        });
+
+        const blob =
+            new Blob(
+                [csv],
+                {
+                    type: "text/csv;charset=utf-8;"
+                }
+            );
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        const start =
+            document.getElementById("startTime")
+                .value
+                .replace(/[:]/g, "-");
+
+        const end =
+            document.getElementById("endTime")
+                .value
+                .replace(/[:]/g, "-");
+
+        link.href = url;
+
+        link.download =
+            `payment-mod_${start}_to_${end}.csv`;
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+    }
+
+    /*
+     * Allow pressing Enter inside access code
+     * to perform the search.
+     */
+    document
+        .getElementById("accessCode")
+        .addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter") {
+                getPayments();
+            }
+
+        });
+
+    /*
+     * Initialize default date range.
+     */
+    setDefaultDates();
+
+</script>
+
+</body>
+</html>
