@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transaction Input Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Transaction Input Form</h1>
+
+    <form id="txForm" class="space-y-5">
+      <!-- Reference ID -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Reference ID</label>
+        <input id="reference_id" type="text" class="mt-1 w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Enter reference ID" required />
+      </div>
+
+      <!-- Reference Type -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Reference Type</label>
+        <select class="mt-1 w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option>Misc Product</option>
+          <option>Session</option>
+          <option>Unknown</option>
+        </select>
+      </div>
+
+      <!-- Bank Channel -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Bank Channel</label>
+        <select id="bank_channel" class="mt-1 w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option>ACEH</option>
+          <option>ACEH_UUS</option>
+          <option>AGRIS</option>
+          <option>AGRONIAGA</option>
+          <option>ALADIN</option>
+          <option>ALLO</option>
+          <option>AMAR</option>
+          <option>ANGLOMAS</option>
+          <option>ANZ</option>
+          <option>ARTA_NIAGA_KENCANA</option>
+          <option>ARTHA</option>
+          <option>ARTOS</option>
+          <option>BALI</option>
+          <option>BCA</option>
+          <option>BNI</option>
+          <option>BRI</option>
+          <option>MANDIRI</option>
+          <option>OVO</option>
+          <option>DANA</option>
+          <option>GOPAY</option>
+          <option>SHOPEEPAY</option>
+        </select>
+      </div>
+
+      <!-- Bank Account Number -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Bank Account Number</label>
+        <input id="account_number" type="text" class="mt-1 w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Enter account number" required />
+      </div>
+
+      <!-- Bank Account Name -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Bank Account Name</label>
+        <input id="account_name" type="text" class="mt-1 w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Enter account name" required />
+      </div>
+
+      <!-- Amount -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Amount (Rupiah)</label>
+        <input id="amount" type="text" class="mt-1 w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Rp 1.000.000" required />
+      </div>
+
+      <!-- Reasoning -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Reasoning</label>
+        <textarea id="reasoning" rows="3" class="mt-1 w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Enter reasoning..." required></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+        Submit Transaction
+      </button>
+    </form>
+  </div>
+
+<script>
+  const amountInput = document.getElementById('amount');
+
+  amountInput.addEventListener('input', function (e) {
+    let value = e.target.value.replace(/[^0-9]/g, '');
+    if (!value) return e.target.value = '';
+    e.target.value = new Intl.NumberFormat('id-ID').format(value);
+  });
+
+  document.getElementById('txForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const payload = {
+      reference_id: document.getElementById('reference_id').value,
+      author_id: "frontend-user",
+      reasoning: document.getElementById('reasoning').value,
+      status: "PENDING",
+      destination_provider: document.getElementById('bank_channel').value,
+      destination_holder_name: document.getElementById('account_name').value,
+      amount: Number(document.getElementById('amount').value.replace(/[^0-9]/g, '')),
+      destination_account_number: document.getElementById('account_number').value
+    };
+
+    try {
+      const res = await fetch('https://plankton-app-t48ly.ondigitalocean.app/api/v2/tables/m2ceakvs7rgnv3v/records', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'xc-token': '_bvnxy06xC-g0rUP1jZfdV2LHLPuTuEuTYPTuDM1',
+          'Authorization': 'Bearer _bvnxy06xC-g0rUP1jZfdV2LHLPuTuEuTYPTuDM1',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Transaction submitted successfully!');
+        document.getElementById('txForm').reset();
+      } else {
+        alert('Failed: ' + JSON.stringify(data));
+      }
+    } catch (err) {
+      alert('Error submitting transaction');
+      console.error(err);
+    }
+  });
+</script>
+
+</body>
+</html>

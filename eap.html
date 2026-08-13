@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EAP Voucher & Symptoms Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--accent:#7c3aed;--muted:#9aa4b2;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:linear-gradient(180deg,#071128 0%, #071a2b 100%);color:#e6eef6}
+    .container{max-width:1100px;margin:32px auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    h1{font-size:20px;margin:0}
+    .sub{color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .stat-title{font-size:13px;color:var(--muted);}
+    .stat-value{font-size:28px;font-weight:700;margin-top:6px}
+    .muted-small{color:var(--muted);font-size:12px}
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{background:var(--accent);border:none;color:white;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+    .search{padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:inherit}
+    .main{display:grid;grid-template-columns:1fr 420px;gap:18px;margin-top:18px}
+    .chart-wrap{padding:14px}
+    .list{max-height:420px;overflow:auto;margin-top:10px}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
+    th{color:var(--muted);font-size:12px}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.03);font-size:12px}
+    .symptom-card{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));margin-bottom:10px}
+    footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
+    @media (max-width:940px){.grid{grid-template-columns:repeat(2,1fr)}.main{grid-template-columns:1fr} }
+    @media (max-width:600px){.grid{grid-template-columns:1fr}header{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>EAP — Voucher & Symptoms Dashboard</h1>
+        <div class="sub">Overview of vouchers, usage and a quick symptoms report for high-level monitoring</div>
+      </div>
+      <div class="controls">
+        <input id="search" class="search" placeholder="Search vouchers or symptoms" />
+        <button class="btn" id="exportCsv">Export CSV</button>
+        <button class="btn ghost" id="refreshBtn">Refresh</button>
+      </div>
+    </header>
+
+    <section class="grid" aria-label="Key stats">
+      <div class="card">
+        <div class="stat-title">Total Vouchers</div>
+        <div class="stat-value" id="totalVouchers">—</div>
+        <div class="muted-small">Number of vouchers issued to employees/clients</div>
+      </div>
+
+      <div class="card">
+        <div class="stat-title">Used Vouchers</div>
+        <div class="stat-value" id="usedVouchers">—</div>
+        <div class="muted-small">How many vouchers have been redeemed</div>
+      </div>
+
+      <div class="card">
+        <div class="stat-title">Available / Unused</div>
+        <div class="stat-value" id="unusedVouchers">—</div>
+        <div class="muted-small">Vouchers left that can still be redeemed</div>
+      </div>
+    </section>
+
+    <div class="main">
+      <div>
+        <div class="card chart-wrap">
+          <canvas id="vouchersChart" height="160"></canvas>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-weight:700">Vouchers — Detailed</div>
+            <div class="muted-small">Click a row to toggle used/unused</div>
+          </div>
+          <div class="list" id="voucherList">
+            <!-- rows inserted by JS -->
+          </div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card">
+          <div style="font-weight:700">Symptoms — Snapshot</div>
+          <div class="muted-small">Most reported symptoms in the selected period</div>
+          <div id="symptomList" style="margin-top:12px">
+            <!-- symptoms go here -->
+          </div>
+          <div style="margin-top:12px">
+            <div style="font-weight:600;margin-bottom:8px">Filter symptoms</div>
+            <select id="symptomPeriod" class="search" style="width:100%">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div style="font-weight:700">Quick Report</div>
+          <div class="muted-small">Generate a brief summary of current voucher & symptom status</div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn" id="generateReport">Generate</button>
+            <button class="btn ghost" id="copySummary">Copy</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>Designed for EAP teams — interactive dashboard for voucher usage and symptom reporting</footer>
+  </div>
+
+  <script>
+    // Mock data (replace with API fetches in production)
+    const vouchers = [
+      {id: 'VCH-001', name: 'Counseling - Basic', used: true, issuedAt: '2025-09-12'},
+      {id: 'VCH-002', name: 'Counseling - Basic', used: false, issuedAt: '2025-09-15'},
+      {id: 'VCH-003', name: 'Wellness Session', used: false, issuedAt: '2025-09-20'},
+      {id: 'VCH-004', name: 'Counseling - Premium', used: true, issuedAt: '2025-09-26'},
+      {id: 'VCH-005', name: 'Counseling - Basic', used: false, issuedAt: '2025-10-02'},
+      {id: 'VCH-006', name: 'Sleep Workshop', used: true, issuedAt: '2025-10-04'}
+    ];
+
+    const symptoms = [
+      {name:'Anxiety', count: 42},
+      {name:'Insomnia', count: 27},
+      {name:'Stress', count: 61},
+      {name:'Low mood', count: 18},
+      {name:'Burnout', count: 12}
+    ];
+
+    // elements
+    const totalEl = document.getElementById('totalVouchers');
+    const usedEl = document.getElementById('usedVouchers');
+    const unusedEl = document.getElementById('unusedVouchers');
+    const voucherList = document.getElementById('voucherList');
+    const symptomList = document.getElementById('symptomList');
+    const search = document.getElementById('search');
+
+    function renderStats(){
+      const total = vouchers.length;
+      const used = vouchers.filter(v=>v.used).length;
+      const unused = total - used;
+      totalEl.textContent = total;
+      usedEl.textContent = used;
+      unusedEl.textContent = unused;
+    }
+
+    // Chart
+    let vouchersChart;
+    function renderChart(){
+      const labels = vouchers.map(v=>v.id);
+      const data = vouchers.map(v=> v.used?1:0);
+      const ctx = document.getElementById('vouchersChart');
+      if (vouchersChart) vouchersChart.destroy();
+      vouchersChart = new Chart(ctx, {
+        type:'bar',
+        data:{labels, datasets:[{label:'Used (1) vs Unused (0)', data, borderRadius:6, barThickness:18}]},
+        options:{
+          scales:{y:{beginAtZero:true, ticks:{stepSize:1}}},
+          plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=> ctx.parsed.y? 'Used' : 'Unused'}}}
+        }
+      });
+    }
+
+    function renderVoucherList(filterText=''){
+      voucherList.innerHTML='';
+      const filtered = vouchers.filter(v=> (v.id+v.name+v.issuedAt).toLowerCase().includes(filterText.toLowerCase()));
+      filtered.forEach(v=>{
+        const row = document.createElement('div');
+        row.className = 'symptom-card';
+        row.style.cursor='pointer';
+        row.innerHTML = `
+          <div>
+            <div style="font-weight:600">${v.id} — ${v.name}</div>
+            <div class="muted-small">Issued: ${v.issuedAt}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="pill">${v.used? 'Used' : 'Unused'}</div>
+            <div style="margin-top:8px"><button class="btn ghost" data-id="${v.id}">${v.used? 'Mark unused' : 'Mark used'}</button></div>
+          </div>
+        `;
+        voucherList.appendChild(row);
+      });
+    }
+
+    function renderSymptoms(periodDays){
+      symptomList.innerHTML='';
+      // in real scenario, filter by periodDays. Here we just show mock summary
+      const sorted = symptoms.slice().sort((a,b)=>b.count-a.count);
+      sorted.forEach(s=>{
+        const el = document.createElement('div');
+        el.className='symptom-card';
+        el.innerHTML = `<div><strong>${s.name}</strong><div class="muted-small">Reports: ${s.count}</div></div><div class="pill">${Math.round((s.count/ (sorted[0].count||1))*100)}%</div>`;
+        symptomList.appendChild(el);
+      });
+    }
+
+    // event handlers
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-id]');
+      if (btn){
+        const id = btn.getAttribute('data-id');
+        const v = vouchers.find(x=>x.id===id);
+        if (v){ v.used = !v.used; renderAll(); }
+      }
+    });
+
+    document.getElementById('symptomPeriod').addEventListener('change', (e)=>{
+      renderSymptoms(parseInt(e.target.value,10));
+    });
+
+    document.getElementById('generateReport').addEventListener('click', ()=>{
+      const total = vouchers.length;
+      const used = vouchers.filter(v=>v.used).length;
+      const topSymptoms = symptoms.slice().sort((a,b)=>b.count-a.count).slice(0,3).map(s=>s.name).join(', ');
+      const summary = `Summary (as of ${new Date().toLocaleDateString()}):\nTotal vouchers: ${total}\nUsed: ${used}\nUnused: ${total-used}\nTop symptoms: ${topSymptoms}`;
+      navigator.clipboard?.writeText(summary).then(()=> alert('Summary copied to clipboard'), ()=> alert(summary));
+    });
+
+    document.getElementById('copySummary').addEventListener('click', ()=>{
+      const total = vouchers.length;
+      const used = vouchers.filter(v=>v.used).length;
+      const summary = `Vouchers: ${total} | Used: ${used} | Unused: ${total-used}`;
+      navigator.clipboard?.writeText(summary).then(()=> alert('Copied!'), ()=> alert('Could not copy'));
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', ()=>{
+      // placeholder for re-fetching from the server
+      alert('Refreshed (mock)');
+      renderAll();
+    });
+
+    document.getElementById('exportCsv').addEventListener('click', ()=>{
+      let csv = 'id,name,used,issuedAt\n';
+      vouchers.forEach(v=> csv += `${v.id},"${v.name}",${v.used},${v.issuedAt}\n`);
+      const blob = new Blob([csv], {type: 'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'vouchers.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    search.addEventListener('input', (e)=> renderVoucherList(e.target.value));
+
+    // initial render
+    function renderAll(){
+      renderStats();
+      renderChart();
+      renderVoucherList('');
+      renderSymptoms(30);
+    }
+    renderAll();
+
+    // Accessibility: keyboard shortcut to focus search (press /)
+    document.addEventListener('keydown', (e)=>{ if (e.key === '/') { e.preventDefault(); search.focus(); } });
+
+    // Replace mock data with real API example (commented)
+    /*
+    fetch('/api/vouchers')
+      .then(r=>r.json())
+      .then(data=>{
+        // map and replace vouchers array, then renderAll()
+      })
+    */
+  </script>
+</body>
+</html>

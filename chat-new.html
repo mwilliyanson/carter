@@ -43,7 +43,7 @@
       e.preventDefault();
       const roomID = document.getElementById('roomID').value;
       const tokenID = document.getElementById('tokenID').value;
-      const wsUrl = `ws://localhost:3407/ws/brown/conversation/message/subscribe/${roomID}?token=${tokenID}`;
+      const wsUrl = `wss://gopher.bicarakan.id/ws/brown/conversation/message/subscribe/${roomID}?token=${tokenID}`;
 
       ws = new WebSocket(wsUrl);
 

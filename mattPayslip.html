@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Slip Gaji - Bicarakan.id</title>
+<style>
+  body {
+    font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+    background: #f7f8fa;
+    margin: 0;
+    padding: 30px;
+    color: #1e293b;
+  }
+
+  .payslip {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    overflow: hidden;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    background: #fafafa;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  header img {
+    height: 40px;
+  }
+
+  header .company {
+    text-align: right;
+  }
+
+  header .company h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  header .company p {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 22px;
+    margin: 20px 0 0;
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 14px;
+    margin: 4px 0 20px;
+    color: #475569;
+  }
+
+  table {
+    width: 90%;
+    margin: 0 auto 20px;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th, td {
+    padding: 8px 6px;
+    text-align: left;
+  }
+
+  .label {
+    width: 140px;
+    color: #475569;
+  }
+
+  .section-title {
+    background: #f1f5f9;
+    font-weight: 700;
+    text-align: center;
+    padding: 8px;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .table-box {
+    width: 90%;
+    margin: 0 auto 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .table-box table {
+    width: 100%;
+  }
+
+  .money {
+    text-align: right;
+    font-family: "Courier New", monospace;
+  }
+
+  .total {
+    font-weight: bold;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .takehome {
+    font-size: 18px;
+    font-weight: 700;
+    color: #059669;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: #94a3b8;
+    padding: 16px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .payslip { box-shadow: none; margin: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="payslip">
+  <header>
+    <img src="https://bicarakan.id/logo_text.svg" alt="Bicarakan.id" />
+    <div class="company">
+      <h2>Bicarakan.id</h2>
+      <p>Bellezza BSA 1st Floor SA1-06, Permata Hijau</p>
+      <p>Jakarta Selatan, DKI Jakarta 12210</p>
+    </div>
+  </header>
+
+  <h1>SLIP GAJI</h1>
+  <h2>Periode: September 2025</h2>
+
+  <table>
+    <tr><td class="label">Nama</td><td>Matthew Williyanson Suryanto</td></tr>
+    <tr><td class="label">Jabatan</td><td>Full-time Staff</td></tr>
+    <tr><td class="label">Departemen</td><td>Technology</td></tr>
+    <tr><td class="label">Grade</td><td>T0</td></tr>
+    <tr><td class="label">Golongan</td><td>G0</td></tr>
+    <tr><td class="label">Section</td><td>Mangement Office</td></tr>
+  </table>
+
+  <div class="table-box">
+    <div class="section-title">PENERIMAAN</div>
+    <table>
+      <tr><td>Gaji Pokok</td><td class="money">22,850,724</td></tr>
+      <tr><td>Tunjangan Kesehatan (BPJS Employer 4%)</td><td class="money">480,000</td></tr>
+      <tr><td>Tunjangan BPJS TK (Employer Portion)</td><td class="money">1,328,348</td></tr>
+      <tr class="total"><td>TOTAL PENERIMAAN</td><td class="money">24,659,072</td></tr>
+    </table>
+  </div>
+
+  <div class="table-box">
+    <div class="section-title">POTONGAN</div>
+    <table>
+      <tr><td>BPJS Kesehatan (1%)</td><td class="money">120,000</td></tr>
+      <tr><td>BPJS TK - JHT (2%)</td><td class="money">457,014</td></tr>
+      <tr><td>BPJS TK - JP (1%)</td><td class="money">105,474</td></tr>
+      <tr><td>PPh 21</td><td class="money">2,168,235</td></tr>
+      <tr class="total"><td>TOTAL POTONGAN</td><td class="money">2,850,723</td></tr>
+    </table>
+  </div>
+
+  <div class="takehome">
+    TAKE HOME PAY: Rp 20,000,000
+  </div>
+
+  <footer>
+    <div>Slip gaji ini dibuat otomatis oleh sistem payroll Bicarakan.id</div>
+    <div>Semua nilai sudah termasuk potongan pajak & BPJS sesuai ketentuan berlaku.</div>
+  </footer>
+</div>
+</body>
+</html>

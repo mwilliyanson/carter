@@ -132,7 +132,7 @@
     }
 
     function connectWebSocket() {
-      const ws = new WebSocket("wss://gopher.bicarakan.id/ws/brown/conversation/channel/subscribe?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzM5Nzk2NDIsImlhdCI6MTc1ODIxMTY0MiwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6IjI5NDJhMWIzLTk3ZGQtMzhiMC03NjQzLWRmMGZhZjFhMTQwMSJ9.cqH16LrnzP1WsXXAa3VRR2VOnwXNW4ewJG7k1kCPfGo");
+      const ws = new WebSocket("ws://localhost:3407/ws/brown/conversation/channel/subscribe?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzM5Nzk2NDIsImlhdCI6MTc1ODIxMTY0MiwianRpIjoiMGQyN2ZlODFjMTJmNDlhMGE2MTUwNTFjNGNlMmJhYTEiLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwidXNlcl9pZCI6IjI5NDJhMWIzLTk3ZGQtMzhiMC03NjQzLWRmMGZhZjFhMTQwMSJ9.cqH16LrnzP1WsXXAa3VRR2VOnwXNW4ewJG7k1kCPfGo");
 
       ws.onopen = () => console.log("✅ WebSocket connected.");
 

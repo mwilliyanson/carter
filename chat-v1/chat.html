@@ -104,7 +104,7 @@
 
     async function loadChat() {
       try {
-        const response = await fetch("https://gopher.bicarakan.id/brown/conversation/channel/detail", {
+        const response = await fetch("http://localhost:3407/brown/conversation/channel/detail", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -177,7 +177,7 @@
       };
 
       try {
-        await fetch("https://gopher.bicarakan.id/brown/conversation/message/send", {
+        await fetch("http://localhost:3407/brown/conversation/message/send", {
           method: "POST",
           headers: {
             "Content-type": "application/json",
@@ -199,7 +199,7 @@
     }
 
     function connectWebSocket() {
-      const ws = new WebSocket(`wss://gopher.bicarakan.id/ws/brown/conversation/message/subscribe/${chatChannelId}?token=${token}`);
+      const ws = new WebSocket(`ws://localhost:3407/ws/brown/conversation/message/subscribe/${chatChannelId}?token=${token}`);
       ws.onopen = () => console.log("✅ WebSocket connected");
       ws.onmessage = (event) => {
         try {

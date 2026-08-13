@@ -1,0 +1,616 @@
+<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Booking</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Inter,sans-serif;
+    background:#f1f5f9;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px;
+}
+
+.card{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:24px;
+    padding:32px;
+    box-shadow:0 10px 40px rgba(0,0,0,.08);
+}
+
+h1{
+    font-size:28px;
+    margin-bottom:8px;
+    color:#0f172a;
+}
+
+.subtitle{
+    color:#64748b;
+    margin-bottom:30px;
+}
+
+.form-group{
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+    color:#334155;
+}
+
+input,
+select{
+    width:100%;
+    height:50px;
+    border:1px solid #cbd5e1;
+    border-radius:12px;
+    padding:0 14px;
+    font-size:15px;
+}
+
+input:focus,
+select:focus{
+    outline:none;
+    border-color:#2563eb;
+}
+
+.row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+.price-card{
+    margin-top:24px;
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+    border-radius:16px;
+    padding:24px;
+}
+
+.price-label{
+    font-size:14px;
+    color:#64748b;
+}
+
+.price{
+    margin-top:6px;
+    font-size:36px;
+    font-weight:700;
+    color:#1d4ed8;
+}
+
+.error{
+    display:none;
+    margin-top:12px;
+    color:#dc2626;
+    font-weight:500;
+}
+
+button{
+    width:100%;
+    height:56px;
+    border:none;
+    border-radius:14px;
+    margin-top:24px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+#debugJson{
+    margin-top:20px;
+    background:#0f172a;
+    color:#e2e8f0;
+    padding:20px;
+    border-radius:12px;
+    display:none;
+    overflow:auto;
+    white-space:pre-wrap;
+    font-family:monospace;
+    font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+    <h1>Create Booking</h1>
+
+    <div class="subtitle">
+        Admin booking form for First Screening, Follow Up, and Assessment
+    </div>
+
+    <form id="bookingForm">
+
+        <div class="form-group">
+            <label>User ID</label>
+            <input
+                type="text"
+                id="userId"
+                placeholder="Enter User ID"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Psychologist</label>
+
+            <select id="psychologist" required>
+
+                <option value="">
+                    Select Psychologist
+                </option>
+
+                <option value="230aaee5-5a63-416a-834d-335b4afa4398">
+                    Ivonika
+                </option>
+
+                <option value="a2ae98f0-ddea-4f18-853c-dde5a287388d">
+                    Rahmah
+                </option>
+
+                <option value="1560c0c4-6083-11f0-9ddf-5e20f3e329c4">
+                    Elaine
+                </option>
+
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Product</label>
+
+            <select id="product" required>
+
+                <option value="">
+                    Select Product
+                </option>
+
+                <option value="FIRST_SCREENING">
+                    FIRST_SCREENING
+                </option>
+
+                <option value="FOLLOW_UP_INDIVIDU">
+                    FOLLOW_UP_INDIVIDU
+                </option>
+
+                <option value="FOLLOW_UP_COUPLE">
+                    FOLLOW_UP_COUPLE
+                </option>
+
+                <option value="ASSESTMENT">
+                    ASSESTMENT
+                </option>
+
+            </select>
+        </div>
+
+        <div class="row">
+
+            <div class="form-group">
+                <label>Date</label>
+
+                <input
+                    type="date"
+                    id="date"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Start Time</label>
+
+                <select id="time" required>
+                    <option value="">
+                        Select Time
+                    </option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label>Duration</label>
+
+            <select id="duration" required>
+
+                <option value="">
+                    Select Duration
+                </option>
+
+                <option value="1">
+                    1 Hour
+                </option>
+
+                <option value="2">
+                    2 Hours
+                </option>
+
+            </select>
+        </div>
+
+        <div
+            class="error"
+            id="errorBox"
+        ></div>
+
+        <div class="price-card">
+
+            <div class="price-label">
+                Price
+            </div>
+
+            <div
+                class="price"
+                id="price"
+            >
+                Rp 0
+            </div>
+
+        </div>
+
+        <button type="submit">
+            Create Booking
+        </button>
+
+        <div id="debugJson"></div>
+
+    </form>
+
+</div>
+
+<script>
+
+const product =
+    document.getElementById("product");
+
+const duration =
+    document.getElementById("duration");
+
+const price =
+    document.getElementById("price");
+
+const timeSelect =
+    document.getElementById("time");
+
+const errorBox =
+    document.getElementById("errorBox");
+
+function formatIDR(amount){
+
+    return new Intl.NumberFormat(
+        "id-ID",
+        {
+            style:"currency",
+            currency:"IDR",
+            maximumFractionDigits:0
+        }
+    ).format(amount);
+}
+
+function generateTimeSlots(){
+
+    timeSelect.innerHTML =
+        '<option value="">Select Time</option>';
+
+    for(let hour=8; hour<=21; hour++){
+
+        ["00","30"].forEach(minute=>{
+
+            const value =
+                String(hour).padStart(2,"0")
+                + ":" +
+                minute;
+
+            const option =
+                document.createElement("option");
+
+            option.value = value;
+            option.textContent = value;
+
+            timeSelect.appendChild(option);
+
+        });
+    }
+}
+
+generateTimeSlots();
+
+function calculatePrice(){
+
+    const p = product.value;
+    const d = duration.value;
+
+    if(!p || !d){
+
+        price.innerHTML = "Rp 0";
+        return;
+    }
+
+    let total = 0;
+
+    switch(p){
+
+        case "FIRST_SCREENING":
+            total = 798000;
+            break;
+
+        case "FOLLOW_UP_INDIVIDU":
+            total =
+                d === "1"
+                ? 399000
+                : 798000;
+            break;
+
+        case "FOLLOW_UP_COUPLE":
+            total =
+                d === "1"
+                ? 599000
+                : 1198000;
+            break;
+
+        case "ASSESTMENT":
+            total = 1098000;
+            break;
+    }
+
+    price.innerHTML =
+        formatIDR(total);
+}
+
+function addHours(time,hours){
+
+    const [h,m] =
+        time.split(":").map(Number);
+
+    const date = new Date();
+
+    date.setHours(h);
+    date.setMinutes(m);
+    date.setSeconds(0);
+
+    date.setHours(
+        date.getHours() +
+        Number(hours)
+    );
+
+    return (
+        String(date.getHours())
+        .padStart(2,"0")
+        +
+        ":"
+        +
+        String(date.getMinutes())
+        .padStart(2,"0")
+    );
+}
+
+function getNumAdults(product){
+
+    switch(product){
+
+        case "FIRST_SCREENING":
+            return 1;
+
+        case "FOLLOW_UP_INDIVIDU":
+            return 1;
+
+        case "FOLLOW_UP_COUPLE":
+            return 2;
+
+        case "ASSESTMENT":
+            return 1;
+
+        default:
+            return 1;
+    }
+}
+
+product.addEventListener(
+    "change",
+    () => {
+
+        if(
+            product.value === "FIRST_SCREENING"
+            ||
+            product.value === "ASSESTMENT"
+        ){
+
+            duration.value = "2";
+
+            Array
+            .from(duration.options)
+            .forEach(option=>{
+
+                if(option.value==="1"){
+                    option.disabled=true;
+                }
+
+            });
+
+        }else{
+
+            Array
+            .from(duration.options)
+            .forEach(option=>{
+                option.disabled=false;
+            });
+
+        }
+
+        calculatePrice();
+    }
+);
+
+duration.addEventListener(
+    "change",
+    calculatePrice
+);
+
+function showError(msg){
+
+    errorBox.style.display =
+        "block";
+
+    errorBox.innerText =
+        msg;
+}
+
+document
+.getElementById("bookingForm")
+.addEventListener(
+    "submit",
+    function(e){
+
+        e.preventDefault();
+
+        errorBox.style.display =
+            "none";
+
+        const userId =
+            document
+            .getElementById("userId")
+            .value;
+
+        const psychologistId =
+            document
+            .getElementById("psychologist")
+            .value;
+
+        const selectedDate =
+            document
+            .getElementById("date")
+            .value;
+
+        const startTime =
+            document
+            .getElementById("time")
+            .value;
+
+        const p =
+            product.value;
+
+        const d =
+            duration.value;
+
+        if(
+            p==="FIRST_SCREENING"
+            &&
+            d!=="2"
+        ){
+            showError(
+                "FIRST_SCREENING must be exactly 2 hours."
+            );
+            return;
+        }
+
+        if(
+            p==="ASSESTMENT"
+            &&
+            d!=="2"
+        ){
+            showError(
+                "ASSESTMENT must be exactly 2 hours."
+            );
+            return;
+        }
+
+        const payload = {
+
+            user_id:
+                userId,
+
+            psychologist_id:
+                psychologistId,
+
+            date:
+                selectedDate,
+
+            start_time:
+                startTime,
+
+            end_time:
+                addHours(
+                    startTime,
+                    d
+                ),
+
+            counseling_location:
+                "KT",
+
+            counseling_medium:
+                "VOICE",
+
+            num_of_session:
+                Number(d),
+
+            promo_code_id:
+                "",
+
+            num_clients: {
+
+                num_adults:
+                    getNumAdults(p),
+
+                num_teenager:
+                    0,
+
+                num_toddler:
+                    0
+            },
+
+            mobile_source:
+                "ANDROID",
+
+            contact_attendees_list:[
+                "0"
+            ]
+        };
+
+        const debugBox =
+            document
+            .getElementById(
+                "debugJson"
+            );
+
+        debugBox.style.display =
+            "block";
+
+        debugBox.textContent =
+            JSON.stringify(
+                payload,
+                null,
+                4
+            );
+    }
+);
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Psychologist Schedule Bidding</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI,Arial,sans-serif;
+    background:#f3f6fb;
+}
+
+.header{
+    background:#2b6cb0;
+    color:white;
+    padding:20px 30px;
+}
+
+.header h1{
+    margin:0;
+}
+
+.dashboard{
+    display:flex;
+    gap:20px;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    border-radius:12px;
+    box-shadow:0 3px 10px rgba(0,0,0,.1);
+    padding:20px;
+}
+
+.summary{
+    width:300px;
+}
+
+.calendar{
+    flex:1;
+}
+
+.progress{
+    height:20px;
+    background:#ddd;
+    border-radius:20px;
+    overflow:hidden;
+    margin:10px 0;
+}
+
+.progress div{
+    width:80%;
+    height:100%;
+    background:#38a169;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#2b6cb0;
+    color:white;
+    padding:12px;
+}
+
+td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+.slot{
+    cursor:pointer;
+    padding:8px;
+    border-radius:8px;
+    font-size:13px;
+}
+
+.open{
+    background:#e6ffed;
+}
+
+.partial{
+    background:#fff8db;
+}
+
+.full{
+    background:#ffd6d6;
+}
+
+.selected{
+    background:#4299e1 !important;
+    color:white;
+}
+
+.legend{
+    margin-top:20px;
+}
+
+.legend span{
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:6px;
+    margin-right:10px;
+}
+
+button{
+    margin-top:20px;
+    background:#2b6cb0;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.sidebar-list{
+    margin-top:20px;
+}
+
+.sidebar-list li{
+    margin-bottom:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h1>🧠 Psychologist Schedule Bidding</h1>
+<small>Week of July 20 - July 26</small>
+</div>
+
+<div class="dashboard">
+
+<div class="card summary">
+
+<h2>My Status</h2>
+
+<p><b>Psychologist</b><br>Dr Jessica</p>
+
+<p><b>Assigned Hours</b></p>
+
+<div class="progress">
+<div></div>
+</div>
+
+<b>16 / 20 Hours</b>
+
+<p style="color:red;">Need 4 more hours this week</p>
+
+<hr>
+
+<h3>Selected Slots</h3>
+
+<ul id="selectedList">
+<li>None</li>
+</ul>
+
+<button onclick="submitBid()">
+Submit Bid
+</button>
+
+<hr>
+
+<h3>Legend</h3>
+
+<div class="legend">
+
+<span style="background:#e6ffed;">🟢 Available</span><br><br>
+
+<span style="background:#fff8db;">🟡 3 / 4 Rooms</span><br><br>
+
+<span style="background:#ffd6d6;">🔴 Full</span>
+
+</div>
+
+</div>
+
+<div class="card calendar">
+
+<h2>Available Schedule</h2>
+
+<table>
+
+<tr>
+<th>Time</th>
+<th>Mon</th>
+<th>Tue</th>
+<th>Wed</th>
+<th>Thu</th>
+<th>Fri</th>
+<th>Sat</th>
+<th>Sun</th>
+</tr>
+
+<script>
+
+const times=[
+"09:00 - 10:00",
+"10:00 - 11:00",
+"11:00 - 12:00",
+"13:00 - 14:00",
+"14:00 - 15:00",
+"15:00 - 16:00",
+"16:00 - 17:00",
+"18:00 - 19:00",
+"19:00 - 20:00",
+"20:00 - 21:00",
+];
+
+const status=[
+"open",
+"partial",
+"full"
+];
+
+document.write("");
+
+times.forEach(t=>{
+
+document.write("<tr>");
+
+document.write("<td><b>"+t+"</b></td>");
+
+for(let i=0;i<7;i++){
+
+let s=status[Math.floor(Math.random()*3)];
+
+let text="";
+
+if(s=="open") text="0 / 4";
+if(s=="partial") text="2 / 4";
+if(s=="full") text="4 / 4";
+
+document.write(
+"<td><div class='slot "+s+"' onclick='toggle(this)'>"+text+"</div></td>"
+);
+
+}
+
+document.write("</tr>");
+
+});
+
+</script>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+let selected=[];
+
+function toggle(el){
+
+if(el.classList.contains("full")){
+
+alert("This hour is already full.");
+
+return;
+
+}
+
+el.classList.toggle("selected");
+
+let txt=el.parentElement.parentElement.cells[0].innerText;
+
+let day=el.parentElement.cellIndex;
+
+const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+let value=days[day-1]+" "+txt;
+
+if(el.classList.contains("selected")){
+
+selected.push(value);
+
+}else{
+
+selected=selected.filter(x=>x!=value);
+
+}
+
+render();
+
+}
+
+function render(){
+
+let ul=document.getElementById("selectedList");
+
+if(selected.length==0){
+
+ul.innerHTML="<li>None</li>";
+
+return;
+
+}
+
+ul.innerHTML="";
+
+selected.forEach(s=>{
+
+ul.innerHTML+="<li>"+s+"</li>";
+
+});
+
+}
+
+function submitBid(){
+
+alert("Bid submitted!\n\nSelected Hours:\n\n"+selected.join("\n"));
+
+}
+
+</script>
+
+</body>
+</html>
