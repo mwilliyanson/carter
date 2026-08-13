@@ -1,0 +1,1603 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Session Exporter</title>
+
+    <style>
+        :root {
+            --primary: #635bff;
+            --primary-dark: #5147e8;
+            --background: #f6f7fb;
+            --card: #ffffff;
+            --text: #171923;
+            --muted: #73798c;
+            --border: #e7e9f0;
+            --success: #18a66a;
+            --danger: #e5484d;
+            --shadow: 0 20px 50px rgba(25, 30, 50, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(99, 91, 255, 0.12),
+                    transparent 30%
+                ),
+                var(--background);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 1450px;
+            margin: auto;
+            padding: 45px 24px 70px;
+        }
+
+        /* Header */
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 20px;
+            background: linear-gradient(
+                135deg,
+                #635bff,
+                #8b5cf6
+            );
+            box-shadow:
+                0 8px 20px rgba(99, 91, 255, 0.25);
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 750;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .badge {
+            background: #eeecff;
+            color: var(--primary);
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Main Card */
+
+        .search-card {
+            background: var(--card);
+            border: 1px solid rgba(231, 233, 240, 0.9);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-top {
+            padding: 30px 32px 25px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .title {
+            font-size: 25px;
+            font-weight: 750;
+            letter-spacing: -0.6px;
+            margin-bottom: 7px;
+        }
+
+        .description {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .form {
+            padding: 28px 32px 32px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr 1fr auto;
+            gap: 18px;
+            align-items: end;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #454b5c;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            height: 46px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: #fafbfc;
+            padding: 0 14px;
+            outline: none;
+            font-size: 14px;
+            color: var(--text);
+            transition: 0.2s;
+        }
+
+        input:hover {
+            border-color: #d4d7e2;
+        }
+
+        input:focus {
+            background: white;
+            border-color: var(--primary);
+            box-shadow:
+                0 0 0 4px rgba(99, 91, 255, 0.10);
+        }
+
+        button {
+            height: 46px;
+            border: none;
+            border-radius: 11px;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition:
+                transform 0.15s,
+                box-shadow 0.15s,
+                background 0.15s;
+        }
+
+        .fetch-btn {
+            color: white;
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                #776dff
+            );
+            box-shadow:
+                0 8px 18px rgba(99, 91, 255, 0.25);
+        }
+
+        .fetch-btn:hover {
+            transform: translateY(-1px);
+            box-shadow:
+                0 11px 24px rgba(99, 91, 255, 0.32);
+        }
+
+        .fetch-btn:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+        }
+
+        /* Status */
+
+        .status {
+            display: none;
+            margin: 0 32px 28px;
+            padding: 13px 15px;
+            border-radius: 11px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status.info {
+            display: block;
+            background: #eef2ff;
+            color: #4b48a9;
+        }
+
+        .status.success {
+            display: block;
+            background: #eafaf3;
+            color: #178253;
+        }
+
+        .status.error {
+            display: block;
+            background: #fff0f1;
+            color: #c5363d;
+        }
+
+        /* Results */
+
+        .results {
+            margin-top: 25px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: none;
+        }
+
+        .results-header {
+            padding: 25px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .results-title {
+            font-size: 18px;
+            font-weight: 750;
+        }
+
+        .results-meta {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .download-btn {
+            background: #151827;
+            color: white;
+            padding: 0 18px;
+        }
+
+        .download-btn:hover {
+            background: #272b3d;
+        }
+
+        /* Stats */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat {
+            padding: 20px 28px;
+            border-right: 1px solid var(--border);
+        }
+
+        .stat:last-child {
+            border-right: none;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .stat-value {
+            font-size: 23px;
+            font-weight: 750;
+            letter-spacing: -0.4px;
+        }
+
+        /* Table */
+
+        .table-container {
+            overflow: auto;
+            max-height: 620px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1200px;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        th {
+            background: #f8f9fc;
+            color: #656b7c;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 750;
+            text-align: left;
+            padding: 13px 15px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f1f5;
+            white-space: nowrap;
+            color: #333849;
+        }
+
+        tbody tr:hover {
+            background: #fafaff;
+        }
+
+        .empty {
+            padding: 60px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        /* Loading */
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.4);
+            border-top-color: white;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 0.7s linear infinite;
+            vertical-align: -3px;
+            margin-right: 7px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+
+        @media (max-width: 1000px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .fetch-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .page {
+                padding: 25px 14px 50px;
+            }
+
+            .header {
+                margin-bottom: 20px;
+            }
+
+            .badge {
+                display: none;
+            }
+
+            .card-top,
+            .form {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .status {
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+
+            .results-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .download-btn {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .stat:last-child {
+                border-bottom: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- Header -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="logo">
+                S
+            </div>
+
+            <div>
+                <div class="brand-title">
+                    Session Exporter
+                </div>
+
+                <div class="brand-subtitle">
+                    Counseling session data utility
+                </div>
+            </div>
+
+        </div>
+
+        <div class="badge">
+            TOOL
+        </div>
+
+    </header>
+
+
+    <!-- Search -->
+
+    <section class="search-card">
+
+        <div class="card-top">
+
+            <div class="title">
+                Export session data
+            </div>
+
+            <div class="description">
+                Enter your access code and select a date range to retrieve
+                counseling sessions. You can preview the results and export
+                them directly to CSV.
+            </div>
+
+        </div>
+
+
+        <form class="form" id="searchForm">
+
+            <div class="form-grid">
+
+                <div class="field">
+
+                    <label for="accessCode">
+                        Access Code
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            id="accessCode"
+                            type="password"
+                            placeholder="Enter access code"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="startDate">
+                        Start Date
+                    </label>
+
+                    <input
+                        id="startDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="endDate">
+                        End Date
+                    </label>
+
+                    <input
+                        id="endDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    id="fetchButton"
+                    class="fetch-btn"
+                    type="submit"
+                >
+                    Fetch Sessions
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <div
+            id="status"
+            class="status"
+        ></div>
+
+    </section>
+
+
+    <!-- Results -->
+
+    <section
+        id="results"
+        class="results"
+    >
+
+        <div class="results-header">
+
+            <div>
+
+                <div class="results-title">
+                    Session Results
+                </div>
+
+                <div
+                    id="resultsDescription"
+                    class="results-meta"
+                >
+                    Results loaded successfully
+                </div>
+
+            </div>
+
+
+            <button
+                id="downloadButton"
+                class="download-btn"
+            >
+                ↓ &nbsp; Download CSV
+            </button>
+
+        </div>
+
+
+        <!-- Stats -->
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    TOTAL SESSIONS
+                </div>
+
+                <div
+                    id="totalSessions"
+                    class="stat-value"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    DATE RANGE
+                </div>
+
+                <div
+                    id="dateRange"
+                    class="stat-value"
+                    style="font-size:16px"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    STATUS
+                </div>
+
+                <div
+                    id="dataStatus"
+                    class="stat-value"
+                    style="font-size:16px"
+                >
+                    Ready
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Table -->
+
+        <div class="table-container">
+
+            <table id="resultsTable">
+
+                <thead id="tableHead"></thead>
+
+                <tbody id="tableBody"></tbody>
+
+            </table>
+
+            <div
+                id="emptyState"
+                class="empty"
+                style="display:none"
+            >
+                No sessions found for the selected date range.
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+
+const API_URL =
+    "https://www.gopher.bicarakan.id/limbo/intools/get-sess-list";
+
+let sessionData = [];
+let columns = [];
+
+
+/* =========================================================
+   DATE DEFAULTS
+========================================================= */
+
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+
+function setDefaultDates() {
+    const today = new Date();
+
+    const previousMonth = new Date(today);
+    previousMonth.setMonth(previousMonth.getMonth() - 1);
+
+    document.getElementById("startDate").value =
+        formatDate(previousMonth);
+
+    document.getElementById("endDate").value =
+        formatDate(today);
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function showStatus(message, type) {
+    const status = document.getElementById("status");
+
+    status.textContent = message;
+    status.className = "status " + type;
+}
+
+
+/* =========================================================
+   GO NULL TYPES
+========================================================= */
+
+function isGoNullable(value) {
+    return (
+        value &&
+        typeof value === "object" &&
+        Object.prototype.hasOwnProperty.call(value, "Valid")
+    );
+}
+
+
+function unwrapGoNullable(value) {
+
+    if (!isGoNullable(value)) {
+        return value;
+    }
+
+    if (value.Valid === false) {
+        return "";
+    }
+
+    if (
+        Object.prototype.hasOwnProperty.call(
+            value,
+            "String"
+        )
+    ) {
+        return value.String ?? "";
+    }
+
+    if (
+        Object.prototype.hasOwnProperty.call(
+            value,
+            "Int32"
+        )
+    ) {
+        return value.Int32 ?? "";
+    }
+
+    if (
+        Object.prototype.hasOwnProperty.call(
+            value,
+            "Bool"
+        )
+    ) {
+        return value.Bool ?? "";
+    }
+
+    return "";
+}
+
+
+/* =========================================================
+   DATE/TIME FORMATTERS
+========================================================= */
+
+function formatDateOnly(value) {
+
+    if (!value) {
+        return "";
+    }
+
+    const date = new Date(value);
+
+    if (isNaN(date.getTime())) {
+        return String(value);
+    }
+
+    return date.toISOString().substring(0, 10);
+}
+
+
+function formatTimeOnly(value) {
+
+    if (!value) {
+        return "";
+    }
+
+    const date = new Date(value);
+
+    if (isNaN(date.getTime())) {
+        return String(value);
+    }
+
+    return date
+        .toISOString()
+        .substring(11, 16);
+}
+
+
+function formatDateTime(value) {
+
+    if (!value) {
+        return "";
+    }
+
+    const date = new Date(value);
+
+    if (isNaN(date.getTime())) {
+        return String(value);
+    }
+
+    return date
+        .toISOString()
+        .replace("T", " ")
+        .replace("Z", "");
+}
+
+
+/* =========================================================
+   CONVERT VALUE
+
+   IMPORTANT:
+   We check the object structure BEFORE unwrapping it.
+
+   This fixes:
+
+   date:
+   {
+       Time: "...",
+       Valid: true
+   }
+
+   start_time:
+   {
+       Time: "...",
+       Valid: true
+   }
+
+   creator_id:
+   {
+       String: "...",
+       Valid: true
+   }
+========================================================= */
+
+function convertValue(key, value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+
+    /* -----------------------------------------
+       Go nullable Time object
+    ----------------------------------------- */
+
+    if (
+        typeof value === "object" &&
+        value !== null &&
+        Object.prototype.hasOwnProperty.call(
+            value,
+            "Time"
+        ) &&
+        Object.prototype.hasOwnProperty.call(
+            value,
+            "Valid"
+        )
+    ) {
+
+        if (!value.Valid) {
+            return "";
+        }
+
+        if (
+            key === "date"
+        ) {
+            return formatDateOnly(
+                value.Time
+            );
+        }
+
+        if (
+            key === "start_time" ||
+            key === "end_time"
+        ) {
+            return formatTimeOnly(
+                value.Time
+            );
+        }
+
+        return formatDateTime(
+            value.Time
+        );
+    }
+
+
+    /* -----------------------------------------
+       Go nullable String / Int32 / Bool
+    ----------------------------------------- */
+
+    if (isGoNullable(value)) {
+
+        return String(
+            unwrapGoNullable(value)
+        );
+    }
+
+
+    /* -----------------------------------------
+       Normal date fields
+    ----------------------------------------- */
+
+    if (key === "date") {
+
+        return formatDateOnly(value);
+    }
+
+
+    /* -----------------------------------------
+       Normal time fields
+    ----------------------------------------- */
+
+    if (
+        key === "start_time" ||
+        key === "end_time"
+    ) {
+
+        return formatTimeOnly(value);
+    }
+
+
+    /* -----------------------------------------
+       Created / modified date
+    ----------------------------------------- */
+
+    if (
+        key === "created_date" ||
+        key === "modified_date"
+    ) {
+
+        return formatDateTime(value);
+    }
+
+
+    /* -----------------------------------------
+       Arrays
+    ----------------------------------------- */
+
+    if (Array.isArray(value)) {
+
+        try {
+            return JSON.stringify(value);
+        } catch {
+            return "";
+        }
+    }
+
+
+    /* -----------------------------------------
+       Any other object
+    ----------------------------------------- */
+
+    if (typeof value === "object") {
+
+        try {
+
+            return JSON.stringify(
+                value
+            );
+
+        } catch {
+
+            return "";
+
+        }
+    }
+
+
+    /* -----------------------------------------
+       Normal primitive
+    ----------------------------------------- */
+
+    return String(value);
+}
+
+
+/* =========================================================
+   CONVERT SESSION
+========================================================= */
+
+function convertSession(item) {
+
+    const result = {};
+
+    Object.entries(item).forEach(
+        ([key, value]) => {
+
+            result[key] =
+                convertValue(
+                    key,
+                    value
+                );
+
+        }
+    );
+
+    return result;
+}
+
+
+/* =========================================================
+   RENDER TABLE
+========================================================= */
+
+function renderResults() {
+
+    const tableHead =
+        document.getElementById("tableHead");
+
+    const tableBody =
+        document.getElementById("tableBody");
+
+    const emptyState =
+        document.getElementById("emptyState");
+
+
+    tableHead.innerHTML = "";
+    tableBody.innerHTML = "";
+
+
+    if (!sessionData.length) {
+
+        emptyState.style.display =
+            "block";
+
+        return;
+    }
+
+
+    emptyState.style.display =
+        "none";
+
+
+    /* -----------------------------------------
+       Get columns
+    ----------------------------------------- */
+
+    const columnSet = new Set();
+
+    sessionData.forEach(row => {
+
+        Object.keys(row).forEach(key => {
+            columnSet.add(key);
+        });
+
+    });
+
+    columns =
+        Array.from(columnSet);
+
+
+    /* -----------------------------------------
+       Header
+    ----------------------------------------- */
+
+    const headerRow =
+        document.createElement("tr");
+
+
+    columns.forEach(column => {
+
+        const th =
+            document.createElement("th");
+
+        th.textContent =
+            column;
+
+        headerRow.appendChild(th);
+
+    });
+
+
+    tableHead.appendChild(
+        headerRow
+    );
+
+
+    /* -----------------------------------------
+       Rows
+    ----------------------------------------- */
+
+    sessionData.forEach(row => {
+
+        const tr =
+            document.createElement("tr");
+
+
+        columns.forEach(column => {
+
+            const td =
+                document.createElement("td");
+
+
+            td.textContent =
+                row[column] ?? "";
+
+
+            tr.appendChild(td);
+
+        });
+
+
+        tableBody.appendChild(tr);
+
+    });
+}
+
+
+/* =========================================================
+   FETCH DATA
+========================================================= */
+
+async function fetchSessions(event) {
+
+    event.preventDefault();
+
+
+    const accessCode =
+        document
+            .getElementById("accessCode")
+            .value
+            .trim();
+
+
+    const startDate =
+        document
+            .getElementById("startDate")
+            .value;
+
+
+    const endDate =
+        document
+            .getElementById("endDate")
+            .value;
+
+
+    if (!accessCode) {
+
+        showStatus(
+            "Please enter your access code.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!startDate || !endDate) {
+
+        showStatus(
+            "Please select both dates.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (startDate > endDate) {
+
+        showStatus(
+            "Start date cannot be later than end date.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "fetchButton"
+        );
+
+
+    button.disabled = true;
+
+    button.innerHTML =
+        `<span class="spinner"></span>Loading...`;
+
+
+    showStatus(
+        "Fetching session data...",
+        "info"
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Accept": "*/*",
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            access_code:
+                                accessCode,
+
+                            start_time:
+                                startDate,
+
+                            end_time:
+                                endDate
+                        })
+                }
+            );
+
+
+        const text =
+            await response.text();
+
+
+        console.log(
+            "API response:",
+            text
+        );
+
+
+        let json;
+
+        try {
+
+            json =
+                JSON.parse(text);
+
+        } catch {
+
+            throw new Error(
+                "API returned invalid JSON."
+            );
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                json.message ||
+                json.error ||
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        /*
+            Make sure ItemResult exists.
+        */
+
+        if (
+            !json.data ||
+            !Array.isArray(
+                json.data.ItemResult
+            )
+        ) {
+
+            console.error(
+                "Unexpected API response:",
+                json
+            );
+
+            throw new Error(
+                "API response does not contain data.ItemResult."
+            );
+
+        }
+
+
+        /*
+            THIS IS THE IMPORTANT LINE.
+        */
+
+        sessionData =
+            json.data.ItemResult.map(
+                convertSession
+            );
+
+
+        console.log(
+            "Converted sessions:",
+            sessionData
+        );
+
+
+        renderResults();
+
+
+        /* -----------------------------------------
+           Update stats
+        ----------------------------------------- */
+
+        document.getElementById(
+            "totalSessions"
+        ).textContent =
+            sessionData.length.toLocaleString();
+
+
+        document.getElementById(
+            "dateRange"
+        ).textContent =
+            `${startDate} → ${endDate}`;
+
+
+        document.getElementById(
+            "dataStatus"
+        ).textContent =
+            "Loaded";
+
+
+        document.getElementById(
+            "resultsDescription"
+        ).textContent =
+            `Showing ${sessionData.length.toLocaleString()} sessions from ${startDate} to ${endDate}`;
+
+
+        document.getElementById(
+            "results"
+        ).style.display =
+            "block";
+
+
+        if (sessionData.length) {
+
+            showStatus(
+                `Successfully loaded ${sessionData.length.toLocaleString()} sessions.`,
+                "success"
+            );
+
+        } else {
+
+            showStatus(
+                "No sessions were found for this date range.",
+                "info"
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Fetch error:",
+            error
+        );
+
+
+        let message =
+            error.message ||
+            "Something went wrong.";
+
+
+        if (
+            error instanceof TypeError
+        ) {
+
+            message =
+                "Could not connect to the API. This may be a CORS issue.";
+        }
+
+
+        showStatus(
+            message,
+            "error"
+        );
+
+    } finally {
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "Fetch Sessions";
+
+    }
+}
+
+
+/* =========================================================
+   CSV
+========================================================= */
+
+function escapeCsv(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+
+    const text =
+        String(value);
+
+
+    if (
+        text.includes(",") ||
+        text.includes('"') ||
+        text.includes("\n") ||
+        text.includes("\r")
+    ) {
+
+        return (
+            '"' +
+            text.replace(
+                /"/g,
+                '""'
+            ) +
+            '"'
+        );
+
+    }
+
+
+    return text;
+}
+
+
+function downloadCsv() {
+
+    if (!sessionData.length) {
+
+        showStatus(
+            "No data available to download.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const header =
+        columns
+            .map(escapeCsv)
+            .join(",");
+
+
+    const rows =
+        sessionData.map(row => {
+
+            return columns
+                .map(column =>
+                    escapeCsv(
+                        row[column] ?? ""
+                    )
+                )
+                .join(",");
+
+        });
+
+
+    const csv =
+        "\uFEFF" +
+        [header, ...rows]
+            .join("\r\n");
+
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+
+    const start =
+        document.getElementById(
+            "startDate"
+        ).value;
+
+
+    const end =
+        document.getElementById(
+            "endDate"
+        ).value;
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        `session-list-${start}-to-${end}.csv`;
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+document
+    .getElementById("searchForm")
+    .addEventListener(
+        "submit",
+        fetchSessions
+    );
+
+
+document
+    .getElementById("downloadButton")
+    .addEventListener(
+        "click",
+        downloadCsv
+    );
+
+
+setDefaultDates();
+
+
+</script>
+
+</body>
+</html>
