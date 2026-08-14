@@ -7,6 +7,7 @@
 <title>Client Handover | Bicarakan.id</title>
 
 <style>
+
 :root {
     --primary: #635bff;
     --primary-dark: #5148e5;
@@ -23,14 +24,16 @@
     --success: #16a36b;
     --success-bg: #e9f8f1;
 
-    --warning: #d88900;
-    --warning-bg: #fff6df;
-
     --danger: #dc4c5c;
     --danger-bg: #fff0f2;
 
+    --warning: #d88900;
+    --warning-bg: #fff6df;
+
     --shadow:
         0 8px 30px rgba(25, 35, 60, .06);
+
+    --radius: 16px;
 }
 
 * {
@@ -39,8 +42,11 @@
 
 body {
     margin: 0;
+
     background: var(--bg);
+
     color: var(--text);
+
     font-family:
         Inter,
         -apple-system,
@@ -50,66 +56,91 @@ body {
         sans-serif;
 }
 
-/* =========================
-   LAYOUT
-========================= */
+
+/* =========================================================
+   PAGE
+========================================================= */
 
 .page {
-    max-width: 1250px;
+    width: 100%;
+
+    max-width: 1050px;
+
     margin: auto;
-    padding: 32px 22px 60px;
+
+    padding: 32px 20px 60px;
 }
 
-/* =========================
+
+/* =========================================================
    HEADER
-========================= */
+========================================================= */
 
 .header {
     display: flex;
-    justify-content: space-between;
+
     align-items: flex-start;
-    margin-bottom: 25px;
+
+    justify-content: space-between;
+
     gap: 20px;
+
+    margin-bottom: 24px;
 }
 
-.header-left h1 {
+.header h1 {
     margin: 0;
+
     font-size: 29px;
-    letter-spacing: -.6px;
+
+    letter-spacing: -.7px;
 }
 
-.header-left p {
+.header p {
     margin: 7px 0 0;
+
     color: var(--muted);
+
     font-size: 14px;
 }
 
 .period-badge {
-    background: var(--primary-soft);
-    color: var(--primary);
-    font-size: 13px;
-    font-weight: 700;
+    flex-shrink: 0;
+
     padding: 9px 14px;
+
     border-radius: 30px;
+
+    background: var(--primary-soft);
+
+    color: var(--primary);
+
+    font-size: 12px;
+
+    font-weight: 700;
 }
 
-/* =========================
-   INFO CARD
-========================= */
+
+/* =========================================================
+   INFO
+========================================================= */
 
 .info-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
+    display: flex;
+
+    gap: 14px;
 
     padding: 18px 20px;
 
-    display: flex;
-    gap: 14px;
+    margin-bottom: 20px;
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
 
     box-shadow: var(--shadow);
-
-    margin-bottom: 20px;
 }
 
 .info-icon {
@@ -119,12 +150,14 @@ body {
     flex-shrink: 0;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
     border-radius: 11px;
 
     background: var(--primary-soft);
+
     color: var(--primary);
 
     font-weight: 800;
@@ -132,47 +165,106 @@ body {
 
 .info-content strong {
     display: block;
+
     margin-bottom: 4px;
+
+    font-size: 13px;
 }
 
 .info-content p {
     margin: 0;
+
     color: var(--muted);
+
     font-size: 13px;
+
     line-height: 1.55;
 }
 
-/* =========================
-   MAIN CARD
-========================= */
 
-.main-card {
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.progress-card {
     background: white;
+
     border: 1px solid var(--border);
-    border-radius: 17px;
-    overflow: hidden;
+
+    border-radius: var(--radius);
+
+    padding: 18px 20px;
+
+    margin-bottom: 20px;
+
     box-shadow: var(--shadow);
 }
 
-/* =========================
+.progress-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 10px;
+}
+
+.progress-title {
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+.progress-number {
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+.progress-track {
+    width: 100%;
+
+    height: 7px;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    background: #eceef3;
+}
+
+.progress-bar {
+    height: 100%;
+
+    width: 0%;
+
+    background: var(--primary);
+
+    border-radius: 10px;
+
+    transition: width .25s ease;
+}
+
+
+/* =========================================================
    TOOLBAR
-========================= */
+========================================================= */
 
 .toolbar {
-    padding: 16px 18px;
-
-    border-bottom: 1px solid var(--border);
-
     display: flex;
+
     justify-content: space-between;
+
     gap: 12px;
 
-    flex-wrap: wrap;
+    margin-bottom: 16px;
 }
 
 .search-wrapper {
     position: relative;
-    width: 320px;
+
+    flex: 1;
 }
 
 .search-icon {
@@ -185,16 +277,19 @@ body {
 
     color: #9aa2b2;
 
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .search {
     width: 100%;
 
-    padding: 11px 13px 11px 36px;
+    padding: 12px 14px 12px 36px;
 
     border: 1px solid var(--border);
-    border-radius: 10px;
+
+    border-radius: 11px;
+
+    background: white;
 
     outline: none;
 
@@ -203,80 +298,103 @@ body {
 
 .search:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(99,91,255,.1);
+
+    box-shadow:
+        0 0 0 3px rgba(99,91,255,.1);
 }
 
 .filter {
-    padding: 10px 12px;
+    width: 190px;
+
+    padding: 11px 12px;
 
     border: 1px solid var(--border);
-    border-radius: 10px;
+
+    border-radius: 11px;
 
     background: white;
 
     color: var(--text);
 
-    font-size: 13px;
-
     outline: none;
+
+    font-size: 13px;
 }
 
-/* =========================
-   TABLE
-========================= */
 
-.table-container {
-    overflow-x: auto;
+/* =========================================================
+   CLIENT LIST
+========================================================= */
+
+.client-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
 
-    min-width: 1000px;
+/* =========================================================
+   CLIENT CARD
+========================================================= */
+
+.client-card {
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow);
+
+    transition:
+        border-color .15s,
+        box-shadow .15s;
 }
 
-thead {
-    background: #fafbfe;
+.client-card:hover {
+    border-color: #d9dce7;
 }
 
-th {
-    padding: 13px 18px;
+.client-card.expanded {
+    border-color: #d8d5ff;
 
-    text-align: left;
-
-    font-size: 11px;
-
-    letter-spacing: .6px;
-
-    text-transform: uppercase;
-
-    color: var(--muted);
-
-    font-weight: 700;
+    box-shadow:
+        0 10px 35px rgba(25, 35, 60, .08);
 }
 
-td {
+
+/* =========================================================
+   CLIENT HEADER
+========================================================= */
+
+.client-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
     padding: 17px 18px;
 
-    border-top: 1px solid var(--border);
+    cursor: pointer;
 
-    vertical-align: middle;
+    user-select: none;
 }
 
-/* =========================
-   CLIENT
-========================= */
+.client-avatar {
+    width: 43px;
+    height: 43px;
 
-.client {
+    flex-shrink: 0;
+
     display: flex;
-    align-items: center;
-    gap: 11px;
-}
 
-.avatar {
-    width: 42px;
-    height: 42px;
+    align-items: center;
+    justify-content: center;
 
     border-radius: 12px;
 
@@ -284,78 +402,217 @@ td {
 
     color: var(--primary);
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 13px;
 
     font-weight: 800;
-    font-size: 13px;
+}
+
+.client-main {
+    flex: 1;
+
+    min-width: 0;
+}
+
+.client-name-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
 }
 
 .client-name {
-    font-weight: 700;
     font-size: 14px;
+
+    font-weight: 750;
 }
 
 .client-id {
-    color: var(--muted);
-    font-size: 11px;
     margin-top: 3px;
-}
 
-/* =========================
-   DATE
-========================= */
-
-.last-session {
-    font-weight: 600;
-    font-size: 13px;
-}
-
-.date-relative {
-    margin-top: 3px;
     color: var(--muted);
+
     font-size: 11px;
 }
 
-/* =========================
-   SESSION COUNT
-========================= */
+.client-meta {
+    display: flex;
 
-.session-count {
+    align-items: center;
+
+    gap: 14px;
+
+    margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+.client-meta span {
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status {
     display: inline-flex;
 
     align-items: center;
 
-    padding: 6px 10px;
+    gap: 5px;
+
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+.status.pending {
+    background: var(--warning-bg);
+
+    color: var(--warning);
+}
+
+.status.saved {
+    background: var(--success-bg);
+
+    color: var(--success);
+}
+
+.status-dot {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+
+/* =========================================================
+   CHEVRON
+========================================================= */
+
+.chevron {
+    width: 30px;
+    height: 30px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
 
     border-radius: 8px;
 
-    background: #f3f5f9;
+    background: #f5f6f9;
 
-    font-size: 12px;
+    color: #737b8c;
 
-    font-weight: 600;
+    transition: transform .2s;
 }
 
-/* =========================
-   SELECT
-========================= */
+.client-card.expanded .chevron {
+    transform: rotate(180deg);
+
+    background: var(--primary-soft);
+
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   CARD BODY
+========================================================= */
+
+.client-body {
+    display: none;
+
+    padding: 0 18px 18px;
+
+    border-top: 1px solid var(--border);
+}
+
+.client-card.expanded .client-body {
+    display: block;
+}
+
+
+/* =========================================================
+   FORM GRID
+========================================================= */
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    gap: 18px;
+
+    padding-top: 18px;
+}
+
+.form-section {
+    min-width: 0;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.field-label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #5f6879;
+
+    font-size: 11px;
+
+    font-weight: 750;
+
+    letter-spacing: .35px;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   PSYCHOLOGIST SELECT
+========================================================= */
 
 .psychologist-select {
-    width: 220px;
+    width: 100%;
 
-    padding: 10px 11px;
+    padding: 11px 12px;
 
     border: 1px solid var(--border);
 
-    border-radius: 9px;
+    border-radius: 10px;
 
     background: white;
 
-    font-size: 13px;
+    color: var(--text);
 
     outline: none;
+
+    font-family: inherit;
+
+    font-size: 13px;
 }
 
 .psychologist-select:focus {
@@ -365,17 +622,48 @@ td {
         0 0 0 3px rgba(99,91,255,.1);
 }
 
-/* =========================
-   FILE UPLOAD
-========================= */
 
-.upload-area {
-    width: 245px;
+/* =========================================================
+   ANNOTATION
+========================================================= */
+
+.annotation {
+    width: 100%;
+
+    min-height: 120px;
+
+    resize: vertical;
+
+    padding: 12px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    outline: none;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    line-height: 1.55;
 }
 
-.file-input {
-    display: none;
+.annotation::placeholder {
+    color: #a3a9b6;
 }
+
+.annotation:focus {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(99,91,255,.1);
+}
+
+
+/* =========================================================
+   FILES
+========================================================= */
 
 .upload-button {
     display: inline-flex;
@@ -384,39 +672,46 @@ td {
 
     gap: 7px;
 
-    cursor: pointer;
+    padding: 10px 13px;
 
     border: 1px dashed #bfc5d3;
 
     border-radius: 9px;
 
-    padding: 9px 11px;
-
     background: #fafbfe;
 
     color: #596276;
 
+    cursor: pointer;
+
     font-size: 12px;
 
-    font-weight: 600;
+    font-weight: 650;
 
     transition: .15s;
 }
 
 .upload-button:hover {
     border-color: var(--primary);
-    color: var(--primary);
+
     background: var(--primary-soft);
+
+    color: var(--primary);
+}
+
+.file-input {
+    display: none;
 }
 
 .file-list {
-    display: flex;
+    display: grid;
 
-    flex-direction: column;
+    grid-template-columns:
+        repeat(auto-fill, minmax(220px, 1fr));
 
-    gap: 5px;
+    gap: 7px;
 
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 .file {
@@ -424,20 +719,28 @@ td {
 
     align-items: center;
 
-    justify-content: space-between;
-
     gap: 8px;
 
-    padding: 6px 8px;
+    min-width: 0;
 
-    background: #f4f5f8;
+    padding: 8px 10px;
 
-    border-radius: 7px;
+    background: #f5f6f9;
+
+    border-radius: 8px;
 
     font-size: 11px;
 }
 
+.file-icon {
+    flex-shrink: 0;
+}
+
 .file-name {
+    flex: 1;
+
+    min-width: 0;
+
     overflow: hidden;
 
     white-space: nowrap;
@@ -446,24 +749,157 @@ td {
 }
 
 .remove-file {
+    flex-shrink: 0;
+
+    width: 20px;
+    height: 20px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 5px;
+
     color: var(--danger);
 
     cursor: pointer;
 
-    font-weight: 800;
+    font-size: 14px;
 
-    flex-shrink: 0;
+    font-weight: 800;
 }
 
-/* =========================
-   FOOTER
-========================= */
+.remove-file:hover {
+    background: var(--danger-bg);
+}
 
-.footer {
-    padding: 18px;
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.client-actions {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-top: 20px;
+
+    padding-top: 17px;
 
     border-top: 1px solid var(--border);
+}
 
+.action-left {
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+.action-right {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.reset-button {
+    padding: 10px 15px;
+
+    border: 1px solid #e1e3e9;
+
+    border-radius: 9px;
+
+    background: white;
+
+    color: var(--danger);
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    font-weight: 650;
+}
+
+.reset-button:hover {
+    background: var(--danger-bg);
+
+    border-color: #efc0c6;
+}
+
+.save-button {
+    padding: 10px 17px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: var(--primary);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.save-button:hover {
+    background: var(--primary-dark);
+}
+
+.saved-label {
+    display: none;
+
+    align-items: center;
+
+    gap: 5px;
+
+    color: var(--success);
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+.saved-label.show {
+    display: flex;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty {
+    padding: 45px 20px;
+
+    text-align: center;
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   BOTTOM SUBMIT
+========================================================= */
+
+.submit-card {
     display: flex;
 
     align-items: center;
@@ -471,12 +907,24 @@ td {
     justify-content: space-between;
 
     gap: 15px;
+
+    margin-top: 18px;
+
+    padding: 18px 20px;
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
 }
 
 .summary {
-    font-size: 13px;
-
     color: var(--muted);
+
+    font-size: 13px;
 }
 
 .summary strong {
@@ -484,97 +932,71 @@ td {
 }
 
 .submit-button {
+    padding: 12px 20px;
+
     border: none;
 
     border-radius: 10px;
-
-    padding: 12px 20px;
 
     background: var(--primary);
 
     color: white;
 
+    cursor: pointer;
+
     font-size: 13px;
 
     font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .15s;
 }
 
 .submit-button:hover {
     background: var(--primary-dark);
-    transform: translateY(-1px);
 }
 
 .submit-button:disabled {
     opacity: .45;
+
     cursor: not-allowed;
-    transform: none;
 }
 
-/* =========================
-   EMPTY STATE
-========================= */
 
-.empty {
-    padding: 50px 20px;
-
-    text-align: center;
-
-    color: var(--muted);
-}
-
-/* =========================
+/* =========================================================
    MODAL
-========================= */
+========================================================= */
 
 .modal-backdrop {
     position: fixed;
 
     inset: 0;
 
-    background: rgba(20,25,40,.55);
-
-    backdrop-filter: blur(4px);
+    z-index: 999;
 
     display: none;
 
     align-items: center;
+
     justify-content: center;
 
     padding: 20px;
 
-    z-index: 999;
+    background: rgba(20,25,40,.55);
+
+    backdrop-filter: blur(4px);
 }
 
 .modal {
     width: 100%;
-    max-width: 500px;
+
+    max-width: 480px;
+
+    padding: 25px;
 
     background: white;
 
     border-radius: 18px;
 
-    padding: 25px;
-
     box-shadow:
         0 30px 90px rgba(0,0,0,.25);
-
-    animation: modalIn .18s ease;
-}
-
-@keyframes modalIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(.98);
-    }
-
-    to {
-        opacity: 1;
-        transform: none;
-    }
 }
 
 .modal h2 {
@@ -588,9 +1010,9 @@ td {
 
     color: var(--muted);
 
-    line-height: 1.5;
-
     font-size: 13px;
+
+    line-height: 1.55;
 }
 
 .modal-actions {
@@ -598,21 +1020,21 @@ td {
 
     justify-content: flex-end;
 
-    gap: 10px;
+    gap: 9px;
 
     margin-top: 22px;
 }
 
 .cancel-button {
+    padding: 11px 16px;
+
     border: none;
+
+    border-radius: 9px;
 
     background: #eef0f5;
 
     color: #51596a;
-
-    padding: 11px 16px;
-
-    border-radius: 9px;
 
     cursor: pointer;
 
@@ -620,34 +1042,44 @@ td {
 }
 
 .confirm-button {
+    padding: 11px 16px;
+
     border: none;
+
+    border-radius: 9px;
 
     background: var(--primary);
 
     color: white;
-
-    padding: 11px 16px;
-
-    border-radius: 9px;
 
     cursor: pointer;
 
     font-weight: 700;
 }
 
-/* =========================
+.danger-button {
+    background: var(--danger);
+}
+
+
+/* =========================================================
    SUCCESS
-========================= */
+========================================================= */
 
 .success-screen {
-    text-align: center;
-
     display: none;
+
+    text-align: center;
 }
 
 .success-icon {
     width: 60px;
     height: 60px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
 
     margin: 0 auto 15px;
 
@@ -657,35 +1089,28 @@ td {
 
     color: var(--success);
 
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
     font-size: 27px;
 
     font-weight: 900;
 }
 
-.success-screen h2 {
-    margin-bottom: 7px;
-}
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* =========================================================
+   MOBILE
+========================================================= */
 
 @media(max-width: 700px) {
 
     .page {
-        padding: 20px 12px 40px;
+        padding:
+            20px 12px 40px;
     }
 
     .header {
         margin-bottom: 18px;
     }
 
-    .header-left h1 {
+    .header h1 {
         font-size: 23px;
     }
 
@@ -697,55 +1122,138 @@ td {
         flex-direction: column;
     }
 
-    .search-wrapper {
-        width: 100%;
-    }
-
     .filter {
         width: 100%;
     }
 
-    .footer {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width {
+        grid-column: auto;
+    }
+
+    .client-meta {
+        flex-wrap: wrap;
+
+        gap: 6px 12px;
+    }
+
+    .status {
+        display: none;
+    }
+
+    .client-header {
+        padding: 15px;
+    }
+
+    .client-body {
+        padding:
+            0 15px 15px;
+    }
+
+    .client-actions {
         flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .action-right {
+        justify-content: flex-end;
+    }
+
+    .submit-card {
+        flex-direction: column;
+
         align-items: stretch;
     }
 
     .submit-button {
         width: 100%;
     }
+
 }
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media(max-width: 450px) {
+
+    .client-name-row {
+        flex-wrap: wrap;
+    }
+
+    .client-avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .client-name {
+        font-size: 13px;
+    }
+
+    .chevron {
+        width: 27px;
+        height: 27px;
+    }
+
+    .action-right {
+        width: 100%;
+    }
+
+    .reset-button,
+    .save-button {
+        flex: 1;
+    }
+
+}
+
 </style>
 </head>
 
 
 <body>
 
+
 <div class="page">
 
-    <!-- HEADER -->
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
     <div class="header">
 
-        <div class="header-left">
+        <div>
 
             <h1>
                 Client Handover
             </h1>
 
             <p>
-                Review recent clients and arrange their transition to another psychologist.
+                Review recent clients and arrange their transition
+                to another psychologist.
             </p>
 
         </div>
 
+
         <div class="period-badge">
+
             Clients · Past 60 Days
+
         </div>
 
     </div>
 
 
-    <!-- INFORMATION -->
+
+    <!-- =====================================================
+         INFO
+    ====================================================== -->
 
     <div class="info-card">
 
@@ -760,9 +1268,10 @@ td {
             </strong>
 
             <p>
-                Select the psychologist who will continue the client's care
-                and attach relevant handover notes, documents, or images.
-                Please ensure the receiving psychologist is selected before submitting.
+                Select the receiving psychologist, add your handover
+                annotation, and attach relevant notes or documents.
+                Save each client as you work, then submit the completed
+                handovers.
             </p>
 
         </div>
@@ -770,117 +1279,133 @@ td {
     </div>
 
 
-    <!-- MAIN -->
 
-    <div class="main-card">
+    <!-- =====================================================
+         PROGRESS
+    ====================================================== -->
 
-        <!-- TOOLBAR -->
+    <div class="progress-card">
 
-        <div class="toolbar">
+        <div class="progress-top">
 
-            <div class="search-wrapper">
-
-                <span class="search-icon">
-                    🔍
-                </span>
-
-                <input
-                    id="search"
-                    class="search"
-                    type="search"
-                    placeholder="Search client name or ID..."
-                >
-
+            <div class="progress-title">
+                Handover Progress
             </div>
-
-
-            <select id="filter" class="filter">
-
-                <option value="all">
-                    All clients
-                </option>
-
-                <option value="pending">
-                    Needs psychologist
-                </option>
-
-                <option value="assigned">
-                    Assigned
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- TABLE -->
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Client
-                        </th>
-
-                        <th>
-                            Last Session
-                        </th>
-
-                        <th>
-                            Sessions
-                        </th>
-
-                        <th>
-                            Handover To
-                        </th>
-
-                        <th>
-                            Notes & Documents
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="clientBody"></tbody>
-
-            </table>
-
-        </div>
-
-
-        <!-- FOOTER -->
-
-        <div class="footer">
 
             <div
-                class="summary"
-                id="summary"
+                id="progressNumber"
+                class="progress-number"
             >
-                Loading...
+                0 of 0 completed
             </div>
 
-            <button
-                id="submitButton"
-                class="submit-button"
-                disabled
-            >
-                Submit Handover
-            </button>
+        </div>
+
+
+        <div class="progress-track">
+
+            <div
+                id="progressBar"
+                class="progress-bar"
+            ></div>
 
         </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         SEARCH / FILTER
+    ====================================================== -->
+
+    <div class="toolbar">
+
+        <div class="search-wrapper">
+
+            <span class="search-icon">
+                🔍
+            </span>
+
+            <input
+                id="search"
+                class="search"
+                type="search"
+                placeholder="Search client name or ID..."
+            >
+
+        </div>
+
+
+        <select
+            id="filter"
+            class="filter"
+        >
+
+            <option value="all">
+                All clients
+            </option>
+
+            <option value="pending">
+                Needs psychologist
+            </option>
+
+            <option value="assigned">
+                Assigned
+            </option>
+
+            <option value="saved">
+                Saved
+            </option>
+
+        </select>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         CLIENT LIST
+    ====================================================== -->
+
+    <div
+        id="clientList"
+        class="client-list"
+    ></div>
+
+
+
+    <!-- =====================================================
+         SUBMIT
+    ====================================================== -->
+
+    <div class="submit-card">
+
+        <div
+            id="summary"
+            class="summary"
+        >
+            Loading...
+        </div>
+
+
+        <button
+            id="submitButton"
+            class="submit-button"
+            disabled
+        >
+            Submit Handover
+        </button>
 
     </div>
 
 </div>
 
 
-<!-- CONFIRMATION MODAL -->
+
+<!-- =====================================================
+     MODAL
+====================================================== -->
 
 <div
     id="modalBackdrop"
@@ -889,15 +1414,17 @@ td {
 
     <div class="modal">
 
+
         <div id="confirmation">
 
-            <h2>
-                Submit client handover?
+            <h2 id="modalTitle">
+                Confirm action
             </h2>
 
             <p id="confirmationText">
-                You are about to submit the selected client handovers.
+                Are you sure?
             </p>
+
 
             <div class="modal-actions">
 
@@ -908,11 +1435,12 @@ td {
                     Cancel
                 </button>
 
+
                 <button
                     id="confirmButton"
                     class="confirm-button"
                 >
-                    Confirm & Submit
+                    Confirm
                 </button>
 
             </div>
@@ -920,7 +1448,6 @@ td {
         </div>
 
 
-        <!-- SUCCESS -->
 
         <div
             id="success"
@@ -938,6 +1465,7 @@ td {
             <p>
                 The client handover has been successfully submitted.
             </p>
+
 
             <div style="margin-top:20px">
 
@@ -957,12 +1485,13 @@ td {
 </div>
 
 
+
 <script>
 
-/* =====================================================
-   SAMPLE DATA
-   Replace this with your API response
-===================================================== */
+
+/* =========================================================
+   SAMPLE PSYCHOLOGISTS
+========================================================= */
 
 const psychologists = [
 
@@ -975,6 +1504,11 @@ const psychologists = [
 ];
 
 
+
+/* =========================================================
+   SAMPLE CLIENTS
+========================================================= */
+
 const clients = [
 
     {
@@ -983,7 +1517,10 @@ const clients = [
         lastSession: "2026-08-11",
         sessions: 4,
         psychologist: "",
-        files: []
+        annotation: "",
+        files: [],
+        saved: false,
+        expanded: true
     },
 
     {
@@ -992,7 +1529,10 @@ const clients = [
         lastSession: "2026-08-08",
         sessions: 2,
         psychologist: "",
-        files: []
+        annotation: "",
+        files: [],
+        saved: false,
+        expanded: false
     },
 
     {
@@ -1001,7 +1541,10 @@ const clients = [
         lastSession: "2026-08-04",
         sessions: 6,
         psychologist: "",
-        files: []
+        annotation: "",
+        files: [],
+        saved: false,
+        expanded: false
     },
 
     {
@@ -1010,7 +1553,10 @@ const clients = [
         lastSession: "2026-07-30",
         sessions: 3,
         psychologist: "",
-        files: []
+        annotation: "",
+        files: [],
+        saved: false,
+        expanded: false
     },
 
     {
@@ -1019,7 +1565,10 @@ const clients = [
         lastSession: "2026-07-25",
         sessions: 5,
         psychologist: "",
-        files: []
+        annotation: "",
+        files: [],
+        saved: false,
+        expanded: false
     },
 
     {
@@ -1028,7 +1577,10 @@ const clients = [
         lastSession: "2026-07-18",
         sessions: 2,
         psychologist: "",
-        files: []
+        annotation: "",
+        files: [],
+        saved: false,
+        expanded: false
     },
 
     {
@@ -1037,15 +1589,23 @@ const clients = [
         lastSession: "2026-07-12",
         sessions: 7,
         psychologist: "",
-        files: []
+        annotation: "",
+        files: [],
+        saved: false,
+        expanded: false
     }
 
 ];
 
 
-/* =====================================================
+
+let pendingAction = null;
+
+
+
+/* =========================================================
    HELPERS
-===================================================== */
+========================================================= */
 
 function getInitials(name) {
 
@@ -1075,33 +1635,45 @@ function formatDate(date) {
 }
 
 
-/* =====================================================
+
+/* =========================================================
    RENDER
-===================================================== */
+========================================================= */
 
 function renderClients() {
 
-    const tbody =
-        document.getElementById("clientBody");
+    const list =
+        document.getElementById(
+            "clientList"
+        );
+
 
     const search =
-        document.getElementById("search")
+        document
+            .getElementById("search")
             .value
             .toLowerCase()
             .trim();
 
+
     const filter =
-        document.getElementById("filter").value;
+        document.getElementById(
+            "filter"
+        ).value;
 
 
-    tbody.innerHTML = "";
+    list.innerHTML = "";
 
 
-    const filteredClients =
+    const filtered =
         clients.filter(client => {
 
+
             const matchesSearch =
-                !search ||
+
+                !search
+
+                ||
 
                 client.name
                     .toLowerCase()
@@ -1114,222 +1686,438 @@ function renderClients() {
                     .includes(search);
 
 
-            const matchesFilter =
-                filter === "all"
-
-                ||
-
-                (
-                    filter === "pending"
-                    &&
-                    !client.psychologist
-                )
-
-                ||
-
-                (
-                    filter === "assigned"
-                    &&
-                    client.psychologist
-                );
+            let matchesFilter = true;
 
 
-            return matchesSearch && matchesFilter;
+            if (filter === "pending") {
+
+                matchesFilter =
+                    !client.psychologist;
+
+            }
+
+
+            if (filter === "assigned") {
+
+                matchesFilter =
+                    !!client.psychologist;
+
+            }
+
+
+            if (filter === "saved") {
+
+                matchesFilter =
+                    client.saved;
+
+            }
+
+
+            return (
+                matchesSearch &&
+                matchesFilter
+            );
 
         });
 
 
-    if (!filteredClients.length) {
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5">
+    if (!filtered.length) {
 
-                    <div class="empty">
+        list.innerHTML = `
 
-                        No clients found.
+            <div class="empty">
 
-                    </div>
+                No clients found.
 
-                </td>
-            </tr>
+            </div>
+
         `;
 
-        updateSummary();
+        updateProgress();
 
         return;
 
     }
 
 
-    filteredClients.forEach(client => {
 
-        const row =
-            document.createElement("tr");
+    filtered.forEach(client => {
 
 
-        row.innerHTML = `
+        const card =
+            document.createElement("div");
 
-            <td>
 
-                <div class="client">
+        card.className =
+            "client-card" +
+            (
+                client.expanded
+                    ? " expanded"
+                    : ""
+            );
 
-                    <div class="avatar">
-                        ${getInitials(client.name)}
-                    </div>
 
-                    <div>
+        const status =
+            client.saved
+
+                ? `
+
+                    <span class="status saved">
+
+                        <span class="status-dot"></span>
+
+                        Saved
+
+                    </span>
+
+                `
+
+                : `
+
+                    <span class="status pending">
+
+                        <span class="status-dot"></span>
+
+                        Pending
+
+                    </span>
+
+                `;
+
+
+        card.innerHTML = `
+
+
+            <!-- CLIENT HEADER -->
+
+            <div
+                class="client-header"
+                data-client="${client.id}"
+            >
+
+                <div class="client-avatar">
+
+                    ${getInitials(client.name)}
+
+                </div>
+
+
+                <div class="client-main">
+
+                    <div class="client-name-row">
 
                         <div class="client-name">
+
                             ${client.name}
+
                         </div>
 
-                        <div class="client-id">
-                            ${client.id}
-                        </div>
+                        ${status}
+
+                    </div>
+
+
+                    <div class="client-id">
+
+                        ${client.id}
+
+                    </div>
+
+
+                    <div class="client-meta">
+
+                        <span>
+                            📅
+                            ${formatDate(client.lastSession)}
+                        </span>
+
+                        <span>
+                            ●
+                            ${client.sessions}
+                            session${client.sessions !== 1 ? "s" : ""}
+                        </span>
 
                     </div>
 
                 </div>
 
-            </td>
 
+                <div class="chevron">
 
-            <td>
+                    ▼
 
-                <div class="last-session">
-                    ${formatDate(client.lastSession)}
                 </div>
 
-                <div class="date-relative">
-                    Recent session
-                </div>
-
-            </td>
+            </div>
 
 
-            <td>
 
-                <span class="session-count">
+            <!-- CLIENT BODY -->
 
-                    ${client.sessions}
-                    session${client.sessions !== 1 ? "s" : ""}
-
-                </span>
-
-            </td>
+            <div class="client-body">
 
 
-            <td>
-
-                <select
-                    class="psychologist-select"
-                    data-client="${client.id}"
-                >
-
-                    <option value="">
-                        Select psychologist...
-                    </option>
-
-                    ${psychologists.map(
-                        psychologist => `
-                            <option
-                                value="${psychologist}"
-                                ${
-                                    client.psychologist === psychologist
-                                    ? "selected"
-                                    : ""
-                                }
-                            >
-                                ${psychologist}
-                            </option>
-                        `
-                    ).join("")}
-
-                </select>
-
-            </td>
+                <div class="form-grid">
 
 
-            <td>
+                    <!-- PSYCHOLOGIST -->
 
-                <div class="upload-area">
+                    <div class="form-section">
 
-                    <label class="upload-button">
+                        <label class="field-label">
 
-                        📎
-                        Attach files
+                            Handover To
 
-                        <input
-                            class="file-input"
-                            type="file"
-                            multiple
-                            accept="
-                                .pdf,
-                                .doc,
-                                .docx,
-                                .jpg,
-                                .jpeg,
-                                .png,
-                                .webp
-                            "
+                        </label>
+
+
+                        <select
+                            class="psychologist-select"
                             data-client="${client.id}"
                         >
 
-                    </label>
+                            <option value="">
+
+                                Select receiving psychologist...
+
+                            </option>
 
 
-                    <div class="file-list">
+                            ${psychologists.map(
+                                psychologist => `
 
-                        ${client.files.map(
-                            (file, index) => `
-
-                                <div class="file">
-
-                                    <span class="file-name">
-                                        📄 ${file.name}
-                                    </span>
-
-                                    <span
-                                        class="remove-file"
-                                        data-client="${client.id}"
-                                        data-index="${index}"
+                                    <option
+                                        value="${psychologist}"
+                                        ${
+                                            client.psychologist ===
+                                            psychologist
+                                                ? "selected"
+                                                : ""
+                                        }
                                     >
-                                        ×
-                                    </span>
 
-                                </div>
+                                        ${psychologist}
 
-                            `
-                        ).join("")}
+                                    </option>
+
+                                `
+                            ).join("")}
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- ANNOTATION -->
+
+                    <div class="form-section">
+
+                        <label class="field-label">
+
+                            Annotation
+
+                        </label>
+
+
+                        <textarea
+                            class="annotation"
+                            data-client="${client.id}"
+                            placeholder="Add important handover context, treatment notes, follow-up information, or anything the next psychologist should know..."
+                        >${client.annotation}</textarea>
+
+                    </div>
+
+
+
+                    <!-- FILES -->
+
+                    <div class="form-section full-width">
+
+                        <label class="field-label">
+
+                            Notes & Documents
+
+                        </label>
+
+
+                        <label class="upload-button">
+
+                            📎
+                            Attach documents
+
+                            <input
+                                class="file-input"
+                                type="file"
+                                multiple
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                                data-client="${client.id}"
+                            >
+
+                        </label>
+
+
+                        <div class="file-list">
+
+                            ${client.files.map(
+                                (file,index) => `
+
+                                    <div class="file">
+
+                                        <span class="file-icon">
+                                            📄
+                                        </span>
+
+                                        <span class="file-name">
+
+                                            ${file.name}
+
+                                        </span>
+
+
+                                        <span
+                                            class="remove-file"
+                                            data-client="${client.id}"
+                                            data-index="${index}"
+                                        >
+
+                                            ×
+
+                                        </span>
+
+                                    </div>
+
+                                `
+                            ).join("")}
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ACTIONS -->
+
+                <div class="client-actions">
+
+
+                    <div class="action-left">
+
+                        ${
+                            client.files.length
+                                ? `${client.files.length} attachment${client.files.length !== 1 ? "s" : ""}`
+                                : "No attachments"
+                        }
+
+                    </div>
+
+
+                    <div class="action-right">
+
+
+                        <div
+                            class="saved-label ${
+                                client.saved
+                                    ? "show"
+                                    : ""
+                            }"
+                        >
+
+                            ✓ Saved
+
+                        </div>
+
+
+                        <button
+                            class="reset-button"
+                            data-client="${client.id}"
+                        >
+
+                            Reset
+
+                        </button>
+
+
+                        <button
+                            class="save-button"
+                            data-client="${client.id}"
+                        >
+
+                            Save Handover
+
+                        </button>
 
                     </div>
 
                 </div>
 
-            </td>
+
+            </div>
 
         `;
 
 
-        tbody.appendChild(row);
+        list.appendChild(card);
 
     });
 
 
     attachEvents();
 
-    updateSummary();
+    updateProgress();
 
 }
 
 
-/* =====================================================
+
+/* =========================================================
    EVENTS
-===================================================== */
+========================================================= */
 
 function attachEvents() {
 
+
+    /* Expand / collapse */
+
+    document
+        .querySelectorAll(".client-header")
+        .forEach(header => {
+
+            header.addEventListener(
+                "click",
+                event => {
+
+                    /*
+                        Don't collapse when interacting
+                        with an actual form element.
+                    */
+
+                    const client =
+                        clients.find(
+                            c =>
+                                c.id ===
+                                header.dataset.client
+                        );
+
+
+                    client.expanded =
+                        !client.expanded;
+
+
+                    renderClients();
+
+                }
+            );
+
+        });
+
+
+
+    /* Psychologist */
 
     document
         .querySelectorAll(".psychologist-select")
@@ -1351,13 +2139,53 @@ function attachEvents() {
                         event.target.value;
 
 
-                    updateSummary();
+                    client.saved = false;
+
+
+                    updateProgress();
 
                 }
             );
 
         });
 
+
+
+    /* Annotation */
+
+    document
+        .querySelectorAll(".annotation")
+        .forEach(textarea => {
+
+            textarea.addEventListener(
+                "input",
+                event => {
+
+                    const client =
+                        clients.find(
+                            c =>
+                                c.id ===
+                                event.target.dataset.client
+                        );
+
+
+                    client.annotation =
+                        event.target.value;
+
+
+                    client.saved = false;
+
+
+                    updateProgress();
+
+                }
+            );
+
+        });
+
+
+
+    /* Upload */
 
     document
         .querySelectorAll(".file-input")
@@ -1383,6 +2211,9 @@ function attachEvents() {
                         });
 
 
+                    client.saved = false;
+
+
                     renderClients();
 
                 }
@@ -1391,13 +2222,19 @@ function attachEvents() {
         });
 
 
+
+    /* Remove file */
+
     document
         .querySelectorAll(".remove-file")
         .forEach(button => {
 
             button.addEventListener(
                 "click",
-                () => {
+                event => {
+
+                    event.stopPropagation();
+
 
                     const client =
                         clients.find(
@@ -1408,9 +2245,14 @@ function attachEvents() {
 
 
                     client.files.splice(
-                        Number(button.dataset.index),
+                        Number(
+                            button.dataset.index
+                        ),
                         1
                     );
+
+
+                    client.saved = false;
 
 
                     renderClients();
@@ -1420,71 +2262,316 @@ function attachEvents() {
 
         });
 
+
+
+    /* Save */
+
+    document
+        .querySelectorAll(".save-button")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+
+                    const client =
+                        clients.find(
+                            c =>
+                                c.id ===
+                                button.dataset.client
+                        );
+
+
+                    if (!client.psychologist) {
+
+                        showModal(
+                            "Psychologist required",
+                            "Please select the receiving psychologist before saving this handover.",
+                            false,
+                            true
+                        );
+
+                        return;
+
+                    }
+
+
+                    client.saved = true;
+
+
+                    renderClients();
+
+                }
+            );
+
+        });
+
+
+
+    /* Reset */
+
+    document
+        .querySelectorAll(".reset-button")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+
+                    const client =
+                        clients.find(
+                            c =>
+                                c.id ===
+                                button.dataset.client
+                        );
+
+
+                    pendingAction = {
+
+                        type: "reset",
+
+                        client: client
+
+                    };
+
+
+                    showModal(
+                        "Reset this handover?",
+                        `This will remove the psychologist selection, annotation, and all ${client.files.length} attached file${client.files.length === 1 ? "" : "s"} for ${client.name}. This cannot be undone.`,
+                        true
+                    );
+
+                }
+            );
+
+        });
+
 }
 
 
-/* =====================================================
-   SUMMARY
-===================================================== */
 
-function updateSummary() {
+/* =========================================================
+   PROGRESS
+========================================================= */
 
-    const assigned =
+function updateProgress() {
+
+
+    const total =
+        clients.length;
+
+
+    const completed =
         clients.filter(
-            client => client.psychologist
+            client =>
+                client.saved
         ).length;
 
 
-    const pending =
-        clients.length - assigned;
+    const assigned =
+        clients.filter(
+            client =>
+                client.psychologist
+        ).length;
+
+
+    const percentage =
+        total
+            ? (completed / total) * 100
+            : 0;
+
+
+    document
+        .getElementById(
+            "progressBar"
+        )
+        .style.width =
+            percentage + "%";
+
+
+    document
+        .getElementById(
+            "progressNumber"
+        )
+        .innerText =
+
+        `${completed} of ${total} completed`;
 
 
     const summary =
-        document.getElementById("summary");
+        document.getElementById(
+            "summary"
+        );
 
 
-    if (pending === 0) {
+    if (completed === total && total > 0) {
 
         summary.innerHTML = `
-            <strong>${assigned}</strong>
-            clients assigned ·
-            <strong>Ready to submit</strong>
+
+            <strong>
+                ${completed}
+            </strong>
+
+            of
+
+            <strong>
+                ${total}
+            </strong>
+
+            handovers completed ·
+
+            <strong>
+                Ready to submit
+            </strong>
+
         `;
 
     } else {
 
         summary.innerHTML = `
-            <strong>${assigned}</strong>
-            of
-            <strong>${clients.length}</strong>
-            clients assigned ·
-            <strong>${pending}</strong>
-            still need a psychologist
+
+            <strong>
+                ${completed}
+            </strong>
+
+            completed ·
+
+            <strong>
+                ${assigned}
+            </strong>
+
+            assigned ·
+
+            <strong>
+                ${total - completed}
+            </strong>
+
+            remaining
+
         `;
 
     }
 
 
-    const submitButton =
-        document.getElementById("submitButton");
-
-
     /*
-        Prevent submission until
-        every displayed client has
-        a receiving psychologist.
+        Require every client to be saved
+        before final submission.
     */
 
-    submitButton.disabled =
-        clients.length === 0 ||
-        pending > 0;
+    document
+        .getElementById(
+            "submitButton"
+        )
+        .disabled =
+            total === 0 ||
+            completed !== total;
 
 }
 
 
-/* =====================================================
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function showModal(
+    title,
+    text,
+    danger = false,
+    informational = false
+) {
+
+    document
+        .getElementById(
+            "modalTitle"
+        )
+        .innerText =
+            title;
+
+
+    document
+        .getElementById(
+            "confirmationText"
+        )
+        .innerText =
+            text;
+
+
+    const confirmButton =
+        document.getElementById(
+            "confirmButton"
+        );
+
+
+    if (informational) {
+
+        confirmButton.innerText =
+            "OK";
+
+        confirmButton.classList.remove(
+            "danger-button"
+        );
+
+    } else {
+
+        confirmButton.innerText =
+            danger
+                ? "Reset"
+                : "Confirm & Submit";
+
+
+        confirmButton.classList.toggle(
+            "danger-button",
+            danger
+        );
+
+    }
+
+
+    document
+        .getElementById(
+            "confirmation"
+        )
+        .style.display =
+            "block";
+
+
+    document
+        .getElementById(
+            "success"
+        )
+        .style.display =
+            "none";
+
+
+    document
+        .getElementById(
+            "modalBackdrop"
+        )
+        .style.display =
+            "flex";
+
+
+    pendingAction =
+        informational
+            ? {
+                type: "close"
+            }
+            : pendingAction;
+
+}
+
+
+
+/* =========================================================
    SEARCH
-===================================================== */
+========================================================= */
 
 document
     .getElementById("search")
@@ -1502,140 +2589,255 @@ document
     );
 
 
-/* =====================================================
-   SUBMIT
-===================================================== */
+
+/* =========================================================
+   FINAL SUBMIT
+========================================================= */
 
 document
     .getElementById("submitButton")
     .addEventListener(
         "click",
-        () => {
+        event => {
 
-            const modal =
-                document.getElementById(
-                    "modalBackdrop"
-                );
+            event.stopPropagation();
 
 
-            const assigned =
-                clients.filter(
-                    client =>
-                        client.psychologist
-                );
+            pendingAction = {
+
+                type: "submit"
+
+            };
 
 
-            document
-                .getElementById(
-                    "confirmationText"
-                )
-                .innerText =
-
-                `You are about to submit ` +
-                `${assigned.length} client handover` +
-                `${assigned.length !== 1 ? "s" : ""}. ` +
-                `The selected psychologists and attached documents ` +
-                `will be included in the handover records.`;
-
-
-            document
-                .getElementById("confirmation")
-                .style.display = "block";
-
-
-            document
-                .getElementById("success")
-                .style.display = "none";
-
-
-            modal.style.display = "flex";
+            showModal(
+                "Submit client handovers?",
+                `You are about to submit ${clients.length} client handovers. The selected psychologists, annotations, and attached documents will be included.`,
+                false
+            );
 
         }
     );
 
 
-/* =====================================================
-   CANCEL
-===================================================== */
 
-document
-    .getElementById("cancelButton")
-    .addEventListener(
-        "click",
-        () => {
-
-            document
-                .getElementById(
-                    "modalBackdrop"
-                )
-                .style.display = "none";
-
-        }
-    );
-
-
-/* =====================================================
+/* =========================================================
    CONFIRM
-===================================================== */
+========================================================= */
 
 document
     .getElementById("confirmButton")
     .addEventListener(
         "click",
-        async () => {
-
-            /*
-                THIS IS WHERE YOUR API CALL
-                SHOULD GO.
-
-                Example:
-
-                await fetch(
-                    "/api/client-handover",
-                    {
-                        method: "POST",
-                        body: formData
-                    }
-                );
-            */
-
-
-            document
-                .getElementById("confirmation")
-                .style.display = "none";
-
-
-            document
-                .getElementById("success")
-                .style.display = "block";
-
-        }
-    );
-
-
-/* =====================================================
-   DONE
-===================================================== */
-
-document
-    .getElementById("doneButton")
-    .addEventListener(
-        "click",
         () => {
 
-            document
-                .getElementById(
-                    "modalBackdrop"
-                )
-                .style.display = "none";
+
+            if (!pendingAction) {
+
+                closeModal();
+
+                return;
+
+            }
+
+
+            /* =====================================
+               INFORMATIONAL MODAL
+            ====================================== */
+
+            if (
+                pendingAction.type ===
+                "close"
+            ) {
+
+                closeModal();
+
+                return;
+
+            }
+
+
+
+            /* =====================================
+               RESET
+            ====================================== */
+
+            if (
+                pendingAction.type ===
+                "reset"
+            ) {
+
+                const client =
+                    pendingAction.client;
+
+
+                client.psychologist =
+                    "";
+
+                client.annotation =
+                    "";
+
+                client.files =
+                    [];
+
+                client.saved =
+                    false;
+
+
+                client.expanded =
+                    true;
+
+
+                pendingAction =
+                    null;
+
+
+                closeModal();
+
+
+                renderClients();
+
+
+                return;
+
+            }
+
+
+
+            /* =====================================
+               FINAL SUBMIT
+            ====================================== */
+
+            if (
+                pendingAction.type ===
+                "submit"
+            ) {
+
+                /*
+                    Replace this section with
+                    your actual backend API call.
+
+                    Example:
+
+                    const formData =
+                        new FormData();
+
+                    clients.forEach(client => {
+
+                        formData.append(
+                            "client_id[]",
+                            client.id
+                        );
+
+                        formData.append(
+                            "psychologist[]",
+                            client.psychologist
+                        );
+
+                        formData.append(
+                            "annotation[]",
+                            client.annotation
+                        );
+
+                        client.files.forEach(
+                            file => {
+
+                                formData.append(
+                                    "attachments[]",
+                                    file
+                                );
+
+                            }
+                        );
+
+                    });
+
+                    await fetch(
+                        "/api/client-handover",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+                */
+
+
+                document
+                    .getElementById(
+                        "confirmation"
+                    )
+                    .style.display =
+                        "none";
+
+
+                document
+                    .getElementById(
+                        "success"
+                    )
+                    .style.display =
+                        "block";
+
+
+                pendingAction =
+                    null;
+
+            }
 
         }
     );
 
 
-/* =====================================================
+
+/* =========================================================
+   CANCEL
+========================================================= */
+
+document
+    .getElementById(
+        "cancelButton"
+    )
+    .addEventListener(
+        "click",
+        closeModal
+    );
+
+
+
+function closeModal() {
+
+    pendingAction =
+        null;
+
+
+    document
+        .getElementById(
+            "modalBackdrop"
+        )
+        .style.display =
+            "none";
+
+}
+
+
+
+/* =========================================================
+   DONE
+========================================================= */
+
+document
+    .getElementById(
+        "doneButton"
+    )
+    .addEventListener(
+        "click",
+        closeModal
+    );
+
+
+
+/* =========================================================
    INITIALIZE
-===================================================== */
+========================================================= */
 
 renderClients();
 
