@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Client Handover | Bicarakan.id</title>
+
+<style>
+:root {
+    --primary: #635bff;
+    --primary-dark: #5148e5;
+    --primary-soft: #efedff;
+
+    --bg: #f6f7fb;
+    --card: #ffffff;
+
+    --text: #172033;
+    --muted: #788195;
+
+    --border: #e5e8ef;
+
+    --success: #16a36b;
+    --success-bg: #e9f8f1;
+
+    --warning: #d88900;
+    --warning-bg: #fff6df;
+
+    --danger: #dc4c5c;
+    --danger-bg: #fff0f2;
+
+    --shadow:
+        0 8px 30px rgba(25, 35, 60, .06);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        sans-serif;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.page {
+    max-width: 1250px;
+    margin: auto;
+    padding: 32px 22px 60px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    gap: 20px;
+}
+
+.header-left h1 {
+    margin: 0;
+    font-size: 29px;
+    letter-spacing: -.6px;
+}
+
+.header-left p {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.period-badge {
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 14px;
+    border-radius: 30px;
+}
+
+/* =========================
+   INFO CARD
+========================= */
+
+.info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    padding: 18px 20px;
+
+    display: flex;
+    gap: 14px;
+
+    box-shadow: var(--shadow);
+
+    margin-bottom: 20px;
+}
+
+.info-icon {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: var(--primary-soft);
+    color: var(--primary);
+
+    font-weight: 800;
+}
+
+.info-content strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.info-content p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+/* =========================
+   MAIN CARD
+========================= */
+
+.main-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.toolbar {
+    padding: 16px 18px;
+
+    border-bottom: 1px solid var(--border);
+
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+
+    flex-wrap: wrap;
+}
+
+.search-wrapper {
+    position: relative;
+    width: 320px;
+}
+
+.search-icon {
+    position: absolute;
+
+    left: 13px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #9aa2b2;
+
+    font-size: 15px;
+}
+
+.search {
+    width: 100%;
+
+    padding: 11px 13px 11px 36px;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    outline: none;
+
+    font-size: 13px;
+}
+
+.search:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,91,255,.1);
+}
+
+.filter {
+    padding: 10px 12px;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: white;
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    outline: none;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+
+    min-width: 1000px;
+}
+
+thead {
+    background: #fafbfe;
+}
+
+th {
+    padding: 13px 18px;
+
+    text-align: left;
+
+    font-size: 11px;
+
+    letter-spacing: .6px;
+
+    text-transform: uppercase;
+
+    color: var(--muted);
+
+    font-weight: 700;
+}
+
+td {
+    padding: 17px 18px;
+
+    border-top: 1px solid var(--border);
+
+    vertical-align: middle;
+}
+
+/* =========================
+   CLIENT
+========================= */
+
+.client {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: var(--primary-soft);
+
+    color: var(--primary);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.client-name {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.client-id {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+/* =========================
+   DATE
+========================= */
+
+.last-session {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.date-relative {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* =========================
+   SESSION COUNT
+========================= */
+
+.session-count {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 6px 10px;
+
+    border-radius: 8px;
+
+    background: #f3f5f9;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+/* =========================
+   SELECT
+========================= */
+
+.psychologist-select {
+    width: 220px;
+
+    padding: 10px 11px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 9px;
+
+    background: white;
+
+    font-size: 13px;
+
+    outline: none;
+}
+
+.psychologist-select:focus {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(99,91,255,.1);
+}
+
+/* =========================
+   FILE UPLOAD
+========================= */
+
+.upload-area {
+    width: 245px;
+}
+
+.file-input {
+    display: none;
+}
+
+.upload-button {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    cursor: pointer;
+
+    border: 1px dashed #bfc5d3;
+
+    border-radius: 9px;
+
+    padding: 9px 11px;
+
+    background: #fafbfe;
+
+    color: #596276;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    transition: .15s;
+}
+
+.upload-button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-soft);
+}
+
+.file-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    margin-top: 8px;
+}
+
+.file {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+
+    padding: 6px 8px;
+
+    background: #f4f5f8;
+
+    border-radius: 7px;
+
+    font-size: 11px;
+}
+
+.file-name {
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+}
+
+.remove-file {
+    color: var(--danger);
+
+    cursor: pointer;
+
+    font-weight: 800;
+
+    flex-shrink: 0;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+    padding: 18px;
+
+    border-top: 1px solid var(--border);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.summary {
+    font-size: 13px;
+
+    color: var(--muted);
+}
+
+.summary strong {
+    color: var(--text);
+}
+
+.submit-button {
+    border: none;
+
+    border-radius: 10px;
+
+    padding: 12px 20px;
+
+    background: var(--primary);
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .15s;
+}
+
+.submit-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.submit-button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty {
+    padding: 50px 20px;
+
+    text-align: center;
+
+    color: var(--muted);
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-backdrop {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(20,25,40,.55);
+
+    backdrop-filter: blur(4px);
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 999;
+}
+
+.modal {
+    width: 100%;
+    max-width: 500px;
+
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 30px 90px rgba(0,0,0,.25);
+
+    animation: modalIn .18s ease;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.modal h2 {
+    margin: 0 0 8px;
+
+    font-size: 21px;
+}
+
+.modal p {
+    margin: 0;
+
+    color: var(--muted);
+
+    line-height: 1.5;
+
+    font-size: 13px;
+}
+
+.modal-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 22px;
+}
+
+.cancel-button {
+    border: none;
+
+    background: #eef0f5;
+
+    color: #51596a;
+
+    padding: 11px 16px;
+
+    border-radius: 9px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+}
+
+.confirm-button {
+    border: none;
+
+    background: var(--primary);
+
+    color: white;
+
+    padding: 11px 16px;
+
+    border-radius: 9px;
+
+    cursor: pointer;
+
+    font-weight: 700;
+}
+
+/* =========================
+   SUCCESS
+========================= */
+
+.success-screen {
+    text-align: center;
+
+    display: none;
+}
+
+.success-icon {
+    width: 60px;
+    height: 60px;
+
+    margin: 0 auto 15px;
+
+    border-radius: 50%;
+
+    background: var(--success-bg);
+
+    color: var(--success);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 27px;
+
+    font-weight: 900;
+}
+
+.success-screen h2 {
+    margin-bottom: 7px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 700px) {
+
+    .page {
+        padding: 20px 12px 40px;
+    }
+
+    .header {
+        margin-bottom: 18px;
+    }
+
+    .header-left h1 {
+        font-size: 23px;
+    }
+
+    .period-badge {
+        display: none;
+    }
+
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .search-wrapper {
+        width: 100%;
+    }
+
+    .filter {
+        width: 100%;
+    }
+
+    .footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .submit-button {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="page">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="header-left">
+
+            <h1>
+                Client Handover
+            </h1>
+
+            <p>
+                Review recent clients and arrange their transition to another psychologist.
+            </p>
+
+        </div>
+
+        <div class="period-badge">
+            Clients · Past 60 Days
+        </div>
+
+    </div>
+
+
+    <!-- INFORMATION -->
+
+    <div class="info-card">
+
+        <div class="info-icon">
+            i
+        </div>
+
+        <div class="info-content">
+
+            <strong>
+                Handover information securely
+            </strong>
+
+            <p>
+                Select the psychologist who will continue the client's care
+                and attach relevant handover notes, documents, or images.
+                Please ensure the receiving psychologist is selected before submitting.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN -->
+
+    <div class="main-card">
+
+        <!-- TOOLBAR -->
+
+        <div class="toolbar">
+
+            <div class="search-wrapper">
+
+                <span class="search-icon">
+                    🔍
+                </span>
+
+                <input
+                    id="search"
+                    class="search"
+                    type="search"
+                    placeholder="Search client name or ID..."
+                >
+
+            </div>
+
+
+            <select id="filter" class="filter">
+
+                <option value="all">
+                    All clients
+                </option>
+
+                <option value="pending">
+                    Needs psychologist
+                </option>
+
+                <option value="assigned">
+                    Assigned
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- TABLE -->
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Client
+                        </th>
+
+                        <th>
+                            Last Session
+                        </th>
+
+                        <th>
+                            Sessions
+                        </th>
+
+                        <th>
+                            Handover To
+                        </th>
+
+                        <th>
+                            Notes & Documents
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="clientBody"></tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="footer">
+
+            <div
+                class="summary"
+                id="summary"
+            >
+                Loading...
+            </div>
+
+            <button
+                id="submitButton"
+                class="submit-button"
+                disabled
+            >
+                Submit Handover
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- CONFIRMATION MODAL -->
+
+<div
+    id="modalBackdrop"
+    class="modal-backdrop"
+>
+
+    <div class="modal">
+
+        <div id="confirmation">
+
+            <h2>
+                Submit client handover?
+            </h2>
+
+            <p id="confirmationText">
+                You are about to submit the selected client handovers.
+            </p>
+
+            <div class="modal-actions">
+
+                <button
+                    id="cancelButton"
+                    class="cancel-button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    id="confirmButton"
+                    class="confirm-button"
+                >
+                    Confirm & Submit
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUCCESS -->
+
+        <div
+            id="success"
+            class="success-screen"
+        >
+
+            <div class="success-icon">
+                ✓
+            </div>
+
+            <h2>
+                Handover Submitted
+            </h2>
+
+            <p>
+                The client handover has been successfully submitted.
+            </p>
+
+            <div style="margin-top:20px">
+
+                <button
+                    id="doneButton"
+                    class="confirm-button"
+                >
+                    Done
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   SAMPLE DATA
+   Replace this with your API response
+===================================================== */
+
+const psychologists = [
+
+    "Dr. Amelia Putri",
+    "Dr. Budi Santoso",
+    "Dr. Clara Wijaya",
+    "Dr. Dimas Pratama",
+    "Dr. Nadia Sari"
+
+];
+
+
+const clients = [
+
+    {
+        id: "CL-1024",
+        name: "Andi Wijaya",
+        lastSession: "2026-08-11",
+        sessions: 4,
+        psychologist: "",
+        files: []
+    },
+
+    {
+        id: "CL-1041",
+        name: "Bunga Lestari",
+        lastSession: "2026-08-08",
+        sessions: 2,
+        psychologist: "",
+        files: []
+    },
+
+    {
+        id: "CL-1098",
+        name: "Catherine Lim",
+        lastSession: "2026-08-04",
+        sessions: 6,
+        psychologist: "",
+        files: []
+    },
+
+    {
+        id: "CL-1112",
+        name: "David Hartono",
+        lastSession: "2026-07-30",
+        sessions: 3,
+        psychologist: "",
+        files: []
+    },
+
+    {
+        id: "CL-1137",
+        name: "Eka Pranata",
+        lastSession: "2026-07-25",
+        sessions: 5,
+        psychologist: "",
+        files: []
+    },
+
+    {
+        id: "CL-1180",
+        name: "Felicia Tan",
+        lastSession: "2026-07-18",
+        sessions: 2,
+        psychologist: "",
+        files: []
+    },
+
+    {
+        id: "CL-1214",
+        name: "Gilang Saputra",
+        lastSession: "2026-07-12",
+        sessions: 7,
+        psychologist: "",
+        files: []
+    }
+
+];
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function getInitials(name) {
+
+    return name
+        .split(" ")
+        .slice(0, 2)
+        .map(word => word[0])
+        .join("")
+        .toUpperCase();
+
+}
+
+
+function formatDate(date) {
+
+    return new Date(
+        date + "T00:00:00"
+    ).toLocaleDateString(
+        "en-US",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+/* =====================================================
+   RENDER
+===================================================== */
+
+function renderClients() {
+
+    const tbody =
+        document.getElementById("clientBody");
+
+    const search =
+        document.getElementById("search")
+            .value
+            .toLowerCase()
+            .trim();
+
+    const filter =
+        document.getElementById("filter").value;
+
+
+    tbody.innerHTML = "";
+
+
+    const filteredClients =
+        clients.filter(client => {
+
+            const matchesSearch =
+                !search ||
+
+                client.name
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                client.id
+                    .toLowerCase()
+                    .includes(search);
+
+
+            const matchesFilter =
+                filter === "all"
+
+                ||
+
+                (
+                    filter === "pending"
+                    &&
+                    !client.psychologist
+                )
+
+                ||
+
+                (
+                    filter === "assigned"
+                    &&
+                    client.psychologist
+                );
+
+
+            return matchesSearch && matchesFilter;
+
+        });
+
+
+    if (!filteredClients.length) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5">
+
+                    <div class="empty">
+
+                        No clients found.
+
+                    </div>
+
+                </td>
+            </tr>
+        `;
+
+        updateSummary();
+
+        return;
+
+    }
+
+
+    filteredClients.forEach(client => {
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td>
+
+                <div class="client">
+
+                    <div class="avatar">
+                        ${getInitials(client.name)}
+                    </div>
+
+                    <div>
+
+                        <div class="client-name">
+                            ${client.name}
+                        </div>
+
+                        <div class="client-id">
+                            ${client.id}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </td>
+
+
+            <td>
+
+                <div class="last-session">
+                    ${formatDate(client.lastSession)}
+                </div>
+
+                <div class="date-relative">
+                    Recent session
+                </div>
+
+            </td>
+
+
+            <td>
+
+                <span class="session-count">
+
+                    ${client.sessions}
+                    session${client.sessions !== 1 ? "s" : ""}
+
+                </span>
+
+            </td>
+
+
+            <td>
+
+                <select
+                    class="psychologist-select"
+                    data-client="${client.id}"
+                >
+
+                    <option value="">
+                        Select psychologist...
+                    </option>
+
+                    ${psychologists.map(
+                        psychologist => `
+                            <option
+                                value="${psychologist}"
+                                ${
+                                    client.psychologist === psychologist
+                                    ? "selected"
+                                    : ""
+                                }
+                            >
+                                ${psychologist}
+                            </option>
+                        `
+                    ).join("")}
+
+                </select>
+
+            </td>
+
+
+            <td>
+
+                <div class="upload-area">
+
+                    <label class="upload-button">
+
+                        📎
+                        Attach files
+
+                        <input
+                            class="file-input"
+                            type="file"
+                            multiple
+                            accept="
+                                .pdf,
+                                .doc,
+                                .docx,
+                                .jpg,
+                                .jpeg,
+                                .png,
+                                .webp
+                            "
+                            data-client="${client.id}"
+                        >
+
+                    </label>
+
+
+                    <div class="file-list">
+
+                        ${client.files.map(
+                            (file, index) => `
+
+                                <div class="file">
+
+                                    <span class="file-name">
+                                        📄 ${file.name}
+                                    </span>
+
+                                    <span
+                                        class="remove-file"
+                                        data-client="${client.id}"
+                                        data-index="${index}"
+                                    >
+                                        ×
+                                    </span>
+
+                                </div>
+
+                            `
+                        ).join("")}
+
+                    </div>
+
+                </div>
+
+            </td>
+
+        `;
+
+
+        tbody.appendChild(row);
+
+    });
+
+
+    attachEvents();
+
+    updateSummary();
+
+}
+
+
+/* =====================================================
+   EVENTS
+===================================================== */
+
+function attachEvents() {
+
+
+    document
+        .querySelectorAll(".psychologist-select")
+        .forEach(select => {
+
+            select.addEventListener(
+                "change",
+                event => {
+
+                    const client =
+                        clients.find(
+                            c =>
+                                c.id ===
+                                event.target.dataset.client
+                        );
+
+
+                    client.psychologist =
+                        event.target.value;
+
+
+                    updateSummary();
+
+                }
+            );
+
+        });
+
+
+    document
+        .querySelectorAll(".file-input")
+        .forEach(input => {
+
+            input.addEventListener(
+                "change",
+                event => {
+
+                    const client =
+                        clients.find(
+                            c =>
+                                c.id ===
+                                event.target.dataset.client
+                        );
+
+
+                    [...event.target.files]
+                        .forEach(file => {
+
+                            client.files.push(file);
+
+                        });
+
+
+                    renderClients();
+
+                }
+            );
+
+        });
+
+
+    document
+        .querySelectorAll(".remove-file")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const client =
+                        clients.find(
+                            c =>
+                                c.id ===
+                                button.dataset.client
+                        );
+
+
+                    client.files.splice(
+                        Number(button.dataset.index),
+                        1
+                    );
+
+
+                    renderClients();
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+function updateSummary() {
+
+    const assigned =
+        clients.filter(
+            client => client.psychologist
+        ).length;
+
+
+    const pending =
+        clients.length - assigned;
+
+
+    const summary =
+        document.getElementById("summary");
+
+
+    if (pending === 0) {
+
+        summary.innerHTML = `
+            <strong>${assigned}</strong>
+            clients assigned ·
+            <strong>Ready to submit</strong>
+        `;
+
+    } else {
+
+        summary.innerHTML = `
+            <strong>${assigned}</strong>
+            of
+            <strong>${clients.length}</strong>
+            clients assigned ·
+            <strong>${pending}</strong>
+            still need a psychologist
+        `;
+
+    }
+
+
+    const submitButton =
+        document.getElementById("submitButton");
+
+
+    /*
+        Prevent submission until
+        every displayed client has
+        a receiving psychologist.
+    */
+
+    submitButton.disabled =
+        clients.length === 0 ||
+        pending > 0;
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+document
+    .getElementById("search")
+    .addEventListener(
+        "input",
+        renderClients
+    );
+
+
+document
+    .getElementById("filter")
+    .addEventListener(
+        "change",
+        renderClients
+    );
+
+
+/* =====================================================
+   SUBMIT
+===================================================== */
+
+document
+    .getElementById("submitButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            const modal =
+                document.getElementById(
+                    "modalBackdrop"
+                );
+
+
+            const assigned =
+                clients.filter(
+                    client =>
+                        client.psychologist
+                );
+
+
+            document
+                .getElementById(
+                    "confirmationText"
+                )
+                .innerText =
+
+                `You are about to submit ` +
+                `${assigned.length} client handover` +
+                `${assigned.length !== 1 ? "s" : ""}. ` +
+                `The selected psychologists and attached documents ` +
+                `will be included in the handover records.`;
+
+
+            document
+                .getElementById("confirmation")
+                .style.display = "block";
+
+
+            document
+                .getElementById("success")
+                .style.display = "none";
+
+
+            modal.style.display = "flex";
+
+        }
+    );
+
+
+/* =====================================================
+   CANCEL
+===================================================== */
+
+document
+    .getElementById("cancelButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "modalBackdrop"
+                )
+                .style.display = "none";
+
+        }
+    );
+
+
+/* =====================================================
+   CONFIRM
+===================================================== */
+
+document
+    .getElementById("confirmButton")
+    .addEventListener(
+        "click",
+        async () => {
+
+            /*
+                THIS IS WHERE YOUR API CALL
+                SHOULD GO.
+
+                Example:
+
+                await fetch(
+                    "/api/client-handover",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+            */
+
+
+            document
+                .getElementById("confirmation")
+                .style.display = "none";
+
+
+            document
+                .getElementById("success")
+                .style.display = "block";
+
+        }
+    );
+
+
+/* =====================================================
+   DONE
+===================================================== */
+
+document
+    .getElementById("doneButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "modalBackdrop"
+                )
+                .style.display = "none";
+
+        }
+    );
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+renderClients();
+
+</script>
+
+</body>
+</html>

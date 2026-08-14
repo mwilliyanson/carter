@@ -1,198 +1,769 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendar Session View</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Mindlabs.id | Technology & Operations</title>
+
+  <meta
+    name="description"
+    content="Mindlabs.id is the operational and technology branch of Bicarakan.id."
+  />
+
   <style>
+    :root {
+      --bg: #f7f8f6;
+      --surface: #ffffff;
+      --text: #17201b;
+      --muted: #68716c;
+      --accent: #245c4a;
+      --accent-soft: #e3ece7;
+      --border: #e4e8e5;
+      --dark: #17201b;
+      --dark-border: #344039;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      padding: 2rem;
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
-    .session {
-      padding: 0.5rem;
-      border-radius: 0.5rem;
-      background: #f8f9fa;
-      margin-bottom: 0.5rem;
+
+    /* ========================================
+       GLOBAL CONTAINER
+    ======================================== */
+
+    .container {
+      width: min(1080px, calc(100% - 64px));
+      margin-left: auto;
+      margin-right: auto;
     }
-    .date-column {
-      border-left: 4px solid #0d6efd;
-      padding-left: 1rem;
+
+
+    /* ========================================
+       NAVIGATION
+    ======================================== */
+
+    nav {
+      height: 88px;
+      display: flex;
+      align-items: center;
     }
-    .controls {
-      margin-bottom: 2rem;
+
+    .nav-inner {
+      width: 100%;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .dropdown-item small {
-      color: gray;
+
+    .logo {
+      color: var(--text);
+
+      font-size: 21px;
+      font-weight: 750;
+      letter-spacing: -0.8px;
+      line-height: 1;
     }
-    .status-yellow { background-color: #fff3cd; }
-    .status-orange { background-color: #ffe5b4; }
-    .status-red { background-color: #f8d7da; }
-    .status-blue { background-color: #d0e7ff; }
-    .status-black { background-color: #e2e3e5; color: #000; }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .nav-label {
+      color: var(--muted);
+
+      font-size: 12px;
+      font-weight: 450;
+      letter-spacing: 0.2px;
+    }
+
+
+    /* ========================================
+       HERO
+    ======================================== */
+
+    .hero {
+      padding: 105px 0 120px;
+    }
+
+    .hero-content {
+      max-width: 900px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+
+      padding: 7px 13px;
+      margin-bottom: 29px;
+
+      background: var(--accent-soft);
+      color: var(--accent);
+
+      border-radius: 999px;
+
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1;
+    }
+
+    .eyebrow-dot {
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+      background: var(--accent);
+
+      flex-shrink: 0;
+    }
+
+    h1 {
+      max-width: 900px;
+
+      margin-bottom: 30px;
+
+      font-size: clamp(52px, 7.5vw, 88px);
+      line-height: 0.99;
+
+      letter-spacing: -5px;
+      font-weight: 750;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .hero-description {
+      max-width: 650px;
+
+      color: var(--muted);
+
+      font-size: 19px;
+      line-height: 1.65;
+    }
+
+
+    /* ========================================
+       STATEMENT
+    ======================================== */
+
+    .statement {
+      padding: 92px 0;
+
+      background: var(--surface);
+
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .statement-inner {
+      display: grid;
+
+      grid-template-columns: 220px minmax(0, 1fr);
+
+      gap: 70px;
+    }
+
+    .section-label {
+      padding-top: 8px;
+
+      color: var(--accent);
+
+      font-size: 11px;
+      font-weight: 700;
+
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .statement h2 {
+      max-width: 700px;
+
+      margin-bottom: 23px;
+
+      font-size: clamp(34px, 4.5vw, 52px);
+      line-height: 1.08;
+
+      letter-spacing: -2.5px;
+      font-weight: 700;
+    }
+
+    .statement p {
+      max-width: 650px;
+
+      color: var(--muted);
+
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+
+    /* ========================================
+       PRINCIPLES
+    ======================================== */
+
+    .principles {
+      padding: 100px 0 110px;
+    }
+
+    .principles-header {
+      margin-bottom: 46px;
+    }
+
+    .principles-header h2 {
+      margin-top: 14px;
+
+      font-size: clamp(36px, 4.5vw, 52px);
+      line-height: 1.05;
+
+      letter-spacing: -2.5px;
+      font-weight: 700;
+    }
+
+    .principles-grid {
+      display: grid;
+
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+
+      gap: 16px;
+    }
+
+    .card {
+      min-height: 245px;
+
+      padding: 29px;
+
+      background: var(--surface);
+
+      border: 1px solid var(--border);
+      border-radius: 18px;
+
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+
+      box-shadow:
+        0 15px 35px rgba(20, 40, 30, 0.07);
+    }
+
+    .card-number {
+      margin-bottom: 48px;
+
+      color: var(--accent);
+
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+
+      font-size: 23px;
+      line-height: 1.2;
+
+      letter-spacing: -0.7px;
+    }
+
+    .card p {
+      color: var(--muted);
+
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+
+    /* ========================================
+       BICARAKAN
+    ======================================== */
+
+    .bicarakan {
+      padding: 92px 0;
+
+      background: var(--dark);
+
+      color: #ffffff;
+    }
+
+    .bicarakan-inner {
+      display: grid;
+
+      grid-template-columns: minmax(0, 1fr) 220px;
+
+      gap: 70px;
+
+      align-items: center;
+    }
+
+    .bicarakan h2 {
+      max-width: 700px;
+
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: 1.04;
+
+      letter-spacing: -3px;
+      font-weight: 700;
+    }
+
+    .bicarakan p {
+      max-width: 620px;
+
+      margin-top: 23px;
+
+      color: #b9c2bc;
+
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .relationship {
+      padding: 23px;
+
+      border: 1px solid var(--dark-border);
+      border-radius: 16px;
+    }
+
+    .relationship small {
+      display: block;
+
+      margin-bottom: 7px;
+
+      color: #8e9992;
+
+      font-size: 10px;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+    }
+
+    .relationship strong {
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+
+    /* ========================================
+       FOOTER
+    ======================================== */
+
+    footer {
+      padding: 26px 0;
+
+      background: var(--dark);
+
+      border-top: 1px solid var(--dark-border);
+
+      color: #8e9992;
+
+      font-size: 12px;
+    }
+
+    .footer-inner {
+      display: flex;
+
+      justify-content: space-between;
+      align-items: center;
+
+      gap: 20px;
+    }
+
+
+    /* ========================================
+       LARGE SCREENS
+    ======================================== */
+
+    @media (min-width: 1200px) {
+
+      .container {
+        width: min(1080px, calc(100% - 96px));
+      }
+
+      nav {
+        height: 92px;
+      }
+
+      .hero {
+        padding-top: 115px;
+        padding-bottom: 130px;
+      }
+    }
+
+
+    /* ========================================
+       MOBILE
+    ======================================== */
+
+    @media (max-width: 760px) {
+
+      .container {
+        width: calc(100% - 32px);
+      }
+
+      nav {
+        height: 70px;
+      }
+
+      .nav-label {
+        display: none;
+      }
+
+      .hero {
+        padding: 75px 0 85px;
+      }
+
+      h1 {
+        font-size: clamp(48px, 14vw, 70px);
+        letter-spacing: -3.5px;
+      }
+
+      .hero-description {
+        font-size: 17px;
+      }
+
+      .statement {
+        padding: 70px 0;
+      }
+
+      .statement-inner {
+        grid-template-columns: 1fr;
+
+        gap: 22px;
+      }
+
+      .section-label {
+        padding-top: 0;
+      }
+
+      .statement h2 {
+        letter-spacing: -1.8px;
+      }
+
+      .principles {
+        padding: 75px 0 85px;
+      }
+
+      .principles-grid {
+        grid-template-columns: 1fr;
+
+        gap: 12px;
+      }
+
+      .card {
+        min-height: auto;
+
+        padding: 26px;
+      }
+
+      .card-number {
+        margin-bottom: 38px;
+      }
+
+      .bicarakan {
+        padding: 75px 0;
+      }
+
+      .bicarakan-inner {
+        grid-template-columns: 1fr;
+
+        gap: 35px;
+      }
+
+      .bicarakan h2 {
+        letter-spacing: -2px;
+      }
+
+      .relationship {
+        width: 100%;
+      }
+
+      footer {
+        padding: 22px 0;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
+
+
 <body>
-  <div class="container">
-    <div class="controls d-flex justify-content-between align-items-center">
-      <div class="d-flex gap-3">
-        <div class="dropdown">
-          <button class="btn btn-outline-primary dropdown-toggle" type="button" id="providerDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            Select Provider
-          </button>
-          <ul class="dropdown-menu" id="providerMenu" aria-labelledby="providerDropdown">
-            <li><a class="dropdown-item" href="#" data-id="">No Filter</a></li>
-            <li><a class="dropdown-item" href="#" data-id="7c7b7b03-b095-48e2-ba3b-9b18e111baac" data-product-type="KIDS_THERAPY">Risydah Amani Mujahidah<br><small>KIDS_THERAPHY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="fbbdb41d-0635-42c6-ba82-6a110e459e26" data-product-type="KIDS_THERAPY">Maulida Rahmatillah<br><small>KIDS_THERAPHY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="30738a99-b823-4097-dd61-ab3d764ee5de" data-product-type="KIDS_THERAPY">Egha Berlian<br><small>KIDS_THERAPHY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="ee4a82cf-8cbd-ace2-721b-07cac3f21135" data-product-type="KIDS_THERAPY">Shavira Maudina<br><small>KIDS_THERAPHY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="c4285051-7783-f16a-135e-06780a4791e9" data-product-type="KIDS_THERAPY">Emilda Ab<br><small>KIDS_THERAPHY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="11a82b3c-f26d-cc36-360d-a743e52aeffb" data-product-type="KIDS_THERAPY">Chelvi Oktaviani<br><small>KIDS_THERAPHY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="230aaee5-5a63-416a-834d-335b4afa4398" data-product-type="KIDS_PSYCHOLOGY">Gracia Ivonika<br><small>KIDS_PSYCHOLOGY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="e2e1520b-7e15-490a-be61-dd2d4b490bd6" data-product-type="KIDS_PSYCHOLOGY">Mariska<br><small>KIDS_PSYCHOLOGY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="e30994bc-2806-42fe-a461-e584941d8659" data-product-type="KIDS_PSYCHOLOGY">Joe Irene<br><small>KIDS_PSYCHOLOGY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="f3901369-35d5-417a-aa8e-38ff56f809a8" data-product-type="KIDS_PSYCHOLOGY">Noni<br><small>KIDS_PSYCHOLOGY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="a2ae98f0-ddea-4f18-853c-dde5a287388d" data-product-type="KIDS_PSYCHOLOGY">Rahmah<br><small>KIDS_PSYCHOLOGY</small></a></li>
-            <li><a class="dropdown-item" href="#" data-id="1560c0c4-6083-11f0-9ddf-5e20f3e329c4" data-product-type="KIDS_PSYCHOLOGY">Chrestella Elaine<br><small>KIDS_PSYCHOLOGY</small></a></li>
-          </ul>
-        </div>
+
+  <!-- ========================================
+       NAVIGATION
+  ======================================== -->
+
+  <nav>
+    <div class="container nav-inner">
+
+      <div class="logo">
+        mindlabs<span>.id</span>
       </div>
-      <div>
-        <button class="btn btn-outline-secondary me-2" id="prevBtn">Prev</button>
-        <button class="btn btn-outline-primary me-2" id="todayBtn">Today</button>
-        <button class="btn btn-outline-secondary" id="nextBtn">Next</button>
+
+      <div class="nav-label">
+        Technology · Operations · Experimentation
       </div>
+
     </div>
+  </nav>
 
-    <div id="calendar" class="row g-4">
-      <!-- Calendar injected here -->
-    </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    let providerId = "";
-    let productType = "";
-    let currentStartDate = new Date();
+  <main>
 
-    function formatDate(date) {
-      return date.toISOString().split('T')[0];
-    }
+    <!-- ========================================
+         HERO
+    ======================================== -->
 
-    function formatDayName(date) {
-      return date.toLocaleDateString('en-US', { weekday: 'long' });
-    }
+    <section class="hero">
 
-    function getRollingDates(startDate, days = 4) {
-      const dates = [];
-      const tempDate = new Date(startDate);
-      for (let i = 0; i < days; i++) {
-        dates.push(new Date(tempDate));
-        tempDate.setDate(tempDate.getDate() + 1);
-      }
-      return dates;
-    }
+      <div class="container">
 
-    function getStatusClass(status) {
-      switch (status) {
-        case "WAITING_PAYMENT": return "status-yellow";
-        case "PAYMENT_VERIFIED": return "status-orange";
-        case "SCHEDULE_CONFIRMED": return "status-red";
-        case "SCHEDULE_DONE": return "status-blue";
-        case "CANCELLED":
-        case "REFUNDED": return "status-black";
-        default: return "";
-      }
-    }
+        <div class="hero-content">
 
-    function fetchCalendarData() {
-      const start = new Date(currentStartDate);
-      start.setHours(8,0,0);
-      const end = new Date(currentStartDate);
-      end.setDate(end.getDate() + 4);
-      end.setHours(18,0,0);
-
-      const payload = {
-        filter: {
-          purchaser_id: "",
-          product_type: productType,
-          provider_id: providerId,
-          author_id: ""
-        },
-        start_date: start.toISOString().replace("T", " ").slice(0, 19),
-        end_date: end.toISOString().replace("T", " ").slice(0, 19)
-      };
-
-      fetch("https://www.gopher.bicarakan.id/rujak/calendar/product/list", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json())
-      .then(data => renderCalendar(data.data.product_summary_list));
-    }
-
-    function renderCalendar(list) {
-      const grouped = {};
-      list.forEach(item => {
-        if (!grouped[item.miscproduct_date]) grouped[item.miscproduct_date] = [];
-        grouped[item.miscproduct_date].push(item);
-      });
-
-      const container = document.getElementById("calendar");
-      container.innerHTML = "";
-
-      const displayDates = getRollingDates(currentStartDate);
-      displayDates.forEach(dateObj => {
-        const dateStr = formatDate(dateObj);
-        const dayName = formatDayName(dateObj);
-        const sessions = (grouped[dateStr] || []).sort((a, b) => a.miscproduct_start_time.localeCompare(b.miscproduct_start_time));
-        const col = document.createElement("div");
-        col.className = "col-md-3";
-        col.innerHTML = `
-          <h5>${dayName}, ${dateStr}</h5>
-          <div class='date-column'>
-            ${sessions.length > 0 ? sessions.map(s => `
-              <div class='session ${getStatusClass(s.miscproduct_status)}'>
-                <strong>${s.miscproduct_start_time} - ${s.miscproduct_end_time}</strong><br>
-                <strong>[${s.miscproduct_id}]</strong> ${s.miscproduct_title || "(No Title)"}
-              </div>
-            `).join("") : "<div class='text-muted'>No sessions</div>"}
+          <div class="eyebrow">
+            <div class="eyebrow-dot"></div>
+            Bicarakan.id Initiatives
           </div>
-        `;
-        container.appendChild(col);
-      });
-    }
-  
-    document.getElementById("providerMenu").addEventListener("click", function(e) {
-      if (e.target.closest('a')) {
-        e.preventDefault();
-        const target = e.target.closest('a');
-        providerId = target.getAttribute("data-id") || "";
-        productType = target.getAttribute("data-product-type") || "";
-        document.getElementById("providerDropdown").innerText = target.innerText.split('\n')[0];
-        fetchCalendarData();
-      }
-    });
 
-    document.getElementById("prevBtn").addEventListener("click", () => {
-      currentStartDate.setDate(currentStartDate.getDate() - 4);
-      fetchCalendarData();
-    });
+          <h1>
+            Building better systems,<br>
+            <span>one experiment at a time.</span>
+          </h1>
 
-    document.getElementById("todayBtn").addEventListener("click", () => {
-      currentStartDate = new Date();
-      fetchCalendarData();
-    });
+          <p class="hero-description">
+            Mindlabs.id is the operational and technology branch of
+            Bicarakan.id. We use technology, rapid iteration, and
+            experimentation to build smarter ways of working and moving forward.
+          </p>
 
-    document.getElementById("nextBtn").addEventListener("click", () => {
-      currentStartDate.setDate(currentStartDate.getDate() + 4);
-      fetchCalendarData();
-    });
+        </div>
 
-    fetchCalendarData();
-  </script>
+      </div>
+
+    </section>
+
+
+    <!-- ========================================
+         WHAT WE DO
+    ======================================== -->
+
+    <section class="statement">
+
+      <div class="container">
+
+        <div class="statement-inner">
+
+          <div class="section-label">
+            What we do
+          </div>
+
+          <div>
+
+            <h2>
+              Turn ideas into systems that actually work.
+            </h2>
+
+            <p>
+              We work behind the scenes to improve how things operate,
+              from technology and internal tools to processes, workflows,
+              and new ideas. We believe the best way forward is to build,
+              test, learn, and iterate.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ========================================
+         HOW WE WORK
+    ======================================== -->
+
+    <section class="principles">
+
+      <div class="container">
+
+        <div class="principles-header">
+
+          <div class="section-label">
+            How we work
+          </div>
+
+          <h2>
+            Small experiments.<br>
+            Fast learning.
+          </h2>
+
+        </div>
+
+
+        <div class="principles-grid">
+
+          <article class="card">
+
+            <div class="card-number">
+              01
+            </div>
+
+            <h3>
+              Build
+            </h3>
+
+            <p>
+              We turn ideas into working products, tools, and processes
+              instead of letting them stay on the drawing board.
+            </p>
+
+          </article>
+
+
+          <article class="card">
+
+            <div class="card-number">
+              02
+            </div>
+
+            <h3>
+              Experiment
+            </h3>
+
+            <p>
+              Not every idea needs to be perfect. We test assumptions,
+              measure results, and learn from what happens.
+            </p>
+
+          </article>
+
+
+          <article class="card">
+
+            <div class="card-number">
+              03
+            </div>
+
+            <h3>
+              Iterate
+            </h3>
+
+            <p>
+              What works gets improved. What doesn't gets changed.
+              We continuously refine the way we operate.
+            </p>
+
+          </article>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ========================================
+         BICARAKAN
+    ======================================== -->
+
+    <section class="bicarakan">
+
+      <div class="container">
+
+        <div class="bicarakan-inner">
+
+          <div>
+
+            <h2>
+              The technology and operations behind Bicarakan.id.
+            </h2>
+
+            <p>
+              Mindlabs.id serves as the operational branch of Bicarakan.id,
+              helping the organization move faster through technology,
+              experimentation, and continuous improvement.
+            </p>
+
+          </div>
+
+
+          <div class="relationship">
+
+            <small>
+              Part of
+            </small>
+
+            <strong>
+              Bicarakan.id
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ========================================
+       FOOTER
+  ======================================== -->
+
+  <footer>
+
+    <div class="container">
+
+      <div class="footer-inner">
+
+        <div>
+          © 2026 Mindlabs.id
+        </div>
+
+        <div>
+          Technology · Operations · Experimentation
+        </div>
+
+      </div>
+
+    </div>
+
+  </footer>
+
 </body>
 </html>
