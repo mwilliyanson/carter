@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Promo Transaction List</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #f5f6f8;
+            color: #212529;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+        }
+
+        button {
+            border: none;
+            border-radius: 5px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0069d9;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .status {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .status.loading {
+            display: block;
+            background: #e9f3ff;
+            color: #0056b3;
+        }
+
+        .status.success {
+            display: block;
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .status.error {
+            display: block;
+            background: #ffebee;
+            color: #b71c1c;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-count {
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 700px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #343a40;
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            z-index: 1;
+        }
+
+        td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: top;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tbody tr:hover {
+            background: #e9ecef;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-td {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-wp {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-other {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .url-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .url-link:hover {
+            text-decoration: underline;
+        }
+
+        .small-text {
+            color: #6c757d;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>Promo Transaction List</h1>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label for="accessCode">Access Code</label>
+
+                <input
+                    type="text"
+                    id="accessCode"
+                    placeholder="Enter access code"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="startTime">Start Time</label>
+
+                <input
+                    type="datetime-local"
+                    id="startTime"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="endTime">End Time</label>
+
+                <input
+                    type="datetime-local"
+                    id="endTime"
+                >
+            </div>
+
+
+            <div class="actions">
+
+                <button
+                    id="searchButton"
+                    class="btn-primary"
+                    onclick="loadData()"
+                >
+                    Search
+                </button>
+
+                <button
+                    id="downloadButton"
+                    class="btn-success"
+                    onclick="downloadCSV()"
+                    disabled
+                >
+                    Download CSV
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="small-text">
+            Start time defaults to one month ago and end time defaults to today.
+        </div>
+
+        <div id="status" class="status"></div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="result-header">
+
+            <div
+                class="result-count"
+                id="resultCount"
+            >
+                No results
+            </div>
+
+        </div>
+
+
+        <div
+            id="tableContainer"
+            class="table-container"
+        >
+
+            <div class="empty">
+                Enter an access code and click Search.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const API_URL =
+        "https://www.gopher.bicarakan.id/limbo/intools/get-prom-trx-list";
+
+
+    /*
+     * This contains the final rows that are displayed.
+     *
+     * We use the same data for the CSV download.
+     */
+    let currentData = [];
+
+
+    // ============================================================
+    // DATE HELPERS
+    // ============================================================
+
+    function formatDateTimeLocal(date) {
+
+        const year =
+            date.getFullYear();
+
+        const month =
+            String(date.getMonth() + 1).padStart(2, "0");
+
+        const day =
+            String(date.getDate()).padStart(2, "0");
+
+        const hours =
+            String(date.getHours()).padStart(2, "0");
+
+        const minutes =
+            String(date.getMinutes()).padStart(2, "0");
+
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+
+    function setDefaultDates() {
+
+        const now = new Date();
+
+        const oneMonthAgo =
+            new Date(now);
+
+        oneMonthAgo.setMonth(
+            oneMonthAgo.getMonth() - 1
+        );
+
+
+        document.getElementById("startTime").value =
+            formatDateTimeLocal(oneMonthAgo);
+
+        document.getElementById("endTime").value =
+            formatDateTimeLocal(now);
+    }
+
+
+    // ============================================================
+    // STATUS
+    // ============================================================
+
+    function showStatus(message, type) {
+
+        const status =
+            document.getElementById("status");
+
+        status.textContent =
+            message;
+
+        status.className =
+            "status " + type;
+    }
+
+
+    // ============================================================
+    // LOAD DATA
+    // ============================================================
+
+    async function loadData() {
+
+        const accessCode =
+            document.getElementById("accessCode").value.trim();
+
+        const startTime =
+            document.getElementById("startTime").value;
+
+        const endTime =
+            document.getElementById("endTime").value;
+
+
+        const searchButton =
+            document.getElementById("searchButton");
+
+        const downloadButton =
+            document.getElementById("downloadButton");
+
+
+        if (!accessCode) {
+
+            showStatus(
+                "Please enter an access code.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!startTime || !endTime) {
+
+            showStatus(
+                "Please enter both start and end time.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        searchButton.disabled = true;
+
+        downloadButton.disabled = true;
+
+
+        showStatus(
+            "Loading data...",
+            "loading"
+        );
+
+
+        const requestBody = {
+
+            access_code: accessCode,
+
+            start_time: startTime,
+
+            end_time: endTime
+
+        };
+
+
+        try {
+
+            const response = await fetch(
+                API_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Accept": "*/*",
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(requestBody)
+                }
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `HTTP ${response.status}: ${response.statusText}`
+                );
+            }
+
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "API response:",
+                result
+            );
+
+
+            /*
+             * ----------------------------------------------------
+             * YOUR API RESPONSE:
+             *
+             * {
+             *   "data": {
+             *      "ItemResultA": [...],
+             *      "ItemResultB": [...]
+             *   }
+             * }
+             * ----------------------------------------------------
+             */
+
+            const itemResultA =
+                result?.data?.ItemResultA || [];
+
+            const itemResultB =
+                result?.data?.ItemResultB || [];
+
+
+            /*
+             * Join the two result sets.
+             *
+             * ItemResultA.ID
+             *       =
+             * ItemResultB.PackageTransactionID
+             */
+
+            currentData =
+                mergeTransactions(
+                    itemResultA,
+                    itemResultB
+                );
+
+
+            renderTable(currentData);
+
+
+            document.getElementById(
+                "resultCount"
+            ).textContent =
+                `${currentData.length.toLocaleString()} transaction(s)`;
+
+
+            if (currentData.length > 0) {
+
+                downloadButton.disabled = false;
+
+                showStatus(
+                    `Successfully loaded ${currentData.length.toLocaleString()} transaction(s).`,
+                    "success"
+                );
+
+            } else {
+
+                showStatus(
+                    "Request succeeded, but no transactions were found.",
+                    "success"
+                );
+            }
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            currentData = [];
+
+
+            document.getElementById(
+                "resultCount"
+            ).textContent =
+                "No results";
+
+
+            document.getElementById(
+                "tableContainer"
+            ).innerHTML = `
+                <div class="empty">
+                    Failed to load data.
+                </div>
+            `;
+
+
+            showStatus(
+                "Error: " + error.message,
+                "error"
+            );
+
+
+        } finally {
+
+            searchButton.disabled = false;
+
+        }
+    }
+
+
+    // ============================================================
+    // MERGE PACKAGE + PAYMENT TRANSACTIONS
+    // ============================================================
+
+    function mergeTransactions(
+        packageTransactions,
+        paymentTransactions
+    ) {
+
+        /*
+         * Create a lookup map:
+         *
+         * PackageTransactionID
+         *       ->
+         * Payment transaction
+         */
+
+        const paymentMap =
+            new Map();
+
+
+        paymentTransactions.forEach(
+            payment => {
+
+                const packageID =
+                    payment.PackageTransactionID;
+
+
+                if (packageID) {
+
+                    paymentMap.set(
+                        packageID,
+                        payment
+                    );
+                }
+
+            }
+        );
+
+
+        /*
+         * Create one combined row per package transaction.
+         */
+
+        return packageTransactions.map(
+            pkg => {
+
+                const payment =
+                    paymentMap.get(pkg.ID);
+
+
+                return {
+
+                    package_transaction_id:
+                        pkg.ID,
+
+                    package_status:
+                        getNullableString(
+                            pkg.PackageStatus
+                        ),
+
+                    revenue:
+                        getNullableInt(
+                            pkg.Revenue
+                        ),
+
+                    original_revenue:
+                        getNullableInt(
+                            pkg.OriginalRevenue
+                        ),
+
+                    remaining_items:
+                        getNullableInt(
+                            pkg.RemainingItems
+                        ),
+
+                    package_created_date:
+                        getNullableTime(
+                            pkg.CreatedDate
+                        ),
+
+                    package_modified_date:
+                        getNullableTime(
+                            pkg.ModifiedDate
+                        ),
+
+                    option_id:
+                        pkg.OptionID || "",
+
+                    purchaser_id:
+                        pkg.PurchaserID || "",
+
+                    bought_app_version:
+                        getNullableInt(
+                            pkg.BoughtAppVersion
+                        ),
+
+
+                    // -----------------------------------------
+                    // PAYMENT INFORMATION
+                    // -----------------------------------------
+
+                    payment_id:
+                        payment?.ID || "",
+
+                    payment_status:
+                        getNullableString(
+                            payment?.Status
+                        ),
+
+                    original_amount:
+                        getNullableInt(
+                            payment?.OriginalAmt
+                        ),
+
+                    discounted_amount:
+                        getNullableInt(
+                            payment?.DiscoundtedAmt
+                        ),
+
+                    xendit_invoice_id:
+                        getNullableString(
+                            payment?.XenditInvoiceID
+                        ),
+
+                    xendit_invoice_url:
+                        getNullableString(
+                            payment?.XenditInvoiceUrl
+                        ),
+
+                    payment_created_at:
+                        getNullableTime(
+                            payment?.CreatedAt
+                        ),
+
+                    payment_expired_at:
+                        getNullableTime(
+                            payment?.ExpiredAt
+                        ),
+
+                    creator_id:
+                        payment?.CreatorID || "",
+
+                    claimed_paid_at:
+                        getNullableTime(
+                            payment?.ClaimedPaidAt
+                        )
+
+                };
+
+            }
+        );
+    }
+
+
+    // ============================================================
+    // NULLABLE DATABASE VALUES
+    // ============================================================
+
+    function getNullableString(value) {
+
+        if (!value) {
+            return "";
+        }
+
+
+        if (value.Valid === false) {
+            return "";
+        }
+
+
+        return value.String || "";
+    }
+
+
+    function getNullableInt(value) {
+
+        if (!value) {
+            return "";
+        }
+
+
+        if (value.Valid === false) {
+            return "";
+        }
+
+
+        return value.Int32 ?? "";
+    }
+
+
+    function getNullableTime(value) {
+
+        if (!value) {
+            return "";
+        }
+
+
+        if (value.Valid === false) {
+            return "";
+        }
+
+
+        return value.Time || "";
+    }
+
+
+    // ============================================================
+    // TABLE
+    // ============================================================
+
+    function renderTable(data) {
+
+        const container =
+            document.getElementById(
+                "tableContainer"
+            );
+
+
+        if (!data || data.length === 0) {
+
+            container.innerHTML = `
+                <div class="empty">
+                    No transactions found.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        const columns = [
+
+            {
+                key: "package_transaction_id",
+                label: "Package Transaction ID"
+            },
+
+            {
+                key: "package_status",
+                label: "Package Status"
+            },
+
+            {
+                key: "revenue",
+                label: "Revenue"
+            },
+
+            {
+                key: "original_revenue",
+                label: "Original Revenue"
+            },
+
+            {
+                key: "remaining_items",
+                label: "Remaining Items"
+            },
+
+            {
+                key: "package_created_date",
+                label: "Package Created"
+            },
+
+            {
+                key: "package_modified_date",
+                label: "Package Modified"
+            },
+
+            {
+                key: "option_id",
+                label: "Option ID"
+            },
+
+            {
+                key: "purchaser_id",
+                label: "Purchaser ID"
+            },
+
+            {
+                key: "bought_app_version",
+                label: "App Version"
+            },
+
+            {
+                key: "payment_id",
+                label: "Payment ID"
+            },
+
+            {
+                key: "payment_status",
+                label: "Payment Status"
+            },
+
+            {
+                key: "original_amount",
+                label: "Original Amount"
+            },
+
+            {
+                key: "discounted_amount",
+                label: "Discounted Amount"
+            },
+
+            {
+                key: "xendit_invoice_id",
+                label: "Xendit Invoice ID"
+            },
+
+            {
+                key: "xendit_invoice_url",
+                label: "Xendit Invoice URL"
+            },
+
+            {
+                key: "payment_created_at",
+                label: "Payment Created"
+            },
+
+            {
+                key: "payment_expired_at",
+                label: "Payment Expired"
+            },
+
+            {
+                key: "creator_id",
+                label: "Creator ID"
+            },
+
+            {
+                key: "claimed_paid_at",
+                label: "Claimed Paid At"
+            }
+
+        ];
+
+
+        let html =
+            "<table>";
+
+
+        // Header
+
+        html +=
+            "<thead><tr>";
+
+
+        columns.forEach(
+            column => {
+
+                html += `
+                    <th>
+                        ${escapeHTML(column.label)}
+                    </th>
+                `;
+
+            }
+        );
+
+
+        html +=
+            "</tr></thead>";
+
+
+        // Body
+
+        html +=
+            "<tbody>";
+
+
+        data.forEach(
+            row => {
+
+                html +=
+                    "<tr>";
+
+
+                columns.forEach(
+                    column => {
+
+                        const value =
+                            row[column.key];
+
+
+                        if (
+                            column.key ===
+                                "package_status" ||
+                            column.key ===
+                                "payment_status"
+                        ) {
+
+                            html += `
+                                <td>
+                                    ${renderStatus(value)}
+                                </td>
+                            `;
+
+                        } else if (
+                            column.key ===
+                            "xendit_invoice_url"
+                        ) {
+
+                            if (value) {
+
+                                html += `
+                                    <td>
+                                        <a
+                                            class="url-link"
+                                            href="${escapeAttribute(value)}"
+                                            target="_blank"
+                                        >
+                                            Open Invoice
+                                        </a>
+                                    </td>
+                                `;
+
+                            } else {
+
+                                html += "<td></td>";
+
+                            }
+
+                        } else {
+
+                            html += `
+                                <td>
+                                    ${escapeHTML(
+                                        formatValue(value)
+                                    )}
+                                </td>
+                            `;
+
+                        }
+
+                    }
+                );
+
+
+                html +=
+                    "</tr>";
+
+            }
+        );
+
+
+        html +=
+            "</tbody></table>";
+
+
+        container.innerHTML =
+            html;
+    }
+
+
+    // ============================================================
+    // STATUS BADGE
+    // ============================================================
+
+    function renderStatus(status) {
+
+        if (!status) {
+            return "";
+        }
+
+
+        let className =
+            "status-other";
+
+
+        if (status === "TD") {
+            className = "status-td";
+        }
+
+        if (status === "WP") {
+            className = "status-wp";
+        }
+
+
+        return `
+            <span class="status-badge ${className}">
+                ${escapeHTML(status)}
+            </span>
+        `;
+    }
+
+
+    // ============================================================
+    // FORMAT VALUE
+    // ============================================================
+
+    function formatValue(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+
+        return String(value);
+    }
+
+
+    // ============================================================
+    // HTML ESCAPING
+    // ============================================================
+
+    function escapeHTML(value) {
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function escapeAttribute(value) {
+
+        return escapeHTML(value);
+    }
+
+
+    // ============================================================
+    // CSV
+    // ============================================================
+
+    function csvEscape(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+
+        value = String(value);
+
+
+        /*
+         * Escape double quotes.
+         */
+
+        value =
+            value.replace(
+                /"/g,
+                '""'
+            );
+
+
+        /*
+         * Always quote the value.
+         *
+         * This makes the CSV safer for:
+         * - commas
+         * - URLs
+         * - UUIDs
+         * - dates
+         * - Excel
+         */
+
+        return `"${value}"`;
+    }
+
+
+    function downloadCSV() {
+
+        if (
+            !currentData ||
+            currentData.length === 0
+        ) {
+            return;
+        }
+
+
+        const columns = [
+
+            {
+                key: "package_transaction_id",
+                label: "Package Transaction ID"
+            },
+
+            {
+                key: "package_status",
+                label: "Package Status"
+            },
+
+            {
+                key: "revenue",
+                label: "Revenue"
+            },
+
+            {
+                key: "original_revenue",
+                label: "Original Revenue"
+            },
+
+            {
+                key: "remaining_items",
+                label: "Remaining Items"
+            },
+
+            {
+                key: "package_created_date",
+                label: "Package Created"
+            },
+
+            {
+                key: "package_modified_date",
+                label: "Package Modified"
+            },
+
+            {
+                key: "option_id",
+                label: "Option ID"
+            },
+
+            {
+                key: "purchaser_id",
+                label: "Purchaser ID"
+            },
+
+            {
+                key: "bought_app_version",
+                label: "App Version"
+            },
+
+            {
+                key: "payment_id",
+                label: "Payment ID"
+            },
+
+            {
+                key: "payment_status",
+                label: "Payment Status"
+            },
+
+            {
+                key: "original_amount",
+                label: "Original Amount"
+            },
+
+            {
+                key: "discounted_amount",
+                label: "Discounted Amount"
+            },
+
+            {
+                key: "xendit_invoice_id",
+                label: "Xendit Invoice ID"
+            },
+
+            {
+                key: "xendit_invoice_url",
+                label: "Xendit Invoice URL"
+            },
+
+            {
+                key: "payment_created_at",
+                label: "Payment Created"
+            },
+
+            {
+                key: "payment_expired_at",
+                label: "Payment Expired"
+            },
+
+            {
+                key: "creator_id",
+                label: "Creator ID"
+            },
+
+            {
+                key: "claimed_paid_at",
+                label: "Claimed Paid At"
+            }
+
+        ];
+
+
+        const rows = [];
+
+
+        /*
+         * Header
+         */
+
+        rows.push(
+            columns
+                .map(column =>
+                    csvEscape(column.label)
+                )
+                .join(",")
+        );
+
+
+        /*
+         * Data
+         */
+
+        currentData.forEach(
+            row => {
+
+                const values =
+                    columns.map(
+                        column =>
+                            csvEscape(
+                                row[column.key]
+                            )
+                    );
+
+
+                rows.push(
+                    values.join(",")
+                );
+
+            }
+        );
+
+
+        /*
+         * UTF-8 BOM makes Excel recognize
+         * the CSV correctly.
+         */
+
+        const csvContent =
+            "\uFEFF" +
+            rows.join("\r\n");
+
+
+        const blob =
+            new Blob(
+                [csvContent],
+                {
+                    type:
+                        "text/csv;charset=utf-8;"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+
+        const now =
+            new Date();
+
+
+        const filename =
+            `promo-transaction-list-${now.getFullYear()}-${String(
+                now.getMonth() + 1
+            ).padStart(2, "0")}-${String(
+                now.getDate()
+            ).padStart(2, "0")}.csv`;
+
+
+        link.href =
+            url;
+
+        link.download =
+            filename;
+
+
+        document.body.appendChild(
+            link
+        );
+
+
+        link.click();
+
+
+        document.body.removeChild(
+            link
+        );
+
+
+        URL.revokeObjectURL(
+            url
+        );
+    }
+
+
+    // ============================================================
+    // INITIALIZE
+    // ============================================================
+
+    setDefaultDates();
+
+</script>
+
+</body>
+</html>
